@@ -1,0 +1,51 @@
+============================================================
+  Stalwart is getting deployed to your cluster.
+============================================================
+
+To check Stalwart status, please run:
+
+  kubectl get pods --namespace={{ .Release.Namespace }} --selector="app.kubernetes.io/instance={{ .Release.Name }}" --watch
+
+{{- if .Values.recoveryAdmin.enabled }}
+
+You can log in to the dashboard with the recovery admin user.
+
+{{- else }}
+
+No recovery admin is configured. Please check the Stalwart logs to obtain credentials for login.
+
+  kubectl logs -l app.kubernetes.io/instance={{ .Release.Name }} --namespace={{ .Release.Namespace }}
+
+{{- end }}
+
+1. Access the WebUI (Bootstrap Mode)
+------------------------------------
+If this is the first deployment, Stalwart is in bootstrap mode.
+
+{{- if .Values.ingress.enabled }}
+
+Access Stalwart at the following URL:
+
+  {{- range .Values.ingress.hosts }}
+  https://{{ .host }}{{ (index .paths 0).path }}
+  {{- end }}
+{{- else }}
+
+Ingress is not enabled. Stalwart is not exposed via HTTP/HTTPS.
+
+{{- end }}
+
+2. Configure Stalwart (WebUI or cli)
+------------------------------------
+- Add first domain (Management > Domains)
+- Add TLS certificate (Settings > TLS > Certificates)
+- Configure hostname and defaults (Settings > Network > General)
+- Optional: Configure Blob Store (Settings > Storage > Blob Store)
+- Optional: Configure Search Store (Settings > Storage > Search Store)
+- Optional: Configure In-Memory Store (Settings > Storage > In-Memory Store)
+
+Configuration complete restart Stalwart or reload config (Management > Actions)
+
+  kubectl delete pods stalwart-0
+
+You can also configure Stalwart via the stalwart-cli.
