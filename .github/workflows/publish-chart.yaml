@@ -6,11 +6,11 @@ on:
     branches:
       - main
     paths:
-      - 'charts/**/Chart.yaml'
+      - "charts/**/Chart.yaml"
   workflow_dispatch:
     inputs:
       chart:
-        description: 'Chart name to publish (leave empty to auto-detect from last commit)'
+        description: "Chart name to publish (leave empty to auto-detect from last commit)"
         required: false
         type: string
 
