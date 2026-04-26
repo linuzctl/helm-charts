@@ -1,0 +1,5 @@
+---
+repo_name: descheduler
+repo_url: https://kubernetes-sigs.github.io/descheduler/
+chart_name: descheduler
+chart_version: 0.35.1
