@@ -1,0 +1,50 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  semanticCommits: 'enabled',
+  dependencyDashboard: true,
+  separateMajorMinor: true,
+  timezone: 'Europe/Zurich',
+  assignees: [
+    'linuzctl',
+  ],
+  prConcurrentLimit: 0,
+  prHourlyLimit: 0,
+  ignorePaths: [
+    'charts/aistor-objectstore/**',
+    'charts/aistor-operator/**',
+    'charts/csi-driver-nfs/**',
+    'charts/descheduler/**',
+    'charts/gitlab/**',
+    'charts/metrics-server/**',
+    'charts/unpoller/**',
+  ],
+  enabledManagers: [
+    'helm-values',
+    'github-actions',
+    'regex',
+    'pre-commit',
+  ],
+  'helm-values': {
+    managerFilePatterns: [
+      '/charts/stalwart/.*\\.ya?ml$/',
+    ],
+  },
+  customManagers: [
+    {
+      description: 'Helm chart dependencies',
+      customType: 'regex',
+      managerFilePatterns: [
+        '/state/.+\\.ya?ml$/',
+      ],
+      matchStrings: [
+        'repo_name:\\s*\\S+\\nrepo_url:\\s*(?<registryUrl>\\S+)\\nchart_name:\\s*(?<depName>\\S+)\\nchart_version:\\s*(?<currentValue>[^\\s]+)',
+      ],
+      datasourceTemplate: 'helm',
+      versioningTemplate: 'semver',
+    },
+  ],
+  packageRules: [],
+  'pre-commit': {
+    enabled: true,
+  },
+}
