@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'state/*.yaml'
+      - "state/*.yaml"
 
 permissions:
   contents: write
@@ -66,6 +66,7 @@ jobs:
               --untardir /tmp/extracted/
 
             rm -rf "charts/$CHART_NAME"
+            mkdir -p "charts/"
             cp -r "/tmp/extracted/$CHART_NAME" "charts/$CHART_NAME"
 
             HAS_CHANGES=true
