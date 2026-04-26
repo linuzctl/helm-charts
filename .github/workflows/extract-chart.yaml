@@ -1,0 +1,92 @@
+---
+name: Extract Chart Source
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'state/*.yaml'
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: latest
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Detect changed state files
+        id: changed
+        run: |
+          FILES=$(git diff --name-only origin/main...HEAD -- 'state/*.yaml')
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Extract charts
+        if: steps.changed.outputs.files != ''
+        run: |
+          HAS_CHANGES=false
+
+          while IFS= read -r FILE; do
+            [[ -z "$FILE" ]] && continue
+
+            CHART_NAME=$(yq '.chart_name' "$FILE")
+            VERSION=$(yq '.chart_version' "$FILE")
+            REPO_URL=$(yq '.repo_url' "$FILE")
+            REPO_NAME=$(yq '.repo_name' "$FILE")
+
+            echo "Processing $CHART_NAME@$VERSION from $REPO_URL"
+
+            helm repo add "$REPO_NAME" "$REPO_URL"
+            helm repo update "$REPO_NAME"
+
+            rm -rf /tmp/extracted/
+            helm pull "$REPO_NAME/$CHART_NAME" \
+              --version "$VERSION" \
+              --untar \
+              --untardir /tmp/extracted/
+
+            rm -rf "charts/$CHART_NAME"
+            cp -r "/tmp/extracted/$CHART_NAME" "charts/$CHART_NAME"
+
+            HAS_CHANGES=true
+            echo "Extracted $CHART_NAME@$VERSION"
+          done <<< "${{ steps.changed.outputs.files }}"
+
+          echo "has_changes=$HAS_CHANGES" >> $GITHUB_ENV
+
+      - name: Commit and push extracted charts
+        if: env.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add charts/
+          if git diff --cached --quiet; then
+            echo "No chart changes to commit"
+          else
+            CHANGED_FILES="${{ steps.changed.outputs.files }}"
+            SUMMARY=$(echo "$CHANGED_FILES" | \
+              grep -oP '(?<=state/)[^.]+' | \
+              paste -sd ',' -)
+            git commit -m "chore: extract chart source for ${SUMMARY}"
+            git push
+          fi
