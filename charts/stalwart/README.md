@@ -5,7 +5,7 @@
 
 Helm chart for [Stalwart](https://stalw.art) - an all-in-one Mail & Collaboration server. Secure, scalable and fluent in every protocol (IMAP, JMAP, SMTP, CalDAV, CardDAV, WebDAV).
 
-This Helm chart is based on the official [Stalwart Kubernetes documentation]https://stalw.art/docs/cluster/orchestration/kubernetes), with additional custom configurations by me.
+This Helm chart is based on the official [Stalwart Kubernetes documentation](https://stalw.art/docs/cluster/orchestration/kubernetes), with additional custom configurations by me.
 
 ## Overview
 
