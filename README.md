@@ -20,7 +20,7 @@ These charts are maintained upstream and are **mirrored here automatically**. Th
 | [aistor-operator](charts/aistor-operator) | [GitHub](https://github.com/minio/helm) | Renovate | [aistor-operator](https://github.com/users/linuzctl/packages/container/package/helm-charts/aistor-operator) |
 | [csi-driver-nfs](charts/csi-driver-nfs) | [GitHub](https://github.com/kubernetes-csi/csi-driver-nfs) | Renovate | [csi-driver-nfs](https://github.com/users/linuzctl/packages/container/package/helm-charts/csi-driver-nfs) |
 | [descheduler](charts/descheduler) | [GitHub](https://github.com/kubernetes-sigs/descheduler) | Renovate | [descheduler](https://github.com/users/linuzctl/packages/container/package/helm-charts/descheduler) |
-| [gitlab-runner](charts/gitlab-runner) | [GitLab](https://gitlab.com/gitlab-org/charts/gitlab) | Renovate | [gitlab](https://github.com/users/linuzctl/packages/container/package/helm-charts/gitlab-runner) |
+| [gitlab-runner](charts/gitlab-runner) | [GitLab](https://gitlab.com/gitlab-org/charts/gitlab) | Renovate | [gitlab-runner](https://github.com/users/linuzctl/packages/container/package/helm-charts/gitlab-runner) |
 | [gitlab](charts/gitlab) | [GitLab](https://gitlab.com/gitlab-org/charts/gitlab) | Renovate | [gitlab](https://github.com/users/linuzctl/packages/container/package/helm-charts/gitlab) |
 | [metrics-server](charts/metrics-server) | [GitHub](https://github.com/kubernetes-sigs/metrics-server) | Renovate | [metrics-server](https://github.com/users/linuzctl/packages/container/package/helm-charts/metrics-server) |
 | [unpoller](charts/unpoller) | [GitHub](https://github.com/unpoller/helm-chart) | Renovate | [unpoller](https://github.com/users/linuzctl/packages/container/package/helm-charts/unpoller) |
