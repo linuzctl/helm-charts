@@ -40,3 +40,6 @@ This repository handles chart updates automatically:
 
 4. **OCI Packaging**
    After a PR is merged, the chart is packaged and pushed as an OCI artifact to [GitHub Container Registry (GHCR)](https://ghcr.io).
+
+5. **Release**
+   A GitHub Release is created automatically whenever a new chart version is packaged and pushed.
