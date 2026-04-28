@@ -22,6 +22,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
+      serviceAccountName: {{ include "stalwart.serviceAccountName" . }}
       securityContext:
         fsGroup: 2000
         runAsUser: 2000

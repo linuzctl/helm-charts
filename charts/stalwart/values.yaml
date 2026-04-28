@@ -83,6 +83,7 @@ config:
 # as ClusterIP and front the chart with an Ingress / gateway for
 # the HTTP listeners only.
 service:
+  enabled: true
   type: ClusterIP
   annotations: {}
   ports:
@@ -97,6 +98,36 @@ service:
     http: 80
     https: 443
     mgmt: 8080
+
+# Dedicated Service that exposes ports. Enable this when you want
+# a separate LoadBalancer (or NodePort) for direct email delivery while
+# keeping the main service as ClusterIP behind an Ingress.
+# Port numbers are taken from service.ports.* so there is a single source
+# of truth.
+serviceExpose:
+  enabled: false
+  type: LoadBalancer
+  annotations: {}
+  # Optional static IP assigned to the LoadBalancer.
+  # Leave empty to let the cloud provider assign one automatically.
+  loadBalancerIP: ""
+  # Set to Local to preserve the client source IP on the node (useful for
+  # IP-reputation / spam filtering). Defaults to Cluster when empty.
+  externalTrafficPolicy: ""
+  # Toggle individual ports. Set a port to false to omit it from the Service.
+  # Useful when you only want to expose the TLS-wrapped (secure) ports.
+  ports:
+    smtp: true
+    smtps: true
+    submission: false
+    imap: false
+    imaps: true
+    pop3: false
+    pop3s: true
+    sieve: false
+    http: false
+    https: false # Rather expose these through a Gateway/Ingress controller.
+    mgmt: false # Never expose the management interface publicly.
 
 # Ingress for the HTTP / HTTPS listeners only. Mail protocols
 # require L4 exposure and are not handled here.
@@ -136,6 +167,17 @@ resources: {}
 certificate:
   enabled: false
   secretName: mail-example-com-tls
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
 
 # annotations
 statefulset:
