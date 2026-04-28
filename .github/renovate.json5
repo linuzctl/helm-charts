@@ -22,7 +22,7 @@
   enabledManagers: [
     'helm-values',
     'github-actions',
-    'regex',
+    'custom.regex',
     'pre-commit',
   ],
   'helm-values': {
