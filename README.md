@@ -8,7 +8,8 @@ These charts are created and maintained in-house for specific use cases within t
 
 | Chart | Source | Managed | Package |
 |---|---|---|---|
-| [stalwart](charts/stalwart) | [GitHub](https://github.com/stalwartlabs/stalwart) | linuzctl | [stalwart](https://github.com/linuzctl/helm-charts/pkgs/container/helm-charts/stalwart) |
+| [stalwart](charts/stalwart) | [GitHub](https://github.com/stalwartlabs/stalwart) | linuzctl | [stalwart](https://github.com/users/linuzctl/packages/container/package/helm-charts/stalwart) |
+
 
 ## Tracked Charts
 
