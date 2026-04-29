@@ -2,4 +2,4 @@
 repo_name: gitlab
 repo_url: https://charts.gitlab.io/
 chart_name: gitlab
-chart_version: 9.11.1
+chart_version: 9.11.2
