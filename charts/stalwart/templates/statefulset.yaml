@@ -105,7 +105,7 @@ spec:
             {{- end }}
             {{- if .Values.persistence.enabled }}
             - name: data
-              mountPath: /var/lib/stalwart
+              mountPath: {{ .Values.persistence.mountPath | quote }}
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

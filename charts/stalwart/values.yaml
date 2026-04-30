@@ -157,6 +157,7 @@ persistence:
   accessMode: ReadWriteOnce
   storageClass: ""
   size: 20Gi
+  mountPath: /var/lib/stalwart # Must match the path in config.@type: RocksDb.path
 
 # Resource requests and limits for the container.
 resources: {}
