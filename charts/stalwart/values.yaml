@@ -5,15 +5,10 @@ nameOverride: ""
 # Override the full release-qualified resource name.
 fullnameOverride: ""
 
-# Hostname of this Stalwart instance (sets STALWART_HOSTNAME).
-# When left empty the first entry in ingress.hosts is used instead.
-# Set this explicitly on non-ingress deployments.
-hostname: ""
-
 # Container image.
 image:
   repository: stalwartlabs/stalwart
-  tag: v0.16.2
+  tag: v0.16.3
   pullPolicy: IfNotPresent
 
 # Number of pods in the StatefulSet.
@@ -26,7 +21,7 @@ replicaCount: 1
 
 # Maps to STALWART_ROLE. Names a ClusterRole defined in the database.
 # Leave empty on single-node installs to run every task and listener.
-# See /docs/cluster/configuration/roles for the role model.
+# See https://stalw.art/docs/cluster/configuration/roles/ for the role model.
 role: ""
 
 # Maps to STALWART_PUSH_SHARD. Only set on nodes whose role delivers
@@ -45,7 +40,7 @@ recoveryAdmin:
 
 # Starts the pods in recovery mode. Suspends mail services and
 # exposes only the management listener on the configured port.
-# See /docs/configuration/recovery-mode.
+# See https://stalw.art/docs/configuration/recovery-mode/
 recoveryMode:
   enabled: false
   port: 8080
@@ -54,6 +49,12 @@ recoveryMode:
 # Extra environment variables injected into the container, for
 # store credentials that live in plain text.
 extraEnv: {}
+# Use STALWART_PUBLIC_URL when the external URL clients use differs
+# from the server’s default hostname (e.g., proxy, custom port, or path).
+# It makes discovery links use the correct public address.
+# see https://stalw.art/docs/configuration/environment-variables#public-urls
+# - name: STALWART_PUBLIC_URL
+#   value: https://mail.example.com
 
 # Extra environment variables injected from the managed Secret.
 # Use this for anything sensitive (database passwords, S3 keys, etc.).
@@ -62,7 +63,7 @@ extraSecretEnv: {}
 # config.json contents. Rendered verbatim into the ConfigMap.
 # Only the DataStore object belongs here; every other setting lives
 # in the database once the server is bootstrapped.
-# See /docs/configuration/overview and /docs/ref/object/data-store.
+# See https://stalw.art/docs/configuration/overview and https://stalw.art/docs/ref/object/data-store.
 config:
   "@type": RocksDb
   path: /var/lib/stalwart
@@ -106,7 +107,7 @@ service:
 # of truth.
 serviceExpose:
   enabled: false
-  type: LoadBalancer
+  type: LoadBalancer # or NodePort
   annotations: {}
   # Optional static IP assigned to the LoadBalancer.
   # Leave empty to let the cloud provider assign one automatically.
@@ -156,6 +157,7 @@ persistence:
   accessMode: ReadWriteOnce
   storageClass: ""
   size: 20Gi
+  mountPath: /var/lib/stalwart # Must match the path in config.@type: RocksDb.path
 
 # Resource requests and limits for the container.
 resources: {}
