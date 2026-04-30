@@ -5,11 +5,6 @@ nameOverride: ""
 # Override the full release-qualified resource name.
 fullnameOverride: ""
 
-# Hostname of this Stalwart instance (sets STALWART_HOSTNAME).
-# When left empty the first entry in ingress.hosts is used instead.
-# Set this explicitly on non-ingress deployments.
-hostname: ""
-
 # Container image.
 image:
   repository: stalwartlabs/stalwart
@@ -54,6 +49,12 @@ recoveryMode:
 # Extra environment variables injected into the container, for
 # store credentials that live in plain text.
 extraEnv: {}
+# Use STALWART_PUBLIC_URL when the external URL clients use differs
+# from the server’s default hostname (e.g., proxy, custom port, or path).
+# It makes discovery links use the correct public address.
+# see https://stalw.art/docs/configuration/environment-variables#public-urls
+# - name: STALWART_PUBLIC_URL
+#   value: https://mail.example.com
 
 # Extra environment variables injected from the managed Secret.
 # Use this for anything sensitive (database passwords, S3 keys, etc.).

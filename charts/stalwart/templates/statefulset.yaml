@@ -39,16 +39,6 @@ spec:
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-            {{- if .Values.hostname }}
-            - name: STALWART_HOSTNAME
-              value: {{ .Values.hostname | quote }}
-            {{- else if .Values.ingress.hosts }}
-            {{- $firstHost := index .Values.ingress.hosts 0 }}
-            {{- if $firstHost.host }}
-            - name: STALWART_HOSTNAME
-              value: {{ $firstHost.host | quote }}
-            {{- end }}
-            {{- end }}
             {{- if .Values.role }}
             - name: STALWART_ROLE
               value: {{ .Values.role | quote }}
