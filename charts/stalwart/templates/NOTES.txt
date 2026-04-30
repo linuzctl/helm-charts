@@ -18,9 +18,10 @@ No recovery admin is configured. Please check the Stalwart logs to obtain creden
 
 {{- end }}
 
-1. Access the WebUI (Bootstrap Mode)
+1. Access the WebUI
 ------------------------------------
-If this is the first deployment, Stalwart is in bootstrap mode.
+Stalwart is deployed in a declarative deployment mode.
+For more information checkout the docs https://stalw.art/docs/configuration/declarative-deployments
 
 {{- if .Values.ingress.enabled }}
 
@@ -44,7 +45,7 @@ Ingress is not enabled. Stalwart is not exposed via HTTP/HTTPS.
 - Optional: Configure Search Store (Settings > Storage > Search Store)
 - Optional: Configure In-Memory Store (Settings > Storage > In-Memory Store)
 
-Configuration complete restart Stalwart or reload config (Management > Actions)
+Configuration complete. Restart Stalwart or reload config (Management > Actions)
 
   kubectl delete pods stalwart-0
 
