@@ -13,7 +13,7 @@ hostname: ""
 # Container image.
 image:
   repository: stalwartlabs/stalwart
-  tag: v0.16.2
+  tag: v0.16.3
   pullPolicy: IfNotPresent
 
 # Number of pods in the StatefulSet.
