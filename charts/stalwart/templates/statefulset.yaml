@@ -58,6 +58,10 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ include "stalwart.fullname" . }}-env
+            {{- if .Values.recoveryAdmin.enabled }}
+            - secretRef:
+                name: {{- if .Values.recoveryAdmin.existingSecret }}{{ .Values.recoveryAdmin.secretName }}{{- else }}{{ include "stalwart.fullname" . }}-recovery-admin{{- end }}
+            {{- end }}
           ports:
             - name: smtp
               containerPort: 25
