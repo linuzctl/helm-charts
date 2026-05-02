@@ -7,7 +7,9 @@ version: 0.1.1
 appVersion: v0.16.3
 home: https://stalw.art
 sources:
+  - https://github.com/linuzctl/helm-charts
   - https://github.com/stalwartlabs/stalwart
+  - https://stalw.art/docs
 maintainers:
   - name: linuzctl
     email: linuzctl@protonmail.com
