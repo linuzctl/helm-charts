@@ -171,6 +171,8 @@ resources: {}
 certificate:
   enabled: false
   secretName: mail-example-com-tls
+  # If false, make sure to provide the secret before helm chart installation.
+  secretOptional: true
 
 serviceAccount:
   # Specifies whether a service account should be created

@@ -121,6 +121,7 @@ spec:
         - name: tls
           secret:
             secretName: {{ .Values.certificate.secretName }}
+            optional: {{ .Values.certificate.secretOptional }}
         {{- end }}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
