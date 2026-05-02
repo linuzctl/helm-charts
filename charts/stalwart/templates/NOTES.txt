@@ -2,6 +2,9 @@
   Stalwart is getting deployed to your cluster.
 ============================================================
 
+Stalwart is deployed in a declarative deployment mode.
+For more information checkout the docs https://stalw.art/docs/configuration/declarative-deployments
+
 To check Stalwart status, please run:
 
   kubectl get pods --namespace={{ .Release.Namespace }} --selector="app.kubernetes.io/instance={{ .Release.Name }}" --watch
@@ -12,16 +15,12 @@ You can log in to the dashboard with the recovery admin user.
 
 {{- else }}
 
-No recovery admin is configured. Please check the Stalwart logs to obtain credentials for login.
-
-  kubectl logs -l app.kubernetes.io/instance={{ .Release.Name }} --namespace={{ .Release.Namespace }}
+No recovery admin is configured.
 
 {{- end }}
 
 1. Access the WebUI
 ------------------------------------
-Stalwart is deployed in a declarative deployment mode.
-For more information checkout the docs https://stalw.art/docs/configuration/declarative-deployments
 
 {{- if .Values.ingress.enabled }}
 
