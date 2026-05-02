@@ -1,4 +1,6 @@
----
+# Default values for stalwart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
 # Override the chart name used in resource names and labels.
 nameOverride: ""
@@ -37,8 +39,9 @@ recoveryAdmin:
   enabled: false
   username: admin
   password: "change-me"
-  secretName: "" # Optional name of an existing Secret that contains the admin credentials.
+  # Optional name of an existing Secret that contains the admin credentials.
   existingSecret: false
+  secretName: ""
 
 # Starts the pods in recovery mode. Suspends mail services and
 # exposes only the management listener on the configured port.
