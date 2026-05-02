@@ -37,6 +37,8 @@ recoveryAdmin:
   enabled: false
   username: admin
   password: "change-me"
+  secretName: "" # Optional name of an existing Secret that contains the admin credentials.
+  existingSecret: false
 
 # Starts the pods in recovery mode. Suspends mail services and
 # exposes only the management listener on the configured port.
