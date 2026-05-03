@@ -2,4 +2,4 @@
 repo_name: gitlab
 repo_url: https://charts.gitlab.io/
 chart_name: gitlab-runner
-chart_version: 0.88.1
+chart_version: 0.88.2
