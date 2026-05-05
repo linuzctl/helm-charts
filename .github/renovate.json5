@@ -12,6 +12,7 @@
   ignorePaths: [
     'charts/aistor-objectstore/**',
     'charts/aistor-operator/**',
+    'charts/awx-operator/**',
     'charts/csi-driver-nfs/**',
     'charts/descheduler/**',
     'charts/gatekeeper/**',
