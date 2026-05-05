@@ -62,28 +62,11 @@ spec:
                 name: {{- if .Values.recoveryAdmin.existingSecret }}{{ .Values.recoveryAdmin.secretName }}{{- else }}{{ include "stalwart.fullname" . }}-recovery-admin{{- end }}
             {{- end }}
           ports:
-            - name: smtp
-              containerPort: 25
-            - name: smtps
-              containerPort: 465
-            - name: submission
-              containerPort: 587
-            - name: imap
-              containerPort: 143
-            - name: imaps
-              containerPort: 993
-            - name: pop3
-              containerPort: 110
-            - name: pop3s
-              containerPort: 995
-            - name: sieve
-              containerPort: 4190
-            - name: http
-              containerPort: 80
-            - name: https
-              containerPort: 443
-            - name: mgmt
-              containerPort: 8080
+            {{- $ports := .Values.service.ports | default .Values.ports }}
+            {{- range $name, $port := $ports }}
+            - name: {{ $name }}
+              containerPort: {{ $port }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /healthz/live
