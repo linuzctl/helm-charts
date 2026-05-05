@@ -140,6 +140,17 @@ ingress:
   #     hosts:
   #      - mail.example.com
 
+# Default security context for the container.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 2000
+  runAsGroup: 2000
+  fsGroup: 2000
+
+# Pod-level security context. Applies to all containers in the pod.
+SecurityContext:
+  allowPrivilegeEscalation: false
+
 # Persistent volume for the data directory. Required when the
 # DataStore is a local backend such as RocksDB. Can be disabled
 # for deployments that use an external store (PostgreSQL, MySQL,
