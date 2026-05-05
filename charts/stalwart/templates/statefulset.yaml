@@ -22,11 +22,13 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ include "stalwart.serviceAccountName" . }}
+      {{- else }}
+      automountServiceAccountToken: false
+      {{- end }}
       securityContext:
-        fsGroup: 2000
-        runAsUser: 2000
-        runAsGroup: 2000
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: stalwart
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -34,6 +36,8 @@ spec:
           args:
             - "--config"
             - "/etc/stalwart/config.json"
+          securityContext:
+            {{- toYaml .Values.SecurityContext | nindent 12 }}
           env:
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
@@ -62,28 +66,11 @@ spec:
                 name: {{- if .Values.recoveryAdmin.existingSecret }}{{ .Values.recoveryAdmin.secretName }}{{- else }}{{ include "stalwart.fullname" . }}-recovery-admin{{- end }}
             {{- end }}
           ports:
-            - name: smtp
-              containerPort: 25
-            - name: smtps
-              containerPort: 465
-            - name: submission
-              containerPort: 587
-            - name: imap
-              containerPort: 143
-            - name: imaps
-              containerPort: 993
-            - name: pop3
-              containerPort: 110
-            - name: pop3s
-              containerPort: 995
-            - name: sieve
-              containerPort: 4190
-            - name: http
-              containerPort: 80
-            - name: https
-              containerPort: 443
-            - name: mgmt
-              containerPort: 8080
+            {{- $ports := .Values.service.ports | default .Values.ports }}
+            {{- range $name, $port := $ports }}
+            - name: {{ $name }}
+              containerPort: {{ $port }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /healthz/live
