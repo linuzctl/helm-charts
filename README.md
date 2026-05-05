@@ -19,6 +19,7 @@ These charts are maintained upstream and are **mirrored here automatically**. Th
 |---|---|---|---|
 | [aistor-objectstore](charts/aistor-objectstore) | [GitHub](https://github.com/minio/helm) | Renovate | [aistor-objectstore](https://github.com/users/linuzctl/packages/container/package/helm-charts/aistor-objectstore) |
 | [aistor-operator](charts/aistor-operator) | [GitHub](https://github.com/minio/helm) | Renovate | [aistor-operator](https://github.com/users/linuzctl/packages/container/package/helm-charts/aistor-operator) |
+| [awx-operator](charts/awx-operator) | [GitHub](https://github.com/ansible-community/awx-operator-helm) | Renovate | [awx-operator](https://github.com/users/linuzctl/packages/container/package/helm-charts/awx-operator) |
 | [csi-driver-nfs](charts/csi-driver-nfs) | [GitHub](https://github.com/kubernetes-csi/csi-driver-nfs) | Renovate | [csi-driver-nfs](https://github.com/users/linuzctl/packages/container/package/helm-charts/csi-driver-nfs) |
 | [descheduler](charts/descheduler) | [GitHub](https://github.com/kubernetes-sigs/descheduler) | Renovate | [descheduler](https://github.com/users/linuzctl/packages/container/package/helm-charts/descheduler) |
 | [gatekeeper](charts/gatekeeper) | [GitHub](https://github.com/open-policy-agent/gatekeeper/tree/master/charts/gatekeeper) | Renovate | [gatekeeper](https://github.com/users/linuzctl/packages/container/package/helm-charts/gatekeeper) |
