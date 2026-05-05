@@ -13,4 +13,4 @@ name: gitaly
 sources:
 - https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitaly
 - https://gitlab.com/gitlab-org/build/CNG/tree/master/gitaly
-version: 9.11.2
+version: 9.11.3

@@ -76,4 +76,4 @@ maintainers:
 name: gitlab
 sources:
 - https://gitlab.com/gitlab-org/charts/gitlab
-version: 9.11.2
+version: 9.11.3
