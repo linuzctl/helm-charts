@@ -103,6 +103,9 @@ global:
     #      value: "value1"
     tolerations: []
 
+    # Node selector labels
+    nodeSelector: {}
+
 
 # All operators will be using the global setting, unless overridden
 # in the section below. All keys in `.global.operators` can also be
