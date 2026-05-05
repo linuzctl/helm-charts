@@ -22,7 +22,11 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ include "stalwart.serviceAccountName" . }}
+      {{- else }}
+      automountServiceAccountToken: false
+      {{- end }}
       securityContext:
         fsGroup: 2000
         runAsUser: 2000
