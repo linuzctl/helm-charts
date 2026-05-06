@@ -19,6 +19,7 @@
     'charts/gitlab-runner/**',
     'charts/gitlab/**',
     'charts/metrics-server/**',
+    'charts/tetragon/**',
     'charts/unpoller/**',
   ],
   enabledManagers: [
