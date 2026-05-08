@@ -1,0 +1,51 @@
+---
+# Default values for stalwart with PostgreSQL.
+# This is a YAML-formatted file.
+
+## Enable recoveryAdmin on first time startup
+# recoveryAdmin:
+#   enabled: false
+#   username: admin
+#   password: change-me
+
+## Set PostgreSQL password via Env
+extraEnv:
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: stalwart-postgres-app
+        key: password
+
+## Configure storage backend for PostgreSQL
+config:
+  "@type": "PostgreSql"
+  host: stalwart-postgres-rw.stalwart.svc.cluster.local
+  port: 5432
+  database: stalwart
+  authUsername: stalwart
+  authSecret:
+    "@type": "EnvironmentVariable"
+    variableName: DB_PASSWORD
+
+## Optional: Enable Ingress
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+  hosts:
+    - host: mail.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          portName: https
+  tls:
+    - secretName: mail-example-com-tls
+      hosts:
+        - mail.example.com
+
+## Optional: Mount TLS Certificate into container
+certificate:
+  enabled: true
+  secretName: mail-example-com-tls
