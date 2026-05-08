@@ -156,9 +156,10 @@ SecurityContext:
 # for deployments that use an external store (PostgreSQL, MySQL,
 # FoundationDB, S3-backed blob store, etc.).
 persistence:
-  enabled: true
+  enabled: false
+  annotations: {}
   accessMode: ReadWriteOnce
-  storageClass: ""
+  # storageClass: ""
   size: 20Gi
   mountPath: /var/lib/stalwart # Must match the path in config.@type: RocksDb.path
 
