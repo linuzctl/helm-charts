@@ -88,6 +88,12 @@ spec:
               mountPath: /etc/stalwart/config.json
               subPath: config.json
               readOnly: true
+            {{- if .Values.foundationdb.enabled }}
+            - name: foundationdb-cluster-file
+              mountPath: {{ .Values.foundationdb.mountPath | quote }}
+              subPath: {{ .Values.foundationdb.subPath | quote }}
+              readOnly: true
+            {{- end }}
             {{- if .Values.certificate.enabled }}
             - name: tls
               mountPath: "/etc/stalwart/tls/"
@@ -103,6 +109,11 @@ spec:
         - name: config
           configMap:
             name: {{ include "stalwart.fullname" . }}-config
+        {{- if .Values.foundationdb.enabled }}
+        - name: foundationdb-cluster-file
+          configMap:
+            name: {{ .Values.foundationdb.clusterFileConfigMap }}
+        {{- end }}
         {{- if .Values.certificate.enabled }}
         - name: tls
           secret:

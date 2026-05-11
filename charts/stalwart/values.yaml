@@ -71,8 +71,18 @@ extraSecretEnv: {}
 # See https://stalw.art/docs/configuration/overview and https://stalw.art/docs/ref/object/data-store.
 config: {}
 # See examples:
+# https://github.com/linuzctl/helm-charts/blob/main/charts/stalwart/values.foundationdb.yaml
 # https://github.com/linuzctl/helm-charts/blob/main/charts/stalwart/values.postgresql.yaml
 # https://github.com/linuzctl/helm-charts/blob/main/charts/stalwart/values.rocksdb.yaml
+
+# Configure storage backend for FoundationDB. If `enabled` is true,
+# the chart will mount a cluster file from a Secret and set the
+# appropriate config values.
+foundationdb:
+  enabled: false
+  clusterFileConfigMap: fdb-cluster-config
+  mountPath: /etc/stalwart/cluster-file
+  subPath: cluster-file
 
 # Default ports for the listeners. These are used in the container spec and service definition.
 ports:
