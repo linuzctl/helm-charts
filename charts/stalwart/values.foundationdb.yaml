@@ -2,11 +2,12 @@
 # Default values for stalwart with FoundationDB.
 # This is a YAML-formatted file.
 
-# REALLY IMPORTANT
-# The default stalstalwartlabs/stalwart container does work with
-# FoundationDB, you need build a custom image with the FoundationDB 
-# client tools included. The FoundationDB client tools should match
-#  the version of the FoundationDB cluster you are connecting to.
+# IMPORTANT
+# The default stalwartlabs/stalwart container image does not include
+# the FoundationDB client tools required to connect to FoundationDB.
+# You must build a custom image that includes the FoundationDB client
+# tools. The client tools version should match the version of the
+# FoundationDB cluster you are connecting to.
 image:
   repository: yourcustumrepo/stalwart-foundationdb
   tag: vX.X.X-fdbX.X
