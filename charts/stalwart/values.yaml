@@ -37,8 +37,8 @@ pushShard: ""
 # provisioned through the setup wizard.
 recoveryAdmin:
   enabled: false
-  username: admin
-  password: "change-me"
+  username: ""
+  password: ""
   # Optional name of an existing Secret that contains the admin credentials.
   existingSecret: false
   secretName: ""
@@ -71,8 +71,18 @@ extraSecretEnv: {}
 # See https://stalw.art/docs/configuration/overview and https://stalw.art/docs/ref/object/data-store.
 config: {}
 # See examples:
+# https://github.com/linuzctl/helm-charts/blob/main/charts/stalwart/values.foundationdb.yaml
 # https://github.com/linuzctl/helm-charts/blob/main/charts/stalwart/values.postgresql.yaml
 # https://github.com/linuzctl/helm-charts/blob/main/charts/stalwart/values.rocksdb.yaml
+
+# Configure storage backend for FoundationDB. If `enabled` is true,
+# the chart will mount a cluster file from a Secret and set the
+# appropriate config values.
+foundationdb:
+  enabled: false
+  clusterFileConfigMap: fdb-cluster-config
+  mountPath: /etc/stalwart/cluster-file
+  subPath: cluster-file
 
 # Default ports for the listeners. These are used in the container spec and service definition.
 ports:
@@ -166,12 +176,13 @@ resources: {}
 # Mounts a Kubernetes TLS Secret into /etc/stalwart/tls/ inside the container.
 # Stalwart reads tls.crt and tls.key from that path once configured via the
 # management UI or stalwart-cli.
-# The certificate is used for smtps, imaps, pop3s, and https listeners.
+# The certificate can be used for smtps, imaps, pop3s, and https listeners.
 certificate:
   enabled: false
   secretName: mail-example-com-tls
   # If false, make sure to provide the secret before helm chart installation.
   secretOptional: true
+  mountPath: /etc/stalwart/tls/
 
 serviceAccount:
   # Specifies whether a service account should be created
