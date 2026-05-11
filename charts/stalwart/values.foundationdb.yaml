@@ -20,7 +20,7 @@ image:
 ## Configure storage backend for FoundationDB
 config:
   "@type": "FoundationDb"
-  clusterFile: ""
+  clusterFile: /etc/stalwart/cluster-file
   # datacenterId:
   # machineId:
   # transactionRetryDelay:
