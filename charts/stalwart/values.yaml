@@ -37,8 +37,8 @@ pushShard: ""
 # provisioned through the setup wizard.
 recoveryAdmin:
   enabled: false
-  username: admin
-  password: "change-me"
+  username: ""
+  password: ""
   # Optional name of an existing Secret that contains the admin credentials.
   existingSecret: false
   secretName: ""
@@ -176,12 +176,13 @@ resources: {}
 # Mounts a Kubernetes TLS Secret into /etc/stalwart/tls/ inside the container.
 # Stalwart reads tls.crt and tls.key from that path once configured via the
 # management UI or stalwart-cli.
-# The certificate is used for smtps, imaps, pop3s, and https listeners.
+# The certificate can be used for smtps, imaps, pop3s, and https listeners.
 certificate:
   enabled: false
   secretName: mail-example-com-tls
   # If false, make sure to provide the secret before helm chart installation.
   secretOptional: true
+  mountPath: /etc/stalwart/tls/
 
 serviceAccount:
   # Specifies whether a service account should be created

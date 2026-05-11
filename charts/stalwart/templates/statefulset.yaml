@@ -96,7 +96,7 @@ spec:
             {{- end }}
             {{- if .Values.certificate.enabled }}
             - name: tls
-              mountPath: "/etc/stalwart/tls/"
+              mountPath: {{ .Values.certificate.mountPath | quote }}
               readOnly: true
             {{- end }}
             {{- if .Values.persistence.enabled }}
