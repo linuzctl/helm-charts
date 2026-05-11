@@ -69,9 +69,10 @@ extraSecretEnv: {}
 # Only the DataStore object belongs here; every other setting lives
 # in the database once the server is bootstrapped.
 # See https://stalw.art/docs/configuration/overview and https://stalw.art/docs/ref/object/data-store.
-config:
-  "@type": RocksDb
-  path: /var/lib/stalwart
+config: {}
+# See examples:
+# https://github.com/linuzctl/helm-charts/blob/main/charts/stalwart/values.postgresql.yaml
+# https://github.com/linuzctl/helm-charts/blob/main/charts/stalwart/values.rocksdb.yaml
 
 # Default ports for the listeners. These are used in the container spec and service definition.
 ports:
@@ -86,17 +87,6 @@ ports:
   http: 80
   https: 443
   mgmt: 8080
-
-# Uncomment and adjust the following for a PostgreSQL-backed deployment.
-# config:
-#   "@type": "PostgreSql"
-#   host: stalwart-postgres
-#   port: 5432
-#   database: stalwart
-#   authUsername: stalwart
-#   authSecret:
-#     "@type": "EnvironmentVariable"
-#     variableName: PASSWORD
 
 # Service definition. Change `type` to LoadBalancer when a cloud
 # load balancer should expose the mail ports directly, or keep it
