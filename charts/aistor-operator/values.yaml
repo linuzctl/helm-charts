@@ -234,10 +234,10 @@ images:
     image: kes-sidecar:RELEASE.2026-04-08T22-44-27Z
   mc:
     repository: aistor
-    image: mc:RELEASE.2026-04-13T21-15-24Z
+    image: mc:RELEASE.2026-04-21T04-26-49Z
   minio:
     repository: aistor
-    image: minio:RELEASE.2026-04-14T21-32-45Z
+    image: minio:RELEASE.2026-05-04T23-02-27Z
   minio-sidecar:
     repository: aistor
     image: minio-sidecar:RELEASE.2026-04-11T08-21-39Z
@@ -249,4 +249,4 @@ images:
     image: prompt:RELEASE.2025-01-17T21-55-43Z
   warp:
     repository: aistor
-    image: warp:v1.4.1
+    image: warp:v1.5.0

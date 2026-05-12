@@ -15,4 +15,4 @@ name: aistor-operator
 sources:
 - https://min.io/product/aistor-overview
 type: application
-version: 5.6.3
+version: 5.6.4
