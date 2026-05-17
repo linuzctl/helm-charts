@@ -229,3 +229,36 @@ serviceAccount:
 # annotations
 statefulset:
   annotations: {}
+
+tcpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  # Define TCP ports to expose via Gateway API TCPRoute.
+  # Per default only essential ports are opened.
+  # See: https://stalw.art/docs/install/security/#disable-unused-ports
+  ports:
+    smtp:
+      port: 25
+      sectionName: smtp
+    # pop3:
+    #   port: 110
+    #   sectionName: pop3
+    # imap:
+    #   port: 143
+    #   sectionName: imap
+    smtps:
+      port: 465
+      sectionName: smtps
+    # submission:
+    #   port: 587
+    #   sectionName: submission
+    imaps:
+      port: 993
+      sectionName: imaps
+    # pop3s:
+    #   port: 995
+    #   sectionName: pop3s
+    # sieve:
+    #   port: 4190
+    #   sectionName: sieve

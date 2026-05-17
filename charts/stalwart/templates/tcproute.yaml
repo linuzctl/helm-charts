@@ -1,0 +1,35 @@
+{{- if .Values.tcpRoute.enabled }}
+{{- $svcName := include "stalwart.fullname" . }}
+{{- $tcpPorts := .Values.tcpRoute.ports | default dict }}
+{{- $parentRefs := .Values.tcpRoute.parentRefs | default list }}
+{{- range $portName, $portCfg := $tcpPorts }}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: {{ $svcName }}-{{ $portName }}
+  labels:
+    {{- include "stalwart.labels" $ | nindent 4 }}
+  {{- with $.Values.tcpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- range $parent := $parentRefs }}
+    - group: {{ $parent.group | default "gateway.networking.k8s.io" }}
+      kind: {{ $parent.kind | default "Gateway" }}
+      name: {{ $parent.name }}
+      {{- if $parent.namespace }}
+      namespace: {{ $parent.namespace }}
+      {{- end }}
+      {{- if $portCfg.sectionName }}
+      sectionName: {{ $portCfg.sectionName }}
+      {{- end }}
+    {{- end }}
+  rules:
+    - backendRefs:
+        - name: {{ $svcName }}
+          port: {{ $portCfg.port }}
+{{- end }}
+{{- end }}
