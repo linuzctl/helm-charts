@@ -140,6 +140,37 @@ ingress:
   #     hosts:
   #      - mail.example.com
 
+httpRoute:
+  # -- Enable HTTPRoute resource for Gateway API
+  enabled: false
+  # -- Annotations for HTTPRoute resource
+  annotations: {}
+  # -- Additional labels for HTTPRoute resource
+  labels: {}
+  # -- Parent references (REQUIRED when enabled - HTTPRoute will not work without this)
+  # Example:
+  # parentRefs:
+  #   - name: my-gateway
+  #     namespace: gateway-namespace
+  parentRefs: []
+  # -- Hostnames for the HTTPRoute
+  # Example:
+  # hostnames:
+  #   - mail.example.com
+  hostnames: []
+  # -- Custom routing rules (optional, defaults to path prefix /)
+  # If not specified, a default rule routing all traffic to the service is used
+  rules: []
+  # Example custom rules:
+  # rules:
+  #   - matches:
+  #       - path:
+  #           type: PathPrefix
+  #           value: /
+  #     backendRefs:
+  #       - name: stalwart
+  #         port: 80
+
 # Default security context for all pods.
 podSecurityContext:
   runAsNonRoot: true
@@ -198,3 +229,36 @@ serviceAccount:
 # annotations
 statefulset:
   annotations: {}
+
+tcpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  # Define TCP ports to expose via Gateway API TCPRoute.
+  # Per default only essential ports are opened.
+  # See: https://stalw.art/docs/install/security/#disable-unused-ports
+  ports:
+    smtp:
+      port: 25
+      sectionName: smtp
+    # pop3:
+    #   port: 110
+    #   sectionName: pop3
+    # imap:
+    #   port: 143
+    #   sectionName: imap
+    smtps:
+      port: 465
+      sectionName: smtps
+    # submission:
+    #   port: 587
+    #   sectionName: submission
+    imaps:
+      port: 993
+      sectionName: imaps
+    # pop3s:
+    #   port: 995
+    #   sectionName: pop3s
+    # sieve:
+    #   port: 4190
+    #   sectionName: sieve
