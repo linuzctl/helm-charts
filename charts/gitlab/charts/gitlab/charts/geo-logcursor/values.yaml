@@ -45,9 +45,6 @@ global:
     registry: {}
       #name: registry.example.com
       #https: false
-    minio: {}
-      #name: minio.example.com
-      #https: false
 
 redis:
   auth: {}
@@ -59,9 +56,6 @@ gitaly:
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
-minio:
-  serviceName: 'minio-svc'
-  port: 9000
 resources:
   # limits:
   #  cpu: 1
@@ -84,6 +78,7 @@ deployment:
     successThreshold: 1
     failureThreshold: 3
   strategy: {}
+  # revisionHistoryLimit: 10
 
 nodeSelector: {}
 tolerations: []

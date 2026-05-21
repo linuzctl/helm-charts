@@ -100,6 +100,7 @@ init:
 
 deployment:
   strategy: {}
+  # revisionHistoryLimit: 10
   readinessProbe:
     initialDelaySeconds: 0
     periodSeconds: 10
@@ -120,6 +121,8 @@ gatewayRoute:
   gatewayName: ""
   gatewayNamespace: ""
   annotations: {}
+  timeouts: {}
+  filters: []
 
 # Tolerations for pod scheduling
 tolerations: []

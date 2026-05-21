@@ -29,7 +29,6 @@ global:
 
   image: {}
     # Registry value override is only available for the following Charts:
-    # - Spamcheck
     # - Mailroom
     # If specifying a value here, be sure to also configure
     # `gitlab.<subchart>.image.repository` to a value that does not
@@ -51,7 +50,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "18.11.3"
+  gitlabVersion: "19.0.0"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -66,7 +65,6 @@ global:
     externalIP:
     ssh:
     gitlab: {}
-    minio: {}
     registry: {}
     tls: {}
     smartcard: {}
@@ -76,23 +74,23 @@ global:
     workspaces: {}
 
   gatewayApi:
-    enabled: false
+    enabled: true
     gatewayRef: {}
       # name: ""
       # namespace: ""
-    installEnvoy: false
-    configureCertmanager: false
+    installEnvoy: true
+    configureCertmanager: true
     httpToHttpsRedirect: true
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
     apiVersion: ""
-    configureCertmanager: true
+    configureCertmanager: false
     useNewIngressForCerts: false
     provider: nginx
     # class:
     annotations: {}
-    enabled: true
+    enabled: false
     tls: {}
     #   enabled: true
     #   secretName:
@@ -251,12 +249,6 @@ global:
       enabled: false
       # secretName:
 
-  ## https://docs.gitlab.com/charts/charts/globals#configure-minio-settings
-  minio:
-    enabled: true
-    credentials: {}
-      # secret:
-
   ## https://docs.gitlab.com/charts/charts/globals#configure-appconfig-settings
   ## Rails based portions of this chart share many settings
   appConfig:
@@ -278,6 +270,8 @@ global:
       wiki: true
       snippets: true
       builds: true
+    # Git import/fetch timeout
+    # gitTimeout: 10800
     graphQlTimeout:
     webhookTimeout:
     maxRequestDurationSeconds:
@@ -542,6 +536,7 @@ global:
         # host:
         # port:
       # jwtAudience:
+      # jwtIssuer:
       # authToken:
         # secret:
         # key:
@@ -693,10 +688,6 @@ global:
 
   workspaces:
     ## If workspaces is enabled, you must provide a hostname under global.hosts
-    enabled: false
-
-  ## https://docs.gitlab.com/charts/charts/gitlab/spamcheck/
-  spamcheck:
     enabled: false
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-gitlab-shell
@@ -858,6 +849,9 @@ global:
   ## Global Deployment Annotations
   deployment:
     annotations: {}
+
+  ## Sets the revisionHistoryLimit for all StatefulSets and Deployments, can be overridden in the individual sub-charts.
+  # revisionHistoryLimit: 10
 
 
   # Setting a global nodeAffinity only applies to the registry chart for now.
@@ -1050,12 +1044,14 @@ installCertmanager: true
 certmanager:
   installCRDs: true
   nameOverride: certmanager
+  config:
+    enableGatewayAPI: true
 
 ## https://docs.gitlab.com/charts/charts/nginx/
 ## https://docs.gitlab.com/charts/architecture/decisions#nginx-ingress
 ## Installation & configuration of charts/ingress-nginx:
 nginx-ingress: &nginx-ingress
-  enabled: true
+  enabled: false
   tcpExternalConfig: "true"
   controller: &nginx-ingress-controller
     podSecurityContext:
@@ -1183,6 +1179,7 @@ prometheus:
     enabled: false
   prometheus-pushgateway:
     enabled: false
+  scrapeConfigs: null
   server:
     retention: 15d
     strategy:
@@ -1331,99 +1328,6 @@ prometheus:
             - source_labels: [__meta_kubernetes_service_name]
               target_label: kubernetes_name
 
-## Configuration of Redis
-## https://docs.gitlab.com/charts/architecture/decisions#redis
-## https://docs.gitlab.com/charts/installation/deployment.html#redis
-redis:
-  install: true
-  image:
-    repository: bitnamilegacy/redis
-  auth:
-    existingSecret: gitlab-redis-secret
-    existingSecretKey: redis-password
-    usePasswordFiles: true
-  architecture: standalone
-  cluster:
-    enabled: false
-  metrics:
-    enabled: true
-    image:
-      repository: bitnamilegacy/redis-exporter
-  sentinel:
-    enabled: false
-    image:
-      repository: bitnamilegacy/redis-sentinel
-  kubectl:
-    enabled: false
-    image:
-      repository: bitnamilegacy/kubectl
-  sysctl:
-    enabled: false
-    image:
-      repository: bitnamilegacy/os-shell
-  volumePermissions:
-    enabled: false
-    image:
-      repository: bitnamilegacy/os-shell
-
-## Installation & configuration of stable/postgresql
-## See dependencies in Chart.yaml for current version
-postgresql:
-  install: true
-  auth:
-    ## These need to be set, for the sake of bitnami/postgresql upgrade patterns.
-    ## They are overridden by use of `existingSecret`
-    password: bogus-satisfy-upgrade
-    postgresPassword: bogus-satisfy-upgrade
-    ##
-    usePasswordFiles: false
-    existingSecret: '{{ include "gitlab.psql.password.secret" . }}'
-    secretKeys:
-      adminPasswordKey: postgresql-postgres-password
-      userPasswordKey: '{{ include "gitlab.psql.password.key" $ }}'
-  image:
-    repository: bitnamilegacy/postgresql
-    tag: 16.6.0
-  volumePermissions:
-    enabled: false
-    image:
-      repository: bitnamilegacy/os-shell
-  primary:
-    initdb:
-      scriptsConfigMap: '{{ include "gitlab.psql.initdbscripts" $}}'
-    extraVolumeMounts:
-      - name: custom-init-scripts
-        mountPath: /docker-entrypoint-preinitdb.d/init_revision.sh
-        subPath: init_revision.sh
-      - name: registry-database-password
-        mountPath: /etc/gitlab/postgres/registry_database_password
-        subPath: database_password
-        readOnly: true
-    extraVolumes:
-      - name: registry-database-password
-        projected:
-          sources:
-            - secret:
-                name: '{{ include "gitlab.registry.database.password.secret" . }}'
-                items:
-                  - key: '{{ include "gitlab.registry.database.password.key" . }}'
-                    path: database_password
-    podAnnotations:
-      postgresql.gitlab/init-revision: "1"
-  metrics:
-    enabled: true
-    image:
-      repository: bitnamilegacy/postgres-exporter
-    service:
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "9187"
-        gitlab.com/prometheus_scrape: "true"
-        gitlab.com/prometheus_port: "9187"
-
-    ## Optionally define additional custom metrics
-    ## ref: https://github.com/wrouesnel/postgres_exporter#adding-new-metrics-via-a-config-file
-
 ## Installation & configuration charts/registry
 ## https://docs.gitlab.com/charts/architecture/decisions#registry
 ## https://docs.gitlab.com/charts/charts/registry/
@@ -1486,17 +1390,6 @@ gitlab-runner:
       [[runners]]
         [runners.kubernetes]
         image = "ubuntu:22.04"
-        {{- if .Values.global.minio.enabled }}
-        [runners.cache]
-          Type = "s3"
-          Path = "gitlab-runner"
-          Shared = true
-          [runners.cache.s3]
-            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
-            BucketName = "runner-cache"
-            BucketLocation = "us-east-1"
-            Insecure = false
-        {{ end }}
   podAnnotations:
     gitlab.com/prometheus_scrape: "true"
     gitlab.com/prometheus_port: 9252
@@ -1655,12 +1548,6 @@ gatewayApiResources:
           mode: Terminate
           certificateRefs:
             - name: kas-workspaces-tls
-      minio-web:
-        protocol: ""
-        tls:
-          mode: Terminate
-          certificateRefs:
-            - name: minio-tls
       openbao-web:
         protocol: ""
         tls:
@@ -1694,6 +1581,15 @@ gatewayApiResources:
           additionalLabels: {}
           endpointConfig: {}
 
+## Installation & configuration of ai-gateway
+## The ai-gateway chart deploys a single pod serving both the HTTP API
+## (for AI features like code suggestions) and the gRPC duo-workflow-service.
+## Service discovery settings are under global.ai-gateway above.
+ai-gateway:
+  install: false
+  ingress:
+    enabled: false
+
 envoy-gateway:
   deployment:
     pod:
@@ -1704,5 +1600,3 @@ envoy-gateway:
     envoyGateway:
       gateway:
         controllerName: gateway.envoyproxy.io/gitlab-gatewayclass-controller
-      extensionApis:
-        enableEnvoyPatchPolicy: true

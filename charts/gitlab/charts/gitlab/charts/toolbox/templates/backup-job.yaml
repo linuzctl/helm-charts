@@ -143,6 +143,7 @@ spec:
               volumeMounts:
                 {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
                 {{- include "toolbox.registry.database.databaseBackupCredentialsMount" . | nindent 16 }}
+                {{- include "toolbox.openbao.database.databaseBackupCredentialsMount" . | nindent 16 }}
                 - name: toolbox-config
                   mountPath: '/var/opt/gitlab/templates'
                 - name: toolbox-secrets
@@ -164,6 +165,7 @@ spec:
             {{- include "gitlab.extraVolumes" . | nindent 12 }}
             {{- include "gitlab.psql.ssl.volume" . | nindent 12 }}
             {{- include "toolbox.registry.databaseBackupCredentialsVolume" . | nindent 12 }}
+            {{- include "toolbox.openbao.databaseBackupCredentialsVolume" . | nindent 12 }}
             - name: toolbox-config
               projected:
                 sources:
@@ -218,12 +220,11 @@ spec:
                       - key: registry-auth.key
                         path: registry/gitlab-registry.key
                 {{- include "gitlab.registry.notificationSecret.mount" $ | nindent 16 -}}
-                {{- if or .Values.backups.objectStorage.config (not .Values.global.minio.enabled) }}
+                {{- if or .Values.backups.objectStorage.config (not .Values.global.appConfig.object_store.enabled) }}
                 {{-   include "toolbox.backups.objectStorage.config.secret" .Values.backups.objectStorage | nindent 16 }}
                 {{- end }}
                 {{- include "gitlab.kas.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.pages.mountSecrets" $ | nindent 16 }}
-                {{- include "gitlab.minio.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 16 }}
