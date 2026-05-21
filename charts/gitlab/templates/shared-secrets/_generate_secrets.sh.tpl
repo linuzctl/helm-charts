@@ -81,39 +81,11 @@ function generate_secret_if_needed(){
 # Initial root password
 generate_secret_if_needed {{ template "gitlab.migrations.initialRootPassword.secret" . }} --from-literal={{ template "gitlab.migrations.initialRootPassword.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 
-{{/*
-The include in this if returns a value that makes use of
-"gitlab.redis.configMerge" to return global.redis.password.enabled
-with a fallback to global.redis.auth.enabled - it is evaluated for truthiness, based
-on emptiness of the returned string.
-
-This should be read as:
-
-"if there's not a defined global.redis.host and we've enabled redis password
-auth, then generate secrets if needed"
-*/}}
-{{ if and (not .Values.global.redis.host) (eq (include "gitlab.redis.password.enabled" $) "true" ) -}}
-# Redis password
-generate_secret_if_needed {{ template "gitlab.redis.password.secret" . }} --from-literal={{ template "gitlab.redis.password.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
-{{ end }}
-
-{{ if not .Values.global.psql.host -}}
-# Postgres password
-generate_secret_if_needed {{ template "gitlab.psql.password.secret" . }} --from-literal={{ include "gitlab.psql.password.key" . }}=$(gen_random 'a-zA-Z0-9' 64) --from-literal=postgresql-postgres-password=$(gen_random 'a-zA-Z0-9' 64)
-# Registry database.password secret
-generate_secret_if_needed {{ template "gitlab.registry.database.password.secret" . }} --from-literal={{ template "gitlab.registry.database.password.key" . }}=$(gen_random 'a-z0-9' 128 | base64 -w 0)
-{{ end }}
-
 # Gitlab shell
 generate_secret_if_needed {{ template "gitlab.gitlab-shell.authToken.secret" . }} --from-literal={{ template "gitlab.gitlab-shell.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 
 # Gitaly secret
 generate_secret_if_needed {{ template "gitlab.gitaly.authToken.secret" . }} --from-literal={{ template "gitlab.gitaly.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
-
-{{ if .Values.global.minio.enabled -}}
-# Minio secret
-generate_secret_if_needed {{ template "gitlab.minio.credentials.secret" . }} --from-literal=accesskey=$(gen_random 'a-zA-Z0-9' 64) --from-literal=secretkey=$(gen_random 'a-zA-Z0-9' 64)
-{{ end }}
 
 # Gitlab runner secret
 generate_secret_if_needed {{ template "gitlab.gitlab-runner.registrationToken.secret" . }} --from-literal=runner-registration-token=$(gen_random 'a-zA-Z0-9' 64) --from-literal=runner-token=""
@@ -268,4 +240,23 @@ generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretF
 {{ if .Values.global.appConfig.iamAuthService.enabled -}}
 # Service token used by GitLab to authenticate internal API requests to the iam-auth service
 generate_secret_if_needed {{ template "gitlab.appConfig.iamAuthService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamAuthService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
+{{ end }}
+
+{{ if index .Values "ai-gateway" "install" -}}
+# AI Gateway JWT signing keys
+
+# Duo workflow signing key
+openssl genrsa -out duo_workflow_signing.key 4096
+generate_secret_if_needed {{ template "ai-gateway.duoWorkflowSigningKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowSigningKey.key" . }}=duo_workflow_signing.key
+
+# Duo workflow validation key
+openssl genrsa -out duo_workflow_validation.key 4096
+generate_secret_if_needed {{ template "ai-gateway.duoWorkflowValidationKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowValidationKey.key" . }}=duo_workflow_validation.key
+
+openssl genrsa -out aigw_signing.key 4096
+generate_secret_if_needed {{ template "ai-gateway.aigwSigningKey.secret" . }} --from-file={{ template "ai-gateway.aigwSigningKey.key" . }}=aigw_signing.key
+
+# AI Gateway validation key
+openssl genrsa -out aigw_validation.key 4096
+generate_secret_if_needed {{ template "ai-gateway.aigwValidationKey.secret" . }} --from-file={{ template "ai-gateway.aigwValidationKey.key" . }}=aigw_validation.key
 {{ end }}

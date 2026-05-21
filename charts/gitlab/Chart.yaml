@@ -1,13 +1,10 @@
 apiVersion: v2
-appVersion: v18.11.3
+appVersion: v19.0.0
 dependencies:
 - name: gitlab
   repository: ""
   version: '*.*.*'
 - name: certmanager-issuer
-  repository: ""
-  version: '*.*.*'
-- name: minio
   repository: ""
   version: '*.*.*'
 - name: registry
@@ -21,19 +18,11 @@ dependencies:
 - condition: prometheus.install
   name: prometheus
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 27.52.0
-- condition: postgresql.install
-  name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 13.4.4
+  version: 29.2.1
 - condition: gitlab-runner.install
   name: gitlab-runner
   repository: https://charts.gitlab.io/
-  version: 0.88.2
-- condition: redis.install
-  name: redis
-  repository: https://charts.bitnami.com/bitnami
-  version: 18.19.4
+  version: 0.88.3
 - condition: nginx-ingress.enabled
   name: nginx-ingress
   repository: ""
@@ -46,11 +35,11 @@ dependencies:
 - condition: gitlab-zoekt.install
   name: gitlab-zoekt
   repository: https://charts.gitlab.io/
-  version: 3.11.0
+  version: 3.8.2
 - condition: openbao.install
   name: openbao
   repository: https://charts.gitlab.io/
-  version: 0.14.0
+  version: 0.15.0
 - condition: traefik.install
   name: traefik
   repository: https://helm.traefik.io/traefik
@@ -64,7 +53,11 @@ dependencies:
   condition: global.gatewayApi.installEnvoy
   name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
-  version: 1.7.1
+  version: 1.8.0
+- condition: ai-gateway.install
+  name: ai-gateway
+  repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
+  version: 0.11.0
 description: GitLab is the most comprehensive AI-powered DevSecOps Platform.
 home: https://about.gitlab.com/
 icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
@@ -76,4 +69,4 @@ maintainers:
 name: gitlab
 sources:
 - https://gitlab.com/gitlab-org/charts/gitlab
-version: 9.11.4
+version: 10.0.0

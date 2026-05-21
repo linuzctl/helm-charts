@@ -25,7 +25,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals := list -}}
 {{/* add templates here */}}
 {{- $removals = append $removals (include "gitlab.removal.rails.appConfig" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.minio" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.registryStorage" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.registryHttpSecret" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.registry.replicas" .) -}}
@@ -48,8 +47,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals = append $removals (include "gitlab.removal.initContainerImage" .) -}}
 {{- $removals = append $removals (include "external.removal.initContainerImage" .) -}}
 {{- $removals = append $removals (include "external.removal.initContainerPullPolicy" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.redis-ha.enabled" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.redis.enabled" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.webservice.service.configuration" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.gitaly.serviceName" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.global.psql.pool" .) -}}
@@ -65,6 +62,10 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals = append $removals (include "gitlab.removal.busybox" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.kas.privateApi.tls" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.openbao.psql" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.chart.minio" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.chart.redis" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.chart.postgresql" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.spamcheck" .) -}}
 
 {{- /* we're ready to deprecate top-level registry entries for workhorse and sidekiq, but not enforcing yet */ -}}
 {{- /* $removals = append $removals (include "gitlab.removal.registry.topLevel" .) */ -}}
@@ -104,39 +105,6 @@ gitlab.{{ $chart }}:
 {{-   end -}}
 {{- end -}}
 {{- end -}}
-
-{{/* Deprecation behaviors for global configuration of Minio */}}
-{{- define "gitlab.removal.minio" -}}
-{{- if ( hasKey .Values.minio "enabled" ) }}
-minio:
-    Chart-local `enabled` property has been moved to global. Please remove `minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{- end -}}
-{{- if .Values.registry.minio -}}
-{{-   if ( hasKey .Values.registry.minio "enabled" ) }}
-registry:
-    Chart-local configuration of Minio features has been moved to global. Please remove `registry.minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{-   end -}}
-{{- end -}}
-{{- if .Values.gitlab.webservice.minio -}}
-{{-   if ( hasKey .Values.gitlab.webservice.minio "enabled" ) }}
-gitlab.webservice:
-    Chart-local configuration of Minio features has been moved to global. Please remove `gitlab.webservice.minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{-   end -}}
-{{- end -}}
-{{- if .Values.gitlab.sidekiq.minio -}}
-{{-   if ( hasKey .Values.gitlab.sidekiq.minio "enabled" ) }}
-gitlab.sidekiq:
-    Chart-local configuration of Minio features has been moved to global. Please remove `gitlab.sidekiq.minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{-   end -}}
-{{- end -}}
-{{- if index .Values.gitlab "toolbox" "minio" -}}
-{{-   if ( hasKey ( index .Values.gitlab "toolbox" "minio" ) "enabled" ) }}
-gitlab.toolbox:
-    Chart-local configuration of Minio features has been moved to global. Please remove `gitlab.toolbox.minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{-   end -}}
-{{- end -}}
-{{- end -}}
-{{/* END deprecate.minio */}}
 
 {{/* Migration of Registry `storage` dict to a secret */}}
 {{- define "gitlab.removal.registryStorage" -}}
@@ -249,7 +217,7 @@ gitlab.{{ $chart }}:
 
 {{/* Deprecation behavious for configuration of initContainer images of external charts */}}
 {{- define "external.removal.initContainerImage" -}}
-{{- range $chart:= list "minio" "registry" "redis" "redis-ha" }}
+{{- range $chart:= list "registry" "redis" "redis-ha" }}
 {{-     if hasKey (index $.Values $chart) "init" -}}
 {{-         with $config := index $.Values $chart "init" -}}
 {{-             if or (and (hasKey $config "image") (kindIs "string" $config.image)) (hasKey $config "tag") }}
@@ -264,7 +232,7 @@ gitlab.{{ $chart }}:
 
 {{/* Deprecation behavious for configuration of initContainer image pull policy of external charts */}}
 {{- define "external.removal.initContainerPullPolicy" -}}
-{{- range $chart:= list "minio" "registry" }}
+{{- range $chart:= list "registry" }}
 {{-     if hasKey (index $.Values $chart) "init" -}}
 {{-         with $config := index $.Values $chart "init" -}}
 {{-             if hasKey $config "pullPolicy" }}
@@ -276,24 +244,6 @@ gitlab.{{ $chart }}:
 {{- end -}}
 {{- end -}}
 {{/* END external.removal.initContainerPullPolicy*/}}
-
-{{/* Deprecation behaviors for redis-ha.enabled */}}
-{{- define "gitlab.removal.redis-ha.enabled" -}}
-{{-   if hasKey (index .Values "redis-ha") "enabled" -}}
-redis-ha:
-    The `redis-ha.enabled` has been removed. Redis HA is now implemented by the Redis chart.
-{{-   end -}}
-{{- end -}}
-{{/* END gitlab.removal.redis-ha.enabled */}}
-
-{{/* Deprecation behaviors for redis.enabled */}}
-{{- define "gitlab.removal.redis.enabled" -}}
-{{-   if hasKey .Values.redis "enabled" -}}
-redis:
-    The `redis.enabled` has been removed. Please use `redis.install` to install the Redis service.
-{{-   end -}}
-{{- end -}}
-{{/* END gitlab.removal.redis.enabled */}}
 
 {{- define "gitlab.removal.gitlab.webservice.service.configuration" -}}
 {{-   range $chart := list "gitaly" "gitlab-shell" -}}
@@ -484,7 +434,7 @@ gitaly:
 {{- end -}}
 
 {{- define "gitlab.removal.hpa.legacyCpuTarget" -}}
-{{-   range $chart := list "gitlab-pages" "gitlab-shell" "kas" "sidekiq" "spamcheck" "webservice" -}}
+{{-   range $chart := list "gitlab-pages" "gitlab-shell" "kas" "sidekiq" "webservice" -}}
 {{-     if and (hasKey $.Values.gitlab $chart) (hasKey (index $.Values.gitlab $chart) "hpa") -}}
 {{-       if hasKey (index $.Values.gitlab $chart).hpa "targetAverageValue" }}
 gitlab.{{ $chart }}:
@@ -499,7 +449,7 @@ gitlab.{{ $chart }}:
 registry:
     The configuration of `registry.hpa.behaviour` has moved. Please use `registry.hpa.behavior` instead.
 {{-   end -}}
-{{-   range $chart := list "gitlab-pages" "gitlab-shell" "kas" "mailroom" "sidekiq" "spamcheck" "webservice" -}}
+{{-   range $chart := list "gitlab-pages" "gitlab-shell" "kas" "mailroom" "sidekiq" "webservice" -}}
 {{-     if and (hasKey $.Values.gitlab $chart) (hasKey (index $.Values.gitlab $chart) "hpa") -}}
 {{-       if hasKey (index $.Values.gitlab $chart).hpa "behaviour" }}
 gitlab.{{ $chart }}:
@@ -553,5 +503,15 @@ kas:
     Please use `global.kas.tls.enabled` and `global.kas.tls.secretName` instead.
     Other components of the GitLab chart other than KAS also need to be configured to talk to KAS via TLS.
     With a global value the chart can take care of these configurations without the need for other specific values.
+{{- end -}}
+{{- end -}}
+
+{{- define "gitlab.removal.spamcheck" -}}
+{{- if and (hasKey .Values.global "spamcheck") (hasKey .Values.global.spamcheck "enabled") (.Values.global.spamcheck.enabled) }}
+spamcheck:
+The Spamcheck subchart has been removed in GitLab 19.0. Please remove `global.spamcheck.enabled` and any
+`gitlab.spamcheck` configuration from your values.
+For more information, see
+https://docs.gitlab.com/update/deprecations/#spamcheck-support-in-the-linux-package-and-gitlab-helm-chart
 {{- end -}}
 {{- end -}}

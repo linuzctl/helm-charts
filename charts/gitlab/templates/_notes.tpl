@@ -5,16 +5,8 @@
 */}}
 {{- define "gitlab.nonProdCharts" }}
 charts:
-  - name: PostgreSQL
-    enabled: {{ .Values.postgresql.install }}
-  - name: Redis
-    enabled: {{ .Values.redis.install }}
-  - name: Gitaly
-    enabled: {{ .Values.global.gitaly.enabled }}
   - name: Praefect
     enabled: {{ .Values.global.praefect.enabled }}
-  - name: MinIO
-    enabled: {{ .Values.global.minio.enabled }}
 {{- end }}
 
 {{/*

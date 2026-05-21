@@ -72,6 +72,7 @@ iam_auth_service:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 0 . | int }}
   jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
+  jwt_issuer: {{ dig "jwtIssuer" "" . | quote }}
   {{- end }}
 {{- end }}
 
@@ -124,6 +125,9 @@ gitlab_shell:
   hooks_path: /home/git/gitlab-shell/hooks/
   upload_pack: true
   receive_pack: true
+  {{- if .Values.global.appConfig.gitTimeout }}
+  git_timeout: {{ .Values.global.appConfig.gitTimeout }}
+  {{- end }}
 {{- end -}}
 
 {{- define "gitlab.appConfig.shell.ssh_port" -}}

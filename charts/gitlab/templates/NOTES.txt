@@ -6,18 +6,9 @@
 {{- /* Warn users about Ingress controller changes */}}
 {{- if or (index .Values "nginx-ingress").enabled .Values.traefik.install (index .Values "kubernetes-ingress").enabled }}
 {{ $CRITICAL }}
-The bundled Ingress controllers including NGINX Ingress are deprecated. Starting with GitLab 19.0, GitLab chart will
-disable NGINX Ingress and will default to Gateway API and Envoy Gateway. Please migrate to Gateway API or an externally
-managed Ingress controller and review the deprecation announcements at https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress
-and https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts.
-{{- end }}
-
-{{- /* Warn users about MinIO and Bitnami Redis/PostgreSQL removal */}}
-{{- if or (eq .Values.postgresql.install true) (eq .Values.redis.install true) (eq .Values.global.minio.enabled true) }}
-{{ $CRITICAL }}
-The bundled PostgreSQL, Redis and MinIO will be removed in GitLab 19.0. Please review
-the deprecation announcement at https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart
-and plan to migrate to externally managed alternatives by following https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
+The bundled Ingress controllers including NGINX Ingress are deprecated and will be removed in GitLab 20.0.
+Please migrate to Gateway API or an externally managed Ingress controller and review the deprecation announcement
+at https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts.
 {{- end }}
 
 {{- /* If any development subchart is enabled, note it is not production ready */}}
@@ -55,7 +46,7 @@ The Container Registry database metrics feature has been enabled. This is an exp
 {{- end }}
 
 {{- /* If using self-signed auto-generated certificates, and a service needing them is enabled */}}
-{{- if or .Values.gitlab.webservice.enabled .Values.registry.enabled .Values.global.minio.enabled }}
+{{- if or .Values.gitlab.webservice.enabled .Values.registry.enabled }}
 {{-   if not (or .Values.global.ingress.configureCertmanager (include "gitlab.ingress.tls.configured" .)) }}
 {{ $WARNING }}
 {{-     if (eq (include "gitlab.global.ingress.tls.enabled" .) "false") }}
@@ -81,9 +72,6 @@ OR all of:
 {{- end }}
 {{- if $.Values.registry.enabled }}
 - registry.ingress.tls.secretName
-{{- end }}
-{{- if $.Values.global.minio.enabled }}
-- minio.ingress.tls.secretName
 {{- end }}
 {{- if $.Values.global.pages.enabled }}
 - gitlab.gitlab-pages.ingress.tls.secretName
@@ -152,15 +140,7 @@ helm:
 
 {{- /* PostgreSQL minimum version change */}}
 {{ $WARNING }}
-The minimum required version of PostgreSQL is now 16. See https://docs.gitlab.com/charts/installation/upgrade.html for more details.
-
-{{- /* NGINX Ingress update */}}
-{{- if (index $.Values "nginx-ingress").enabled }}
-{{ $WARNING }}
-The default NGINX Ingress version was updated from to 1.15.1. Please check the
-upstream changelogs for impact on your usage:
-  https://github.com/kubernetes/ingress-nginx/blob/main/changelog/controller-1.15.0.md
-{{- end }}
+The minimum required version of PostgreSQL is now 17. See https://docs.gitlab.com/charts/installation/upgrade.html for more details.
 
 {{- /* Certmanager update */}}
 {{- if .Values.installCertmanager }}

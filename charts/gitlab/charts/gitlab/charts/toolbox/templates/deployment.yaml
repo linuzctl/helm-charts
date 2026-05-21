@@ -21,6 +21,11 @@ spec:
   {{- if .Values.deployment.strategy }}
   strategy: {{ .Values.deployment.strategy | toYaml | nindent 4 }}
   {{- end }}
+  {{- if hasKey .Values.deployment "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  {{- else if hasKey $.Values.global "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ $.Values.global.revisionHistoryLimit }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -142,6 +147,7 @@ spec:
           volumeMounts:
             {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
             {{- include "toolbox.registry.database.databaseBackupCredentialsMount" . | nindent 12 }}
+            {{- include "toolbox.openbao.database.databaseBackupCredentialsMount" . | nindent 12 }}
             - name: toolbox-config
               mountPath: '/var/opt/gitlab/templates'
             - name: toolbox-config
@@ -178,6 +184,7 @@ spec:
       {{- include "gitlab.geo.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.appConfig.kerberos.volume" $ | nindent 6 }}
       {{- include "toolbox.registry.databaseBackupCredentialsVolume" . | nindent 6 }}
+      {{- include "toolbox.openbao.databaseBackupCredentialsVolume" . | nindent 6 }}
       - name: toolbox-config
         projected:
           sources:
@@ -227,14 +234,13 @@ spec:
                 - key: registry-auth.key
                   path: registry/gitlab-registry.key
           {{- include "gitlab.registry.notificationSecret.mount" $ | nindent 10 -}}
-          {{- if or .Values.backups.objectStorage.config (not (or .Values.global.minio.enabled .Values.global.appConfig.object_store.enabled)) }}
+          {{- if or .Values.backups.objectStorage.config (not .Values.global.appConfig.object_store.enabled) }}
           {{-   include "toolbox.backups.objectStorage.config.secret" .Values.backups.objectStorage | nindent 10 }}
           {{- end }}
           {{- include "gitlab.pages.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.kas.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.iamAuthService.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.knowledgeGraph.mountSecrets" $ | nindent 10 }}
-          {{- include "gitlab.minio.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 10 }}

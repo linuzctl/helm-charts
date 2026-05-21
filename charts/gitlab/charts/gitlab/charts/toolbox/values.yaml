@@ -56,7 +56,6 @@ global:
     https: true
     gitlab: {}
     registry: {}
-    minio: {}
   psql:
     # host: '0.0.0.0'
     # port: '5432'
@@ -78,9 +77,6 @@ global:
       names: ["default"]
     external: []
     authToken: {}
-  minio:
-    enabled:
-    credentials: {}
   webservice: {}
   appConfig:
     lfs:
@@ -202,6 +198,16 @@ backups:
       #   secret: gitlab-toolbox-registry-database-password
       #   backupPasswordKey: backupPassword
       #   restorePasswordKey: restorePassword
+  openbao:
+    database: {}
+      # Separate credentials for OpenBao database backup and restore.
+      # These are distinct from global.openbao.psql (the OpenBao application credential).
+      # backupUser: ""
+      # restoreUser: ""
+      # password: {}
+      #   secret: gitlab-toolbox-openbao-database-password
+      #   backupPasswordKey: backupPassword
+      #   restorePasswordKey: restorePassword
 extra: {}
 
 ## Automatic database reindexing
@@ -248,10 +254,6 @@ gitaly:
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
-minio:
-  bucket: git-lfs
-  serviceName: 'minio-svc'
-  port: 9000
 resources:
   # limits:
   #  cpu: 1
@@ -324,6 +326,7 @@ deployment:
   strategy:
     type: Recreate
     rollingUpdate: null
+  # revisionHistoryLimit: 10
 
 ## Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in.
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
