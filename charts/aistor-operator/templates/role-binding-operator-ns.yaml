@@ -4,11 +4,10 @@
 {{- $opValue := index $operators $op | default $emptyObj }}
 {{- if not $opValue.disabled }}
 ---
-apiVersion: v1
-kind: ServiceAccount
-automountServiceAccountToken: false
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
 metadata:
-  name: {{ $op }}
+  name: {{ $op }}-operator
   namespace: {{ include "aistor.namespace" $ }}
   annotations:
     aistor.min.io/authors: MinIO, Inc.
@@ -22,5 +21,13 @@ metadata:
   labels:
     {{ $.Values.labels | toYaml | nindent 4 }}
   {{- end }}
-{{- end -}}
-{{- end -}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $op }}-operator
+subjects:
+  - kind: ServiceAccount
+    name: {{ $op }}
+    namespace: {{ include "aistor.namespace" $ }}
+{{- end }}
+{{- end }}

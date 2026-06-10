@@ -7,8 +7,9 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-04-13T10-27-16Z
+    aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
     controller-gen.kubebuilder.io/version: v0.20.0
+    helm.sh/resource-policy: keep
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}

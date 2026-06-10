@@ -14,10 +14,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-04-13T10-27-16Z
-    {{- if and (eq $op "object-store") (not $.Values.global.removeHelmChartVersion) }}
-    aistor.min.io/helm-chart-version: {{ printf "%s-%s" $.Chart.Name $.Chart.Version | quote }}
-    {{- end }}
+    aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}

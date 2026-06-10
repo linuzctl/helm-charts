@@ -11,7 +11,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-04-13T10-27-16Z
+    aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
     {{- if include "aistor.isOpenShift" $ }}
     service.beta.openshift.io/inject-cabundle: "true"
     {{- end }}
@@ -24,7 +24,7 @@ metadata:
   {{- end }}
 webhooks:
   - name: objectstore-rack-selector.min.io
-    admissionReviewVersions: ["v1", "v1beta1"]
+    admissionReviewVersions: ["v1"]
     sideEffects: "NoneOnDryRun"
     timeoutSeconds: 10
     failurePolicy: "Fail"
@@ -52,4 +52,15 @@ webhooks:
           values: ["true"]
         - key: v1.min.io/pool
           operator: Exists
+    {{- $watchedNamespaces := include "aistor.watchedNamespaces" (dict "operator" "object-store" "root" $.Values) | fromJsonArray }}
+    {{- if $watchedNamespaces }}
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values:
+          {{- range $ns := $watchedNamespaces }}
+            - {{ $ns }}
+          {{- end }}
+    {{- end }}
 {{- end }}
