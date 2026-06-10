@@ -19,7 +19,7 @@ image:
 indexer:
   image:
     repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-zoekt
-    tag: v1.8.0
+    tag: v1.14.2
   listen:
     port: 6065
   resources: {}
@@ -35,7 +35,7 @@ indexer:
 webserver:
   image:
     repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-zoekt
-    tag: v1.8.0
+    tag: v1.14.2
     # pullPolicy:
   listen:
     port: 6070

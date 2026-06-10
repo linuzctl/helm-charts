@@ -72,6 +72,11 @@ The architecture features:
 
 - [Architecture Overview](doc/architecture.md)
 - [How to enable LoadBalancer](doc/load_balancer.md)
+- [Stable Branches and Releases](doc/stable-branches.md)
+
+## Stable branches
+
+Stable branches are named `<gitlab-major>-<gitlab-minor>-stable` and are protected. Do not use the `-stable` suffix for any other branches. See [doc/stable-branches.md](doc/stable-branches.md) for the full process.
 
 ## Decision Making
 
