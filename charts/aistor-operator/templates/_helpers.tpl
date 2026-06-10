@@ -15,7 +15,9 @@
 {{- if .val.image -}}
   {{- .val.image -}}
 {{- else -}}
-  {{- $imageDef := index .root.images .name -}}
+  {{- $emptyObj := ("{}" | fromJson) -}}
+  {{- $images := .root.images | default $emptyObj -}}
+  {{- $imageDef := index $images .name -}}
   {{- if not $imageDef -}}
     {{ fail (printf "Image '%s' not found in images definition" .name) }}
   {{- else if kindIs "string" $imageDef }}
@@ -24,7 +26,7 @@
     {{- if (not $imageDef.repository) }}
       {{ fail (printf "Image definition for '%s' must have a 'repository' field" .name) }}
     {{- end -}}
-    {{- $repo := index .root.repositories $imageDef.repository -}}
+    {{- $repo := index (.root.repositories | default $emptyObj) $imageDef.repository -}}
     {{- if (not $repo) -}}
       {{ fail (printf "Unknown repository '%s' for image '%s'" $imageDef.repository .name) }}
     {{- end -}}
@@ -158,4 +160,26 @@ warp:
 */}}
 {{- define "aistor.tokenValidation" -}}
 {{- dig "operators" "object-store" "tokenValidation" "TokenReview" (.Values | merge (dict)) -}}
+{{- end -}}
+
+{{/*
+    aistor.watchedNamespaces returns the list of watched namespaces for an operator.
+    Per-operator value takes precedence over global.operator.watchedNamespaces.
+    Returns an empty list when neither is set (cluster-wide mode).
+    - operator: the operator name
+    - root: the root values object
+*/}}
+{{- define "aistor.watchedNamespaces" -}}
+{{- $emptyObj := "{}" | fromJson -}}
+{{- $emptyArray := "[]" | fromJsonArray -}}
+{{- $operators := .root.operators | default $emptyObj -}}
+{{- $opValue := index $operators .operator | default $emptyObj -}}
+{{- $globalOp := ((.root.global | default $emptyObj).operator) | default $emptyObj -}}
+{{- if hasKey $opValue "watchedNamespaces" -}}
+{{- $opValue.watchedNamespaces | toJson -}}
+{{- else if hasKey $globalOp "watchedNamespaces" -}}
+{{- $globalOp.watchedNamespaces | toJson -}}
+{{- else -}}
+{{- $emptyArray | toJson -}}
+{{- end -}}
 {{- end -}}

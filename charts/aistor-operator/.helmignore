@@ -25,3 +25,4 @@ aistor-operator-*.tgz
 .vscode/
 update-versions.sh
 .*/
+tests/

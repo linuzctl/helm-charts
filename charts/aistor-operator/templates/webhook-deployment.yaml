@@ -12,7 +12,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-04-13T10-27-16Z
+    aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -40,7 +40,7 @@ spec:
         aistor.min.io/authors: MinIO, Inc.
         aistor.min.io/license: Enterprise
         aistor.min.io/support: https://subnet.min.io
-        aistor.min.io/version: RELEASE.2026-04-13T10-27-16Z
+        aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
         {{- $podAnnotations := default $.Values.global.operator.podAnnotations .podAnnotations }}
         {{- if $podAnnotations }}
         {{- toYaml $podAnnotations | nindent 8 }}
@@ -66,7 +66,8 @@ spec:
                 - object-store-webhook
             topologyKey: kubernetes.io/hostname
         {{- end }}
-      serviceAccountName: aistor-object-store
+      automountServiceAccountToken: true
+      serviceAccountName: object-store-webhook
       {{- $defaultImagePullSecrets := include "aistor.resolveImagePullSecrets" (dict "name" "operator" "root" $.Values) | fromJsonArray }}
       {{- $imagePullSecrets := .imagePullSecrets | default $.Values.global.operator.imagePullSecrets | default $defaultImagePullSecrets }}
       {{- if $imagePullSecrets }}
@@ -92,6 +93,12 @@ spec:
             - pod-mutating-webhook
             - -v
             - "2"
+          {{- $watchedNamespaces := include "aistor.watchedNamespaces" (dict "operator" "object-store" "root" $.Values) | fromJsonArray }}
+          {{- if $watchedNamespaces }}
+          env:
+            - name: WATCHED_NAMESPACES
+              value: {{ $watchedNamespaces | join "," | quote }}
+          {{- end }}
           ports:
             - containerPort: 8443
           livenessProbe:

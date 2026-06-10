@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: v20260413102716.0.0
+appVersion: v20260610050221.0.0
 description: Helm chart for MinIO AIStor operators
 home: https://min.io
 icon: https://helm.min.io/logo.png
@@ -15,4 +15,4 @@ name: aistor-operator
 sources:
 - https://min.io/product/aistor-overview
 type: application
-version: 5.6.4
+version: 5.7.0

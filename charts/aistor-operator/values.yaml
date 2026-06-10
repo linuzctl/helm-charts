@@ -90,9 +90,9 @@ global:
         type: RuntimeDefault
 
     # Security context for the operator pods (ignored on OpenShift)
-    podSecurityContext:
-      {}
+    podSecurityContext: {}
       # fsGroup: 2000
+
     # An array of `Toleration labels for Operator pods to associate.
     # .. code-block:: yaml
     #
@@ -106,9 +106,24 @@ global:
     # Node selector labels
     nodeSelector: {}
 
+    # When set, the operator only monitors resources in the listed namespaces.
+    # A RoleBinding is created in each namespace instead of a ClusterRoleBinding.
+    # Leave empty (default) for cluster-wide mode.
+    #
+    # watchedNamespaces:
+    #   - namespace1
+    #   - namespace2
+    #
+    # Automatic certificates requires global cluster-wide permissions, so it you
+    # may want to disable this in namespace-scoped mode. Since OpenShift uses
+    # OpenShift Service CA Operator to issue certificates, this setting is not
+    # applicable in OpenShift.
+    #
+    # optOutAutomaticCertificates: true
+
 
 # All operators will be using the global setting, unless overridden
-# in the section below. All keys in `.global.operators` can also be
+# in the section below. All keys in `.global.operator` can also be
 # used here and will override (not extend) the global setting.
 #
 # All operators will be disabled by default, with the exception of
@@ -116,6 +131,8 @@ global:
 operators:
   adminjob:
     disabled: false
+  # DEPRECATED: the aihub controller is deprecated and will be removed in a
+  #             future release.
   aihub:
     disabled: true
   object-store:
@@ -143,8 +160,8 @@ operators:
     # `TokenReview`
     # -------------
     # This is the default mode, but it requires the following RBAC permissions:
-    # - Helm installation will install the `aistor-tokenreview` cluster role 
-    # - Operator should be able to assign `aistor-tokenreview` cluster role to
+    # - Helm installation will install the `aistor:tokenreview` cluster role 
+    # - Operator should be able to assign `aistor:tokenreview` cluster role to
     #   the AIStor service accounts, so it requires permission to create cluster role
     #   bindings.
     #
@@ -164,7 +181,7 @@ operators:
     # that prevent this. In such clusters, you must set `tokenValidation: TokenReview`
     # and grant the necessary permissions to AIStor. Clusters that do allow access to the
     # OIDC discovery and JWKS document can instead set `tokenValidation: OIDC` to avoid the
-    # `aistor-tokenreview` cluster role binding.
+    # `aistor:tokenreview` cluster role binding.
     tokenValidation: TokenReview
 
     webhook:
@@ -181,6 +198,8 @@ operators:
       #           values:
       #           - object-store-webhook
       #       topologyKey: kubernetes.io/hostname
+  # DEPRECATED: the prompt controller is deprecated and will be removed in a
+  #             future release.
   prompt:
     disabled: true
   warp:
@@ -223,27 +242,24 @@ images:
   aihub:
     repository: aistor
     image: aihub:RELEASE.2025-12-11T18-08-15Z
-  firewall:
-    repository: aistor
-    image: minwall:RELEASE.2024-11-01T19-53-30Z
   kes:
     repository: aistor
     image: kes:RELEASE.2026-04-13T20-11-36Z
   kes-sidecar:
     repository: aistor
-    image: kes-sidecar:RELEASE.2026-04-08T22-44-27Z
+    image: kes-sidecar:RELEASE.2026-06-10T04-53-14Z
   mc:
     repository: aistor
     image: mc:RELEASE.2026-04-21T04-26-49Z
   minio:
     repository: aistor
-    image: minio:RELEASE.2026-05-04T23-02-27Z
+    image: minio:RELEASE.2026-05-28T20-50-32Z
   minio-sidecar:
     repository: aistor
-    image: minio-sidecar:RELEASE.2026-04-11T08-21-39Z
+    image: minio-sidecar:RELEASE.2026-06-09T23-40-36Z
   operator:
     repository: aistor
-    image: operator:RELEASE.2026-04-13T10-27-16Z
+    image: operator:RELEASE.2026-06-10T05-02-21Z
   prompt:
     repository: aistor
     image: prompt:RELEASE.2025-01-17T21-55-43Z

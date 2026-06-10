@@ -2,14 +2,13 @@
 {{- $emptyObj := "{}" | fromJson -}}
 {{- $operators := $.Values.operators | default $emptyObj -}}
 {{- $opValue := index $operators $op | default $emptyObj }}
-{{- if not $opValue.disabled }}
+{{- $watchedNamespaces := include "aistor.watchedNamespaces" (dict "operator" $op "root" $.Values) | fromJsonArray }}
+{{- if and (not $opValue.disabled) (not $watchedNamespaces) }}
 ---
-apiVersion: v1
-kind: ServiceAccount
-automountServiceAccountToken: false
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
 metadata:
-  name: {{ $op }}
-  namespace: {{ include "aistor.namespace" $ }}
+  name: aistor:{{ $op }}
   annotations:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
@@ -22,5 +21,13 @@ metadata:
   labels:
     {{ $.Values.labels | toYaml | nindent 4 }}
   {{- end }}
-{{- end -}}
-{{- end -}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: aistor:{{ $op }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $op }}
+    namespace: {{ include "aistor.namespace" $ }}
+{{- end }}
+{{- end }}

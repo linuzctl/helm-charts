@@ -14,7 +14,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-04-13T10-27-16Z
+    aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -39,7 +39,7 @@ spec:
         aistor.min.io/authors: MinIO, Inc.
         aistor.min.io/license: Enterprise
         aistor.min.io/support: https://subnet.min.io
-        aistor.min.io/version: RELEASE.2026-04-13T10-27-16Z
+        aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
         {{- $podAnnotations := default $.Values.global.operator.podAnnotations .podAnnotations }}
         {{- with $podAnnotations }}
         {{- toYaml $podAnnotations | nindent 8 }}
@@ -100,6 +100,15 @@ spec:
         {{- if has $op (list "object-store") }}
         - name: TOKEN_VALIDATION
           value: {{ include "aistor.tokenValidation" $ }}
+        {{- if not $.Values.global.removeHelmChartVersion }}
+        - name: OPERATOR_HELM_CHART_VERSION
+          value: {{ printf "%s-%s" $.Chart.Name $.Chart.Version | quote }}
+        {{- end }}
+        {{- end }}
+        {{- $watchedNamespaces := include "aistor.watchedNamespaces" (dict "operator" $op "root" $.Values) | fromJsonArray }}
+        {{- if $watchedNamespaces }}
+        - name: WATCHED_NAMESPACES
+          value: {{ $watchedNamespaces | join "," | quote }}
         {{- end }}
         {{- with $int.extraEnv }}
         {{- . | toYaml | nindent 8 }}
@@ -163,7 +172,8 @@ spec:
       {{- else }}
       securityContext: {}
       {{- end }}
-      serviceAccountName: aistor-{{ $op }}
+      automountServiceAccountToken: true
+      serviceAccountName: {{ $op }}
       volumes:
       {{- if include "aistor.isOpenShift" $ }}
       {{- if has $op (list "object-store") }}

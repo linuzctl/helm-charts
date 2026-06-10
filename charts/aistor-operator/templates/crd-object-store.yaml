@@ -7,8 +7,9 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-04-13T10-27-16Z
+    aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
     controller-gen.kubebuilder.io/version: v0.20.0
+    helm.sh/resource-policy: keep
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -914,6 +915,8 @@ spec:
                     KESClient:
                       properties:
                         name:
+                          maxLength: 253
+                          pattern: ^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$
                           type: string
                         type:
                           type: string
@@ -927,6 +930,8 @@ spec:
                       items:
                         properties:
                           name:
+                            maxLength: 253
+                            pattern: ^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$
                             type: string
                           type:
                             type: string
@@ -954,6 +959,8 @@ spec:
                       items:
                         properties:
                           name:
+                            maxLength: 253
+                            pattern: ^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$
                             type: string
                           type:
                             type: string
@@ -965,6 +972,8 @@ spec:
                       items:
                         properties:
                           name:
+                            maxLength: 253
+                            pattern: ^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$
                             type: string
                           type:
                             type: string
@@ -1063,26 +1072,9 @@ spec:
                       - name
                     type: object
                   type: array
-                firewall:
-                  properties:
-                    configuration:
-                      properties:
-                        name:
-                          default: ""
-                          type: string
-                      type: object
-                      x-kubernetes-map-type: atomic
-                    enabled:
-                      type: boolean
-                    image:
-                      type: string
-                    imagePullPolicy:
-                      default: IfNotPresent
-                      type: string
-                  required:
-                    - enabled
-                  type: object
                 image:
+                  maxLength: 512
+                  pattern: ^[a-zA-Z0-9][a-zA-Z0-9_.\-\/:@]*$
                   type: string
                 imagePullPolicy:
                   type: string
@@ -2263,6 +2255,8 @@ spec:
                     clientCertSecret:
                       properties:
                         name:
+                          maxLength: 253
+                          pattern: ^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$
                           type: string
                         type:
                           type: string
@@ -2427,6 +2421,8 @@ spec:
                     externalCertSecret:
                       properties:
                         name:
+                          maxLength: 253
+                          pattern: ^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$
                           type: string
                         type:
                           type: string
@@ -2651,6 +2647,8 @@ spec:
                       items:
                         properties:
                           name:
+                            maxLength: 253
+                            pattern: ^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$
                             type: string
                           type:
                             type: string
@@ -2878,6 +2876,8 @@ spec:
                   type: object
                 mountPath:
                   default: /export
+                  maxLength: 4096
+                  pattern: ^(/([a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*|\.[a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*|\.\.[a-zA-Z0-9_\-.]+|\.))+$
                   type: string
                 podManagementPolicy:
                   type: string
@@ -3536,10 +3536,15 @@ spec:
                             default: false
                             type: boolean
                           matchLabel:
+                            maxLength: 317
+                            pattern: ^([a-z0-9]([-a-z0-9.]*[a-z0-9])?/)?[A-Za-z0-9]([-._A-Za-z0-9]*[A-Za-z0-9])?$
                             type: string
                           matchValues:
                             items:
+                              maxLength: 63
+                              pattern: ^([A-Za-z0-9]([-._A-Za-z0-9]*[A-Za-z0-9])?)?$
                               type: string
+                            maxItems: 64
                             type: array
                         required:
                           - enabled
@@ -5815,6 +5820,8 @@ spec:
                       type: integer
                   type: object
                 subPath:
+                  maxLength: 4096
+                  pattern: ^(/?([a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*|\.[a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*|\.\.[a-zA-Z0-9_\-.]+|\.)(/([a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*|\.[a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*|\.\.[a-zA-Z0-9_\-.]+|\.))*)?$
                   type: string
               required:
                 - pools
