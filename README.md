@@ -25,6 +25,7 @@ These charts are maintained upstream and are **mirrored here automatically**. Th
 | [gatekeeper](charts/gatekeeper) | [GitHub](https://github.com/open-policy-agent/gatekeeper/tree/master/charts/gatekeeper) | Renovate | [gatekeeper](https://github.com/users/linuzctl/packages/container/package/helm-charts/gatekeeper) |
 | [gitlab-runner](charts/gitlab-runner) | [GitLab](https://gitlab.com/gitlab-org/charts/gitlab) | Renovate | [gitlab-runner](https://github.com/users/linuzctl/packages/container/package/helm-charts/gitlab-runner) |
 | [gitlab](charts/gitlab) | [GitLab](https://gitlab.com/gitlab-org/charts/gitlab) | Renovate | [gitlab](https://github.com/users/linuzctl/packages/container/package/helm-charts/gitlab) |
+| [longhorn](charts/longhorn) | [GitHub](https://github.com/longhorn/longhorn/tree/master/chart) | Renovate | [longhorn](https://github.com/users/linuzctl/packages/container/package/helm-charts/longhorn) |
 | [metrics-server](charts/metrics-server) | [GitHub](https://github.com/kubernetes-sigs/metrics-server) | Renovate | [metrics-server](https://github.com/users/linuzctl/packages/container/package/helm-charts/metrics-server) |
 | [tetragon](charts/tetragon) | [GitHub](https://github.com/cilium/tetragon) | Renovate | [tetragon](https://github.com/users/linuzctl/packages/container/package/helm-charts/tetragon) |
 | [unpoller](charts/unpoller) | [GitHub](https://github.com/unpoller/helm-chart) | Renovate | [unpoller](https://github.com/users/linuzctl/packages/container/package/helm-charts/unpoller) |
