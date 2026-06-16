@@ -30,6 +30,7 @@ These charts are maintained upstream and are **mirrored here automatically**. Th
 | [metrics-server](charts/metrics-server) | [GitHub](https://github.com/kubernetes-sigs/metrics-server) | Renovate | [metrics-server](https://github.com/users/linuzctl/packages/container/package/helm-charts/metrics-server) |
 | [tetragon](charts/tetragon) | [GitHub](https://github.com/cilium/tetragon) | Renovate | [tetragon](https://github.com/users/linuzctl/packages/container/package/helm-charts/tetragon) |
 | [unpoller](charts/unpoller) | [GitHub](https://github.com/unpoller/helm-chart) | Renovate | [unpoller](https://github.com/users/linuzctl/packages/container/package/helm-charts/unpoller) |
+| [vertical-pod-autoscaler](charts/vertical-pod-autoscaler) | [GitHub](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler/charts/vertical-pod-autoscaler) | Renovate | [vertical-pod-autoscaler](https://github.com/users/linuzctl/packages/container/package/helm-charts/vertical-pod-autoscaler) |
 
 ### How Charts Are Tracked
 

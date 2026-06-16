@@ -1,0 +1,5 @@
+---
+repo_name: autoscalers
+repo_url: https://kubernetes.github.io/autoscaler
+chart_name: vertical-pod-autoscaler
+chart_version: 0.10.0
