@@ -119,7 +119,7 @@ zfsController:
       repository: sig-storage/snapshot-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: v8.2.0
+      tag: v8.6.0
     extraArgs: []
   provisioner:
     name: "csi-provisioner"
