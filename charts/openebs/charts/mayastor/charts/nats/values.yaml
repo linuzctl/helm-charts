@@ -517,7 +517,7 @@ gateway:
 bootconfig:
   image:
     repository: natsio/nats-boot-config
-    tag: 0.10.1
+    tag: 0.23.0
     pullPolicy: IfNotPresent
     # registry: docker.io
 
