@@ -1,0 +1,27 @@
+dependencies:
+- name: openebs-crds
+  repository: ""
+  version: 4.5.0
+- name: loki
+  repository: https://grafana.github.io/helm-charts
+  version: 6.29.0
+- name: alloy
+  repository: https://grafana.github.io/helm-charts
+  version: 1.0.1
+- name: localpv-provisioner
+  repository: https://openebs.github.io/dynamic-localpv-provisioner
+  version: 4.5.0
+- name: zfs-localpv
+  repository: https://openebs.github.io/zfs-localpv
+  version: 2.10.0
+- name: lvm-localpv
+  repository: https://openebs.github.io/lvm-localpv
+  version: 1.9.0
+- name: rawfile-localpv
+  repository: https://openebs.github.io/rawfile-localpv
+  version: 0.14.0
+- name: mayastor
+  repository: https://openebs.github.io/mayastor-extensions
+  version: 2.11.0
+digest: sha256:f9ccb1a87cda7de5b006ccc11673dcbc8c616008e5f3d861da315413f87f980a
+generated: "2026-06-05T11:45:54.39322208Z"
