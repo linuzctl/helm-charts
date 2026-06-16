@@ -18,9 +18,12 @@
     'charts/gatekeeper/**',
     'charts/gitlab-runner/**',
     'charts/gitlab/**',
+    'charts/longhorn/**',
     'charts/metrics-server/**',
+    'charts/openebs/**',
     'charts/tetragon/**',
     'charts/unpoller/**',
+    'charts/vertical-pod-autoscaler/**',
   ],
   enabledManagers: [
     'helm-values',
