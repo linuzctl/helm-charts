@@ -46,7 +46,7 @@ lvmNode:
       repository: sig-storage/csi-node-driver-registrar
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: v2.13.0
+      tag: v2.17.0
   updateStrategy:
     type: RollingUpdate
   annotations: {}
