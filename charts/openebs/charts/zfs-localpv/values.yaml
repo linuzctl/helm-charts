@@ -97,7 +97,7 @@ zfsController:
       repository: sig-storage/csi-resizer
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: v1.13.2
+      tag: v2.2.0
     extraArgs: []
   snapshotter:
     name: "csi-snapshotter"

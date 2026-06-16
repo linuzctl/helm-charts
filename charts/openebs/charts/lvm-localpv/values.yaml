@@ -102,7 +102,7 @@ lvmController:
       repository: sig-storage/csi-resizer
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: v2.0.0
+      tag: v2.2.0
   snapshotter:
     name: "csi-snapshotter"
     image:
