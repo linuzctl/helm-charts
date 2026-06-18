@@ -1,6 +1,6 @@
 # rawfile-localpv
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.14.0](https://img.shields.io/badge/AppVersion-0.14.0-informational?style=flat-square)
+![Version: 0.14.1](https://img.shields.io/badge/Version-0.14.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.14.1](https://img.shields.io/badge/AppVersion-0.14.1-informational?style=flat-square)
 
 RawFile Driver Container Storage Interface
 
@@ -20,7 +20,7 @@ Kubernetes: `>= 1.21`
 
 ## Install and Upgrades
 
-Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tree/v0.14.0/docs/install-guide.md)
+Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tree/v0.14.1/docs/install-guide.md)
 
 ## Values
 
@@ -72,6 +72,7 @@ Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tre
 | node.driverRegistrar.image.repository | string | `"sig-storage/csi-node-driver-registrar"` | Image Repository for `csi-node-driver-registrar` |
 | node.driverRegistrar.image.tag | string | `"v2.13.0"` | Image Tag for `csi-node-driver-registrar` |
 | node.driverRegistrar.resources | object | `{}` | Sets compute resources for driver-registrar container |
+| node.externalProvisioner.capacityPollInterval | string | `"1m"` | Sets capacity poll interval for `csi-provisioner`, determining how long the external-provisioner waits before checking for storage capacity changes. |
 | node.externalProvisioner.image.pullPolicy | string | `nil` | Image pull policy for `csi-provisioner` |
 | node.externalProvisioner.image.registry | string | `""` | Image Registry for `csi-provisioner` |
 | node.externalProvisioner.image.repository | string | `"sig-storage/csi-provisioner"` | Image Repository for `csi-provisioner` |
