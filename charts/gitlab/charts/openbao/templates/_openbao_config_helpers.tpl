@@ -65,8 +65,11 @@ The password is not contained in this URL, and must be configured via environmen
   {{- with .keepalivesCount -}}
   {{-   $connectionUrl = printf "%s&keepalives_count=%d" $connectionUrl (. | int) -}}
   {{- end -}}
-  {{- with .tcpUserCount }}
-  {{-   $connectionUrl = printf "%s&tcp_user_count=%d" $connectionUrl (. | int) -}}
+  {{- with .connectTimeout -}}
+  {{-   $connectionUrl = printf "%s&connect_timeout=%d" $connectionUrl (. | int) -}}
+  {{- end -}}
+  {{- with .tcpUserTimeout -}}
+  {{-   $connectionUrl = printf "%s&tcp_user_timeout=%d" $connectionUrl (. | int) -}}
   {{- end -}}
   {{- with .sslMode -}}
   {{-   $connectionUrl = printf "%s&sslmode=%s" $connectionUrl . -}}

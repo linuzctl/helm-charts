@@ -2,6 +2,29 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.1.0 (2026-06-17)
+
+### Added (2 changes)
+
+- [Add Topology Service mTLS support to GitLab Shell](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d2d4b487b651ef914ac6b94c1889d69854d676c3) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5111))
+- [feat(smtp): support reading SMTP username from a Kubernetes Secret](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4e97064c5577328944de34be677ce8350e6f3279) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5083))
+
+### Fixed (1 change)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d59e3ac36385049e5e2d2d08b88e5f0b64c0d26b) by @alanrichman ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5074))
+
+### Changed (9 changes)
+
+- [gitlab-shell: add ingressClassName to IngressRouteTCP](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d944bbea1ca21e0f53834384824b98ef32d36fc4) by @ioanalytica ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5084))
+- [Update Envoy Gateway to v1.8.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0a4f4de2514cf582f6d14b6103052e720e61e864) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5105))
+- [Update gitlab-zoekt to v4](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ab49fcd89c9954323c4477a8d1274e3786daf9ac) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5026))
+- [Update gitlab-runner to v0.89.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5e024be82a74917a0856ac1dd622dc6e6840cfc5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5081))
+- [Update prometheus to v29.9.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5d8e835a0ffcf70529918014e4e7c9ad2d56fbd8) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5082))
+- [Update container-registry to v4.40.1-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a0180e805dc02d1a3a98ef83eb7ee1c6b73d3b14) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5079))
+- [Update prometheus to v29.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51ebff848d1b22e82ee67eb3c4dc5569a5af5e2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5070))
+- [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
+- [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
+
 ## 10.0.2 (2026-06-10)
 
 ### Changed (1 change)
@@ -53,6 +76,17 @@ entry.
 - [Breaking: Remove spamcheck subchart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7dababe2cefe0699131a1ce8d18b3b85c8b99641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5035))
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
+
+## 9.11.6 (2026-06-10)
+
+No changes.
+
+## 9.11.5 (2026-05-26)
+
+### Fixed (2 changes)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/f79c362451298a4bfc3a888e33440a4ae31d6823)
+- [Revert make kerberos keytab updates dynamic](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/3022ff18281ab97b846d7610aece464c6525d378)
 
 ## 9.11.4 (2026-05-13)
 
@@ -108,6 +142,21 @@ No changes.
 - [Update gitlab-exporter to v16.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/37981d9e8b352c9d62908df776a248c41c316901) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4866))
 - [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
 - [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
+
+## 9.10.8 (2026-06-10)
+
+No changes.
+
+## 9.10.7 (2026-05-26)
+
+### Fixed (2 changes)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/038dcac41a6bff8c527c227e8339bfdc2dac587a)
+- [Revert make kerberos keytab updates dynamic](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/426c481af8c20560622a51e2a6582adf4cb3507b)
+
+### Changed (1 change)
+
+- [chore: bump gitlab-zoekt chart to 3.10.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/c1264745b50a0e02d01335371f7ee14c7e2eb27d)
 
 ## 9.10.6 (2026-05-13)
 
@@ -169,6 +218,10 @@ No changes.
 - [Update gitlab-runner to v0.86.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5989b6d58df3cd6333f896ac6d6186a97099b863) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4823))
 - [Update container-registry to v4.37.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f225950cc5b21f2c4dd09f30f989cb40185cd929) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4813))
 - [Remove Zoekt basic auth from main GitLab Helm chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bf6e3d48b050e0ba467d2adc98784ad123d2aa98) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4782))
+
+## 9.9.9 (2026-05-25)
+
+No changes.
 
 ## 9.9.8 (2026-05-13)
 
@@ -237,6 +290,12 @@ No changes.
 - [Add support for Kubernetes 1.35](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c56c1f65688a13b350c7b70600a768ca37255ea4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4742))
 - [Update dependency container-registry to v4.34.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6a38e5c3e8926cd3ee20926e95b6d85123666fed) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4743))
 
+## 9.8.11 (2026-05-25)
+
+### Fixed (1 change)
+
+- [Fix certmanager annotation regression in Helm 3.20.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f722c3034ec827301c09afa2fa160cda9a5ec4ea) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4929))
+
 ## 9.8.10 (2026-04-07)
 
 No changes.
@@ -304,6 +363,10 @@ No changes.
 
 - [Remove suggested reviewers secret and config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bcdce46616a5f76a12514615497e7d290b22a11b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4643))
 
+## 9.7.7 (2026-05-25)
+
+No changes.
+
 ## 9.7.6 (2026-03-10)
 
 No changes.
@@ -351,6 +414,14 @@ No changes.
 - [Update Helm release openbao to v0.9.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e8edf9bf84403a826d34163a505697c7c6a890a5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4661))
 - [Update Helm release gitlab-runner to v0.83.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bd1bc85cf2ea47931cf3dc5363a87f8d261566e0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4659))
 - [Update Helm release gitlab-runner to v0.83.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ff93cc6c6b49b2d3a2bda5ff8d8bbdaedfa01dfb) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4654))
+
+## 9.6.8 (2026-05-26)
+
+No changes.
+
+## 9.6.7 (2026-05-25)
+
+No changes.
 
 ## 9.6.6 (2026-02-09)
 
@@ -405,6 +476,14 @@ No changes.
 - [Update dependency container-registry to v4.29.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ef7b3911840c12e282ae1c1f032833ecb06214c6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4579))
 - [Update Helm release gitlab-zoekt to v3.6.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bc26720416f3bdec8e02b3772df379343293dc9d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4563))
 - [Update dependency container-registry to v4.28.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b6ad075821eb5a68056f37607c87c1d04b3e34ef) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4530))
+
+## 9.5.7 (2026-05-26)
+
+No changes.
+
+## 9.5.6 (2026-05-25)
+
+No changes.
 
 ## 9.5.5 (2026-01-07)
 

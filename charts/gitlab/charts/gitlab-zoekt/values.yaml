@@ -11,6 +11,10 @@ certificates:
 # search results.
 # @raw
 indexStorage: 2Gi
+# -- The storageClassName for the index storage, used to specify a custom StorageClass for the index PersistentVolumeClaim.
+# Set "-" to disable dynamic provisioning (resulting in storageClassName: "").
+# Set empty string (default) or null to use the cluster's default StorageClass with dynamic provisioning.
+# Set a string (e.g. "my-class") to use a specific StorageClass, which will trigger dynamic provisioning with that specific class.
 indexStorageClassName: ""
 
 replicas: 1

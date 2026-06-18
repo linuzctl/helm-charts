@@ -227,7 +227,11 @@ spec:
       name: zoekt-index
     spec:
       accessModes: [ "ReadWriteOnce" ]
+      {{- if (eq "-" .Values.indexStorageClassName) }}
+      storageClassName: ""
+      {{- else }}
       storageClassName:  {{ .Values.indexStorageClassName }}
+      {{- end }}
       resources:
         requests:
           storage: {{ .Values.indexStorage }}

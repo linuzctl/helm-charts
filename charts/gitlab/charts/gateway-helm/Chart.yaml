@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: v1.8.0
+appVersion: v1.8.1
 dependencies:
 - name: crds
   repository: ""
@@ -21,4 +21,4 @@ name: gateway-helm
 sources:
 - https://github.com/envoyproxy/gateway
 type: application
-version: 1.8.0
+version: 1.8.1

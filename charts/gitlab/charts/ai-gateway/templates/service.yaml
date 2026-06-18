@@ -19,6 +19,7 @@ spec:
       targetPort: grpc
       protocol: TCP
       name: grpc
+      appProtocol: kubernetes.io/h2c
 
   selector:
     {{- include "ai-gateway.selectorLabels" . | nindent 4 }}

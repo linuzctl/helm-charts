@@ -243,7 +243,7 @@ config:
       authTokenPath: "/srv/openbao/audit/gitlab-auth"
   storage:
     postgresql:
-      # @schema type:[boolean, null]
+      # @schema type:[string, null]
       table: null
       # @schema type:[integer, null]
       maxIdleConnections: 2
