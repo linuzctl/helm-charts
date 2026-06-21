@@ -47,11 +47,6 @@ spec:
           {{- end }}
         spec:
           restartPolicy: {{ .Values.backups.cron.restartPolicy }}
-          {{- $tolerations := default .Values.tolerations .Values.backups.cron.tolerations }}
-          {{- if $tolerations }}
-          tolerations:
-            {{- toYaml $tolerations | nindent 12 }}
-          {{- end }}
           {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 10 }}
           {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
           serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
@@ -93,7 +88,7 @@ spec:
                 {{- if eq .Values.backups.objectStorage.backend "s3" }}
                 - cp /etc/gitlab/.s3cfg $HOME/.s3cfg && backup-utility {{ .Values.backups.cron.extraArgs }} # alpine sleep has no infinity
                 {{- else if eq .Values.backups.objectStorage.backend "gcs" }}
-                - sh /var/opt/gitlab/templates/configure-gsutil && backup-utility {{ .Values.backups.cron.extraArgs }}
+                - sh /var/opt/gitlab/templates/configure-gcloud-storage && backup-utility {{ .Values.backups.cron.extraArgs }}
                 {{- else if eq .Values.backups.objectStorage.backend "azure" }}
                 - backup-utility {{ .Values.backups.cron.extraArgs }}
                  {{- end }}
@@ -117,6 +112,8 @@ spec:
                   value: {{ .Values.global.appConfig.terraformState.bucket }}
                 - name: CI_SECURE_FILES_BUCKET_NAME
                   value: {{ .Values.global.appConfig.ciSecureFiles.bucket }}
+                - name: AGENT_PLAN_CONTENT_BUCKET_NAME
+                  value: {{ .Values.global.appConfig.agentPlanContent.bucket }}
                 - name: BACKUP_BUCKET_NAME
                   value: {{ .Values.global.appConfig.backups.bucket }}
                 - name: BACKUP_BACKEND
@@ -233,6 +230,7 @@ spec:
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "agent_plan_content" "config" $.Values.global.appConfig.agentPlanContent) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 16 }}
                 {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 16 }}
@@ -246,6 +244,12 @@ spec:
           nodeSelector:
             {{- toYaml .Values.backups.cron.nodeSelector | nindent 12 }}
           {{- else }}
-          {{-   include "gitlab.nodeSelector" . | nindent 10 }}
+          {{- include "gitlab.nodeSelector" . | nindent 10 }}
+          {{- end }}
+          {{- if .Values.backups.cron.tolerations }}
+          tolerations:
+            {{- toYaml .Values.backups.cron.tolerations | nindent 12 }}
+          {{- else }}
+          {{- include "gitlab.tolerations" . | nindent 10 }}
           {{- end }}
 {{- end }}

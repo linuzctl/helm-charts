@@ -50,7 +50,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "19.0.2"
+  gitlabVersion: "19.1.0"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -416,6 +416,10 @@ global:
       enabled: false
       bucket: gitlab-ci-secure-files
       connection: {}
+    agentPlanContent:
+      enabled: false
+      bucket: gitlab-agent-plan-content
+      connection: {}
     dependencyProxy:
       enabled: false
       proxy_download: true
@@ -560,12 +564,16 @@ global:
       database:
         skipSequenceAlteration: false
       topologyServiceClient:
+        # Topology Service gRPC endpoint to connect to, as "host:port".
+        # address:
         tls:
           enabled: false
-        # address:
-        # caFile:
-        # privateKeyFile:
-        # certificateFile:
+          # Name of the Kubernetes secret holding the mTLS client certificate
+          # (tls.crt) and key (tls.key). Consumed by Rails
+          # (webservice/sidekiq/toolbox) and GitLab Shell for the gRPC client.
+          # secret:
+          # privateKeyFile:
+          # certificateFile:
 
     ## https://docs.gitlab.com/charts/charts/globals#omniauth
     omniauth:
@@ -813,6 +821,10 @@ global:
     address: smtp.mailgun.org
     port: 2525
     user_name: ""
+    ## Optional: read user_name from a Kubernetes Secret instead of plain text
+    user_name_secret:
+      secret: ""
+      key: username
     ## https://docs.gitlab.com/charts/installation/secrets#smtp-password
     password:
       secret: ""
