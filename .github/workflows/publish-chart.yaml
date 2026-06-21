@@ -25,7 +25,7 @@ jobs:
       charts: ${{ steps.detect.outputs.charts }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -52,7 +52,7 @@ jobs:
         chart: ${{ fromJSON(needs.detect-charts.outputs.charts) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
