@@ -2,4 +2,4 @@
 repo_name: openebs
 repo_url: https://openebs.github.io/openebs
 chart_name: openebs
-chart_version: 4.5.0
+chart_version: 4.5.1
