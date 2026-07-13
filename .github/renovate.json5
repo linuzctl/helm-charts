@@ -13,6 +13,7 @@
     'charts/aistor-objectstore/**',
     'charts/aistor-operator/**',
     'charts/awx-operator/**',
+    'charts/ceph-csi-operator/**',
     'charts/csi-driver-nfs/**',
     'charts/descheduler/**',
     'charts/gatekeeper/**',
