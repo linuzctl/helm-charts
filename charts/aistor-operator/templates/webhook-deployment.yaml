@@ -12,7 +12,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
+    aistor.min.io/version: RELEASE.2026-07-14T19-42-05Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -40,7 +40,7 @@ spec:
         aistor.min.io/authors: MinIO, Inc.
         aistor.min.io/license: Enterprise
         aistor.min.io/support: https://subnet.min.io
-        aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
+        aistor.min.io/version: RELEASE.2026-07-14T19-42-05Z
         {{- $podAnnotations := default $.Values.global.operator.podAnnotations .podAnnotations }}
         {{- if $podAnnotations }}
         {{- toYaml $podAnnotations | nindent 8 }}
@@ -94,10 +94,15 @@ spec:
             - -v
             - "2"
           {{- $watchedNamespaces := include "aistor.watchedNamespaces" (dict "operator" "object-store" "root" $.Values) | fromJsonArray }}
-          {{- if $watchedNamespaces }}
+          {{- if or $watchedNamespaces $webhook.extraEnv }}
           env:
+            {{- if $watchedNamespaces }}
             - name: WATCHED_NAMESPACES
               value: {{ $watchedNamespaces | join "," | quote }}
+            {{- end }}
+            {{- with $webhook.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
           ports:
             - containerPort: 8443
@@ -131,13 +136,13 @@ spec:
           {{- toYaml $securityContext | nindent 12 }}
           {{- end }}
           {{- end }}
-          {{- if (include "aistor.isOpenShift" $) }}
+          {{- if and (include "aistor.isOpenShift" $) (not (include "aistor.webhookUsesCustomCert" $)) }}
           volumeMounts:
             - name: tls
               mountPath: /tmp/object-store-webhook
               readOnly: true
           {{- end }}
-      {{- if (include "aistor.isOpenShift" $) }}
+      {{- if and (include "aistor.isOpenShift" $) (not (include "aistor.webhookUsesCustomCert" $)) }}
       volumes:
         - name: tls
           secret:

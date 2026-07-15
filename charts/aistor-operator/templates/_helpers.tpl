@@ -109,6 +109,27 @@
 
 
 {{/*
+    aistor.webhookUsesCustomCert returns "true" when the object-store webhook is
+    configured to serve a custom TLS certificate, detected by a non-empty
+    WEBHOOK_CUSTOM_TLS_SECRET_NAME in webhook.extraEnv. The OpenShift service-ca
+    wiring (inject-cabundle annotation, serving cert and its read-only mount) is
+    skipped in that case so the custom certificate path owns the serving cert
+    and CA bundle on OpenShift too.
+*/}}
+{{- define "aistor.webhookUsesCustomCert" -}}
+{{- $emptyObj := "{}" | fromJson -}}
+{{- $operators := .Values.operators | default $emptyObj -}}
+{{- $objectStore := index $operators "object-store" | default $emptyObj -}}
+{{- $webhook := index $objectStore "webhook" | default $emptyObj -}}
+{{- range ($webhook.extraEnv | default list) -}}
+{{- if and (eq .name "WEBHOOK_CUSTOM_TLS_SECRET_NAME") (ne (toString .value) "") -}}
+{{- true -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
     aistor.operatorEnabled returns whether the operator is enabled.
 */}}
 {{- define "aistor.operatorEnabled" -}}
@@ -148,7 +169,7 @@ adminjob:
 aihub:
   images: ["aihub"]
 object-store:
-  images: ["kes","kes-sidecar","minio","minio-sidecar"]
+  images: ["minwall","kes","kes-sidecar","minio","minio-sidecar"]
 prompt:
   images: ["prompt"]
 warp:
