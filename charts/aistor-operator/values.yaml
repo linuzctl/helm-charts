@@ -160,8 +160,8 @@ operators:
     # `TokenReview`
     # -------------
     # This is the default mode, but it requires the following RBAC permissions:
-    # - Helm installation will install the `aistor:tokenreview` cluster role 
-    # - Operator should be able to assign `aistor:tokenreview` cluster role to
+    # - Helm installation will install the `aistor-tokenreview` cluster role
+    # - Operator should be able to assign `aistor-tokenreview` cluster role to
     #   the AIStor service accounts, so it requires permission to create cluster role
     #   bindings.
     #
@@ -181,13 +181,21 @@ operators:
     # that prevent this. In such clusters, you must set `tokenValidation: TokenReview`
     # and grant the necessary permissions to AIStor. Clusters that do allow access to the
     # OIDC discovery and JWKS document can instead set `tokenValidation: OIDC` to avoid the
-    # `aistor:tokenreview` cluster role binding.
+    # `aistor-tokenreview` cluster role binding.
     tokenValidation: TokenReview
 
     webhook:
       enabled: true   # set to false to disable webhook deployment
-      caBundle: ""    # set a custom CA bundle (base64 encoded PEM certificate), otherwise it will be auto-injected
+      caBundle: ""    # custom CA bundle (base64 encoded PEM). Required when serving a custom certificate (see extraEnv below); for the autocert and OpenShift service-ca flows it is injected automatically.
       replicas: 1     # set number of replicas (default is only using a single webhook)
+      # extraEnv adds environment variables to the webhook container. Set
+      # WEBHOOK_CUSTOM_TLS_SECRET_NAME to serve a certificate issued externally
+      # (for example by cert-manager) instead of the autocert flow. When you do,
+      # also set caBundle above to the issuing CA so the apiserver trusts the webhook:
+      #   extraEnv:
+      #     - name: WEBHOOK_CUSTOM_TLS_SECRET_NAME
+      #       value: object-store-webhook-tls
+      extraEnv: []
       # affinity:
       #   podAntiAffinity:
       #     requiredDuringSchedulingIgnoredDuringExecution:
@@ -242,24 +250,27 @@ images:
   aihub:
     repository: aistor
     image: aihub:RELEASE.2025-12-11T18-08-15Z
+  minwall:
+    repository: aistor
+    image: minwall:RELEASE.2026-05-21T06-25-56Z
   kes:
     repository: aistor
     image: kes:RELEASE.2026-04-13T20-11-36Z
   kes-sidecar:
     repository: aistor
-    image: kes-sidecar:RELEASE.2026-06-10T04-53-14Z
+    image: kes-sidecar:RELEASE.2026-07-14T22-03-37Z
   mc:
     repository: aistor
-    image: mc:RELEASE.2026-04-21T04-26-49Z
+    image: mc:RELEASE.2026-06-24T01-47-10Z
   minio:
     repository: aistor
-    image: minio:RELEASE.2026-05-28T20-50-32Z
+    image: minio:RELEASE.2026-06-06T02-44-06Z
   minio-sidecar:
     repository: aistor
-    image: minio-sidecar:RELEASE.2026-06-09T23-40-36Z
+    image: minio-sidecar:RELEASE.2026-07-14T22-07-12Z
   operator:
     repository: aistor
-    image: operator:RELEASE.2026-06-10T05-02-21Z
+    image: operator:RELEASE.2026-07-14T19-42-05Z
   prompt:
     repository: aistor
     image: prompt:RELEASE.2025-01-17T21-55-43Z

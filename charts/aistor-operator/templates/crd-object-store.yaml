@@ -7,7 +7,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-06-10T05-02-21Z
+    aistor.min.io/version: RELEASE.2026-07-14T19-42-05Z
     controller-gen.kubebuilder.io/version: v0.20.0
     helm.sh/resource-policy: keep
     {{- if $.Values.annotations }}
@@ -1072,6 +1072,27 @@ spec:
                       - name
                     type: object
                   type: array
+                firewall:
+                  properties:
+                    configuration:
+                      properties:
+                        name:
+                          default: ""
+                          type: string
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    enabled:
+                      type: boolean
+                    image:
+                      maxLength: 512
+                      pattern: ^[a-zA-Z0-9][a-zA-Z0-9_.\-\/:@]*$
+                      type: string
+                    imagePullPolicy:
+                      default: IfNotPresent
+                      type: string
+                  required:
+                    - enabled
+                  type: object
                 image:
                   maxLength: 512
                   pattern: ^[a-zA-Z0-9][a-zA-Z0-9_.\-\/:@]*$
