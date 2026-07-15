@@ -6,26 +6,24 @@ labels: {}
 #namespaceOverride: "test"
 
 ###
-# Root key for dynamically creating a secret for use with configuring root MinIO User
-# Specify the ``name`` and then a list of environment variables.
+# Root key for dynamically creating a secret for use with configuring root MinIO User.
+# Specify the ``name`` and then provide explicit ``accessKey`` and ``secretKey`` values.
+# The chart no longer ships default credentials: ``helm install`` fails fast if these
+# are missing, and rejects the well-known weak pair ``minio`` / ``minio123``.
 #
-# .. important::
-#
-#    Do not use this in production environments.
-#    This field is intended for use with rapid development or testing only.
-#
-# For example:
+# Example:
 #
 # .. code-block:: yaml
 #
-#    name: myminio-env-configuration
-#    accessKey: minio
-#    secretKey: minio123
+#    secrets:
+#       name: myminio-env-configuration
+#       accessKey: <strong-access-key>
+#       secretKey: <strong-secret-key>
 #
 secrets:
   name: myminio-env-configuration
-  accessKey: minio
-  secretKey: minio123
+  accessKey: ""
+  secretKey: ""
   disableRoot: false    # Set to `true` to disable root user access for increased security
   ###
   # If this variable is set, then enable the usage of an existing Kubernetes secret to set environment variables for the Object Store.

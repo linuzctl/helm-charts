@@ -3,10 +3,13 @@
 {{- if and $secretConfigName (not (.Values.secrets).existingSecret) }}
 
 {{- if not .Values.secrets.accessKey }}
-{{- fail ".secrets.accessKey is required" }}
+{{- fail ".secrets.accessKey is required (no default credentials are shipped)" }}
 {{- end }}
 {{- if not .Values.secrets.secretKey }}
-{{- fail ".secrets.secretKey is required" }}
+{{- fail ".secrets.secretKey is required (no default credentials are shipped)" }}
+{{- end }}
+{{- if and (eq .Values.secrets.accessKey "minio") (eq .Values.secrets.secretKey "minio123") }}
+{{- fail ".secrets.accessKey/secretKey must not be the well-known weak pair 'minio'/'minio123'" }}
 {{- end }}
 
 apiVersion: v1
