@@ -2,4 +2,4 @@
 repo_name: minio
 repo_url: https://helm.min.io/
 chart_name: aistor-objectstore
-chart_version: 1.0.14
+chart_version: 1.0.15
