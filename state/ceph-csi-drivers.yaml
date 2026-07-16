@@ -1,0 +1,5 @@
+---
+repo_name: ceph-csi-operator
+repo_url: https://ceph.github.io/ceph-csi-operator/
+chart_name: ceph-csi-drivers
+chart_version: 1.0.4
