@@ -1,4 +1,4 @@
-{{- if and .Values.ingress.enabled .Values.duoWorkflow.enabled -}}
+{{- if eq (include "ai-gateway.ingress.grpc.enabled" $) "true" -}}
 {{- $fullName := include "ai-gateway.fullname" . -}}
 {{- $proxy := index .Values "grpc-tls-proxy" -}}
 {{- $grpcServiceName := ternary (printf "%s-grpc-tls-proxy" .Release.Name) $fullName $proxy.enabled -}}

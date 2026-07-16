@@ -1,5 +1,9 @@
 # vim: set filetype=sh:
 
+# Fail fast on errors.
+set -e
+set -o pipefail
+
 namespace={{ .Release.Namespace }}
 release={{ .Release.Name }}
 env={{ index .Values "shared-secrets" "env" }}
@@ -213,7 +217,7 @@ generate_secret_if_needed {{ template "gitlab.registry.notificationSecret.secret
 {{ if .Values.global.praefect.enabled -}}
 {{   if not .Values.global.praefect.psql.host -}}
 # Praefect DB password
-generate_secret_if_needed {{ template "gitlab.praefect.dbSecret.secret" . }} --from-literal={{ template "gitlab.praefect.dbSecret.key" . }}=$(gen_random 'a-zA-Z0-9', 32)
+generate_secret_if_needed {{ template "gitlab.praefect.dbSecret.secret" . }} --from-literal={{ template "gitlab.praefect.dbSecret.key" . }}=$(gen_random 'a-zA-Z0-9' 32)
 {{   end }}
 
 # Praefect auth token
@@ -233,6 +237,11 @@ generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretF
 {{ if .Values.global.appConfig.iamAuthService.enabled -}}
 # Service token used by GitLab to authenticate internal API requests to the iam-auth service
 generate_secret_if_needed {{ template "gitlab.appConfig.iamAuthService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamAuthService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
+{{ end }}
+
+{{ if .Values.global.appConfig.iamDataAccessService.enabled -}}
+# Service token used by GitLab to authenticate internal API requests to the iam-data-access service
+generate_secret_if_needed {{ template "gitlab.appConfig.iamDataAccessService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamDataAccessService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 {{ end }}
 
 {{ if index .Values "ai-gateway" "install" -}}

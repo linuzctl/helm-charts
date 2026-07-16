@@ -10,7 +10,7 @@ dependencies:
   version: '*.*.*'
 - name: cert-manager
   repository: oci://quay.io/jetstack/charts
-  version: v1.20.2
+  version: v1.21.0
 - name: prometheus
   repository: oci://ghcr.io/prometheus-community/charts
   version: 29.9.0
@@ -28,7 +28,7 @@ dependencies:
   version: 4.1.0
 - name: openbao
   repository: https://charts.gitlab.io/
-  version: 0.15.1
+  version: 0.16.0
 - name: traefik
   repository: https://helm.traefik.io/traefik
   version: 10.19.4
@@ -37,9 +37,9 @@ dependencies:
   version: 1.39.4
 - name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
-  version: 1.8.1
+  version: 1.8.2
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
-  version: 0.12.0
-digest: sha256:a267dc96e0bc84bddd5731c8c14a9b56df508e078287356be160e36ccd464d45
-generated: "2026-07-02T16:03:55.737025603+02:00"
+  version: 0.15.0
+digest: sha256:e8babf9ae150cdd4adb2b41c558be50a8ec9ffeea33d939b5e066c61f6bf4c03
+generated: "2026-07-14T11:20:17.767665+02:00"

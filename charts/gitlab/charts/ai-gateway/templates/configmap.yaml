@@ -45,4 +45,16 @@ data:
   DUO_WORKFLOW_AUTH__OIDC_GITLAB_URL: {{ include "ai-gateway.gitlab.url" . | quote }}
   DUO_WORKFLOW_CLOUD_CONNECTOR_SERVICE_NAME: {{ .Values.duoWorkflow.cloudConnectorServiceName | quote }}
   DUO_WORKFLOW_AUTH__ENABLED: {{ .Values.duoWorkflow.authEnabled | quote }}
+  DUO_WORKFLOW_AUTH__OIDC_CUSTOMER_PORTAL_URL: {{ include "ai-gateway.gitlab.url" . | quote }}
+  {{- if .Values.tls.secretName }}
+  DUO_WORKFLOW_TLS__ENABLED: "true"
+  DUO_WORKFLOW_TLS__CERT_FILE: /etc/ssl/ai-gateway/tls.crt
+  DUO_WORKFLOW_TLS__KEY_FILE: /etc/ssl/ai-gateway/tls.key
+  {{- end }}
+  {{- end }}
+  {{- if .Values.tls.secretName }}
+  AIGW_FASTAPI__TLS__ENABLED: "true"
+  AIGW_FASTAPI__TLS__CERT_FILE: /etc/ssl/ai-gateway/tls.crt
+  AIGW_FASTAPI__TLS__KEY_FILE: /etc/ssl/ai-gateway/tls.key
+  AIGW_FASTAPI__TLS__SSL_CIPHERS: {{ .Values.tls.ssl_ciphers | quote }}
   {{- end }}

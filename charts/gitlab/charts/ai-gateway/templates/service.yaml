@@ -11,15 +11,23 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
+    {{- if .Values.tls.secretName }}
+    - port: 443
+      targetPort: api
+      protocol: TCP
+      name: https
+    {{- else }}
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: api
       protocol: TCP
       name: http
+    {{- end }}
+    {{- if .Values.duoWorkflow.enabled }}
     - port: 50052
       targetPort: grpc
       protocol: TCP
       name: grpc
       appProtocol: kubernetes.io/h2c
-
+    {{- end }}
   selector:
     {{- include "ai-gateway.selectorLabels" . | nindent 4 }}

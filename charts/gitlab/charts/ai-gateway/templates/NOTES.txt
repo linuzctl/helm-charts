@@ -1,5 +1,5 @@
 1. Get the application URL by running these commands:
-{{- if .Values.ingress.enabled }}
+{{- if eq (include "ai-gateway.ingress.enabled" $) "true" -}}
 {{- range $host := .Values.ingress.hosts }}
   {{- range .paths }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }} for the AI Gateway
@@ -34,4 +34,4 @@
 
   Access the Duo Worflow service
   grpcurl  -plaintext localhost:50052 list
-{{- end }}
+{{- end -}}
