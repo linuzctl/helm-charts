@@ -185,6 +185,9 @@ spec:
   {{- if dig "pvcProtection" true . }}
   pvcProtection: true
   {{- end }}
+  {{- if dig "disablePodDisruptionBudget" false . }}
+  disablePodDisruptionBudget: true
+  {{- end }}
   prometheusOperator: {{ dig "prometheusOperator" "false" . }}
   {{- with (dig "prometheusOperatorScrapeMetricsPaths" (list) .) }}
   prometheusOperatorScrapeMetricsPaths: {{- toYaml . | nindent 4 }}
