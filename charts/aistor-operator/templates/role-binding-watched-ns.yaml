@@ -15,7 +15,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-07-14T19-42-05Z
+    aistor.min.io/version: RELEASE.2026-07-16T23-53-30Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -26,7 +26,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: aistor:{{ $op }}
+  name: aistor-{{ $op }}
 subjects:
   - kind: ServiceAccount
     name: {{ $op }}

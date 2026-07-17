@@ -2,4 +2,4 @@
 repo_name: minio
 repo_url: https://helm.min.io/
 chart_name: aistor-operator
-chart_version: 5.8.0
+chart_version: 5.9.0

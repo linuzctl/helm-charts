@@ -270,7 +270,7 @@ images:
     image: minio-sidecar:RELEASE.2026-07-14T22-07-12Z
   operator:
     repository: aistor
-    image: operator:RELEASE.2026-07-14T19-42-05Z
+    image: operator:RELEASE.2026-07-16T23-53-30Z
   prompt:
     repository: aistor
     image: prompt:RELEASE.2025-01-17T21-55-43Z
