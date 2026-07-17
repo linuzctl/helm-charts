@@ -8,7 +8,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-07-14T19-42-05Z
+    aistor.min.io/version: RELEASE.2026-07-16T23-53-30Z
     {{- if and (include "aistor.isOpenShift" $) (not (include "aistor.webhookUsesCustomCert" $)) }}
     service.beta.openshift.io/serving-cert-secret-name: object-store-webhook-service-cert
     {{- end }}
