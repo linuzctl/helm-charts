@@ -398,6 +398,11 @@ objectStore:
   # data loss when deleting a namespace.
   pvcProtection: false
   ###
+  # Disable creation of PodDisruptionBudgets for the Object Store pools. When false (default), the operator
+  # manages a PodDisruptionBudget per pool to protect against voluntary disruptions that would break quorum.
+  # When true, the operator does not create PodDisruptionBudgets and removes any it previously created.
+  disablePodDisruptionBudget: false
+  ###
   # Directs the Object Store Operator to add the Object Store's metric scrape configuration to an existing Kubernetes Prometheus deployment managed by the Prometheus Operator.
   prometheusOperator: false
   # Optional list of metric paths to scrape when `prometheusOperator: true`, if not provided the default path `/minio/v2/metrics/cluster` is used.
