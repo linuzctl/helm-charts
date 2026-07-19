@@ -1,7 +1,8 @@
 apiVersion: v2
-appVersion: v1.8.1
+appVersion: v1.8.2
 dependencies:
-- name: crds
+- condition: crds.enabled
+  name: crds
   repository: ""
   version: 0.0.0
 description: The Helm chart for Envoy Gateway
@@ -21,4 +22,4 @@ name: gateway-helm
 sources:
 - https://github.com/envoyproxy/gateway
 type: application
-version: 1.8.1
+version: 1.8.2

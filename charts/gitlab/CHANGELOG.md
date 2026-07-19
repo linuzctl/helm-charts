@@ -2,6 +2,26 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.2.0 (2026-07-15)
+
+### Fixed (4 changes)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5d10ea05cdb3bd06f1fbab7c4073a040bbef7caa) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5156))
+- [Fix stray comma in Praefect password generation](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e2ee6d67ec9135eaab9635718acd562bf6603a92) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5154))
+- [Fix shared-secrets silent failures](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8c1f075b6bb430b9caa67d53b091c4a3c95fa99d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5154))
+- [Fix Pages object storage validation under consolidated config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bd8adc0200a917a11e39114681b333b063188b2b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5124))
+
+### Changed (8 changes)
+
+- [Update cert-manager to v1.21.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ab5f58178bd58f40420fced1ba6440d4219e5498) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5174))
+- [Update gitlab-exporter to v16.9.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/cb277798bcaa2bf999e6bbe21a62f332db16db52) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5172))
+- [Update cert-manager to v1.20.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fc1b343d7a460f0c6aace8c6681a5b5ee4eaf33f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5148))
+- [Update Envoy Gateway to v1.8.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/598b18b8974a96ebcdf17d6a1ca53b2c5df43085) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5164))
+- [Update gitlab-runner to v0.90.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/61343dc7585b5d55cba369fd51090d300b8667d6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5150))
+- [Update helm to v4.2.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a534dceb707369d69c458e09e60a7db2b8897fb5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5130))
+- [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
+- [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
+
 ## 10.1.2 (2026-07-07)
 
 ### Fixed (1 change)
@@ -40,6 +60,18 @@ entry.
 - [Update prometheus to v29.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51ebff848d1b22e82ee67eb3c4dc5569a5af5e2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5070))
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
+
+## 10.0.4 (2026-07-07)
+
+### Fixed (1 change)
+
+- [fix: add HTTP git paths to long-running HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/bc35dde02943ad434ca49aa9515dacc5a1722a9b)
+
+## 10.0.3 (2026-06-23)
+
+### Fixed (1 change)
+
+- [Fix Pages object storage validation under consolidated config](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/cf0f171906b6348c62c21be2958e6e98ab86f78a)
 
 ## 10.0.2 (2026-06-10)
 
@@ -92,6 +124,14 @@ entry.
 - [Breaking: Remove spamcheck subchart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7dababe2cefe0699131a1ce8d18b3b85c8b99641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5035))
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
+
+## 9.11.8 (2026-07-07)
+
+No changes.
+
+## 9.11.7 (2026-06-23)
+
+No changes.
 
 ## 9.11.6 (2026-06-10)
 
@@ -305,6 +345,10 @@ No changes.
 - [Update Helm release gitlab-zoekt to v3.8.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4c706d5c202d86d4d91f76ddaaf2ba0a833c2f1d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4733))
 - [Add support for Kubernetes 1.35](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c56c1f65688a13b350c7b70600a768ca37255ea4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4742))
 - [Update dependency container-registry to v4.34.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6a38e5c3e8926cd3ee20926e95b6d85123666fed) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4743))
+
+## 9.8.12 (2026-06-29)
+
+No changes.
 
 ## 9.8.11 (2026-05-25)
 

@@ -49,7 +49,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
+            - name: api
               containerPort: {{ .Values.api.port }}
               protocol: TCP
             {{- if .Values.duoWorkflow.enabled }}
@@ -64,6 +64,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+          {{- if .Values.tls.secretName }}
+            - name: ai-gateway-tls
+              mountPath: /etc/ssl/ai-gateway
+              readOnly: true
+          {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -157,10 +162,15 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
+      {{- with .Values.tls.secretName }}
+        - name: ai-gateway-tls
+          secret:
+            secretName: {{ . }}
+      {{- end }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
+        {{- include "gitlab.certificates.volumes" . | nindent 8 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

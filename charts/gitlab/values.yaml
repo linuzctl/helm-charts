@@ -50,7 +50,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "19.1.2"
+  gitlabVersion: "19.2.0"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -72,6 +72,7 @@ global:
     pages: {}
     openbao: {}
     workspaces: {}
+    aiGateway: {}
 
   gatewayApi:
     enabled: true
@@ -541,6 +542,18 @@ global:
         # port:
       # jwtAudience:
       # jwtIssuer:
+      # authToken:
+        # secret:
+        # key:
+
+    ## IAM Data Access service configuration
+    ## Shared secret for authenticating calls from GitLab Rails to the iam-data-access service.
+    ## Optional for self-managed; GitLab.com enables it via its own deployment values.
+    iamDataAccessService:
+      enabled: false
+      # grpc:
+        # host:
+        # port:
       # authToken:
         # secret:
         # key:
@@ -1496,6 +1509,10 @@ openbao:
       http:
         enabled: true
         streamingUri: '{{ include "gitlab.workhorse.url" . }}/api/v4/internal/secrets_manager/audit_logs'
+        # Go-duration string (e.g. "5s") for the audit http device request_timeout. Empty (default)
+        # emits no request_timeout. Setting or unsetting it on a running install swaps the audit device
+        # path so the change is a remove+add, not an in-place modify (see the openbao subchart values.yaml).
+        requestTimeout: ""
     storage:
       postgresql:
         connection:
@@ -1566,6 +1583,18 @@ gatewayApiResources:
           mode: Terminate
           certificateRefs:
             - name: openbao-tls
+      ai-gateway-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: ai-gateway-tls
+      ai-gateway-grpc:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: ai-gateway-grpc-tls
   envoy:
     proxySpec:
       provider:
@@ -1601,6 +1630,8 @@ ai-gateway:
   install: false
   ingress:
     enabled: false
+  init:
+    containerSecurityContext: {}
 
 envoy-gateway:
   deployment:

@@ -44,6 +44,18 @@ service:
   port: 80
   annotations: {}
 
+# Gateway API supports depends on deploying AIGW through GitLab chart: https://docs.gitlab.com/charts/charts/ai-gateway/
+gatewayRoute:
+  enabled: null
+  sectionName: "ai-gateway-web"
+  gatewayName: ""
+  gatewayNamespace: ""
+  annotations: { }
+  filters: [ ]
+  grpc:
+    sectionName: "ai-gateway-grpc"
+
+
 ingress:
   enabled: false
   className: ""
@@ -58,14 +70,14 @@ ingress:
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
-  #      - chart-example.local
+  #    - chart-example.local
 
 grpcIngress:
   hosts:
-    - host:  grpc-chart-example.local
-      paths:
-      - path: /
-        pathType: ImplementationSpecific
+  - host:  grpc-chart-example.local
+    paths:
+    - path: /
+      pathType: ImplementationSpecific
   tls: []
   annotations: {
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
@@ -88,11 +100,11 @@ resources: {}
 livenessProbe:
   httpGet:
     path: /monitoring/healthz
-    port: http
+    port: api
 readinessProbe:
   httpGet:
     path: /monitoring/healthz
-    port: http
+    port: api
 
 autoscaling:
   enabled: false
@@ -340,3 +352,11 @@ grpc-tls-proxy:
     limits:
       cpu: 200m
       memory: 128Mi
+
+tls:
+  secretName: ""
+  caSecretName: ""
+  ssl_ciphers: "TLSv1.2"
+
+backendTLSPolicy:
+  hostname: ""

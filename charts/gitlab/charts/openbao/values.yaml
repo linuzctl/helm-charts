@@ -153,11 +153,18 @@ auditTpl: |
   {{- with .Values.config.audit.http }}
     {{- if .enabled }}
   - http:
+      {{- if .requestTimeout }}
+      gitlab_rails:
+      {{- else }}
       gitlab_stream:
+      {{- end }}
         description: "Audit device for GitLab rails audit event streaming"
         options:
           uri: "{{ tpl .streamingUri $ }}"
           skip_test: "true"
+          {{- with .requestTimeout }}
+          request_timeout: "{{ . }}"
+          {{- end }}
           headers: |
             {
               "Gitlab-Openbao-Auth-Token": ["file://{{ .authTokenPath }}"],
@@ -241,6 +248,13 @@ config:
       enabled: false
       streamingUri: "https://workhorse.gitlab.example.com/api/v4/internal/secrets_manager/audit_logs"
       authTokenPath: "/srv/openbao/audit/gitlab-auth"
+      # Go-duration string (e.g. "5s") for the audit http device request_timeout.
+      # Empty (default) emits no request_timeout, matching the OpenBao binary default of no timeout.
+      # Setting this on an already-running install swaps the audit device path (gitlab_stream ->
+      # gitlab_rails) so the change is a create+remove, not an in-place modify. OpenBao
+      # rejects in-place modification of a declarative audit device (post-unseal fails, node goes
+      # standby), so the path swap is required to change options safely on an existing device.
+      requestTimeout: ""
   storage:
     postgresql:
       # @schema type:[string, null]

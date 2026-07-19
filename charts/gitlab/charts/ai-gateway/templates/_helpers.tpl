@@ -118,3 +118,11 @@ Secret AIGW duoWorkflowValidationKey key helper
 {{- define "ai-gateway.duoWorkflowValidationKey.key" -}}
 {{- (.Values.duoWorkflowValidationKey).key | default "" }}
 {{- end }}
+
+{{- define "ai-gateway.ingress.enabled" -}}
+{{- and .Values.ingress.enabled (eq .Values.ingress.gitlabIngressEnabled false) }}
+{{- end }}
+
+{{- define "ai-gateway.ingress.grpc.enabled" -}}
+{{- and .Values.ingress.enabled .Values.duoWorkflow.enabled (eq .Values.ingress.gitlabIngressEnabled false) }}
+{{- end }}

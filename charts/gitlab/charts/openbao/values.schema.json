@@ -43,6 +43,9 @@
                                 "enabled": {
                                     "type": "boolean"
                                 },
+                                "requestTimeout": {
+                                    "type": "string"
+                                },
                                 "streamingUri": {
                                     "type": "string"
                                 }
