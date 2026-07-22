@@ -12,8 +12,9 @@
     - val: the value of the image in the current object
 */}}
 {{- define "aistor.resolveImage" -}}
+{{- $img := "" -}}
 {{- if .val.image -}}
-  {{- .val.image -}}
+  {{- $img = .val.image -}}
 {{- else -}}
   {{- $emptyObj := ("{}" | fromJson) -}}
   {{- $images := .root.images | default $emptyObj -}}
@@ -21,7 +22,7 @@
   {{- if not $imageDef -}}
     {{ fail (printf "Image '%s' not found in images definition" .name) }}
   {{- else if kindIs "string" $imageDef }}
-    {{- $imageDef -}}
+    {{- $img = $imageDef -}}
   {{- else if kindIs "map" $imageDef }}
     {{- if (not $imageDef.repository) }}
       {{ fail (printf "Image definition for '%s' must have a 'repository' field" .name) }}
@@ -38,9 +39,19 @@
     {{- if $repo.hostname }}
       {{- $defaultImage = printf "%s/%s" $repo.hostname $defaultImage -}}
     {{- end }}
-    {{- $defaultImage -}}
+    {{- $img = $defaultImage -}}
   {{- end }}
 {{- end -}}
+{{- if and $img .root.global .root.global.fipsMode -}}
+  {{- if contains "@" $img -}}
+    {{ fail (printf "global.fipsMode cannot append a .fips tag to digest-pinned image %q; use a tag-based reference or disable global.fipsMode" $img) }}
+  {{- end -}}
+  {{- if not (contains ":" ($img | splitList "/" | last)) -}}
+    {{ fail (printf "global.fipsMode cannot append a .fips tag to untagged image %q; specify an explicit tag or disable global.fipsMode" $img) }}
+  {{- end -}}
+  {{- $img = printf "%s.fips" $img -}}
+{{- end -}}
+{{- $img -}}
 {{- end -}}
 
 {{/* 

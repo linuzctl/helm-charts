@@ -20,6 +20,11 @@ global:
   # override this setting to force OpenShift mode.
   #forceOpenShift: true
 
+  # Enable FIPS 140-3 mode for all operators. When true, every image resolved by
+  # the chart gets a ".fips" suffix appended to its tag, selecting the
+  # FIPS-enabled image variants. Leave false for the normal (non-FIPS) images.
+  fipsMode: false
+
   # Specify the default cluster domain. When it's not set, then it
   # will try to auto-detect the cluster. But you may want to set it
   # explicitly
@@ -270,7 +275,7 @@ images:
     image: minio-sidecar:RELEASE.2026-07-14T22-07-12Z
   operator:
     repository: aistor
-    image: operator:RELEASE.2026-07-16T23-53-30Z
+    image: operator:RELEASE.2026-07-21T22-41-48Z
   prompt:
     repository: aistor
     image: prompt:RELEASE.2025-01-17T21-55-43Z
