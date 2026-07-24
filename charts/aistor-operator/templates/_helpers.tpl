@@ -27,10 +27,11 @@
     {{- if (not $imageDef.repository) }}
       {{ fail (printf "Image definition for '%s' must have a 'repository' field" .name) }}
     {{- end -}}
-    {{- $repo := index (.root.repositories | default $emptyObj) $imageDef.repository -}}
-    {{- if (not $repo) -}}
+    {{- $repos := .root.repositories | default $emptyObj -}}
+    {{- if not (hasKey $repos $imageDef.repository) -}}
       {{ fail (printf "Unknown repository '%s' for image '%s'" $imageDef.repository .name) }}
     {{- end -}}
+    {{- $repo := index $repos $imageDef.repository -}}
 
     {{- if (not $imageDef.image) }}
       {{ fail (printf "Image definition for '%s' must have an 'image' field" .name) }}
@@ -214,4 +215,19 @@ warp:
 {{- else -}}
 {{- $emptyArray | toJson -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+    aistor.render renders a value that may itself contain template directives.
+    This mirrors the helper already used by the aistor-objectstore, aistor-aihub,
+    aistor-prompt and minkms charts, so extraResources behaves identically here.
+    Usage:
+    {{ include "aistor.render" ( dict "value" .Values.path.to.the.Value "context" $) }}
+*/}}
+{{- define "aistor.render" -}}
+  {{- if typeIs "string" .value }}
+    {{- tpl .value .context }}
+  {{- else }}
+    {{- tpl (.value | toYaml) .context }}
+  {{- end }}
 {{- end -}}
