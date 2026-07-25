@@ -233,6 +233,31 @@ repositories:
     # - name: pull-secret1
     # - name: pull-secret2
 
+# Use an extraResources template section to include additional Kubernetes resources
+# with the Helm deployment. This lets you ship your own resources (custom resources,
+# ConfigMaps, Secrets, RBAC, policies, ...) alongside the operator without forking the
+# chart. Each entry is rendered through the same template pipeline used by the
+# aistor-objectstore, aistor-aihub, aistor-prompt and minkms charts, so values may
+# reference other chart values.
+#
+# A custom resource can only be listed here once its CRD already exists in the
+# cluster. Helm builds every object of a release before it applies any of them,
+# so a CRD that ships in this same release is not registered yet and the install
+# fails with "no matches for kind". Install the CRD first, for example with the
+# chart that owns it, and then add the custom resource here.
+#
+# Keep this section above the "# AUTOGENERATE" marker below: update-versions.sh
+# truncates values.yaml at that marker and regenerates everything after it.
+#extraResources:
+#  - |
+#    apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: my-extra-config
+#      namespace: {{ include "aistor.namespace" . }}
+#    data:
+#      key: value
+
 # The images allow overriding the default images that are used to
 # determine the full image names. When overriding the images,
 # you can specify the full image name (including registry and path)
