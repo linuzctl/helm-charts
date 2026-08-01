@@ -285,7 +285,7 @@ images:
     image: minwall:RELEASE.2026-05-21T06-25-56Z
   kes:
     repository: aistor
-    image: kes:RELEASE.2026-04-13T20-11-36Z
+    image: kes:RELEASE.2026-07-30T10-52-13Z
   kes-sidecar:
     repository: aistor
     image: kes-sidecar:RELEASE.2026-07-14T22-03-37Z
