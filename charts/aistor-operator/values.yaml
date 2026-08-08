@@ -294,7 +294,7 @@ images:
     image: mc:RELEASE.2026-07-24T01-15-12Z
   minio:
     repository: aistor
-    image: minio:RELEASE.2026-07-24T16-43-31Z
+    image: minio:RELEASE.2026-08-07T18-34-35Z
   minio-sidecar:
     repository: aistor
     image: minio-sidecar:RELEASE.2026-07-14T22-07-12Z
