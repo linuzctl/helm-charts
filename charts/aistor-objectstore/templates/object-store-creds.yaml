@@ -1,6 +1,6 @@
 {{- $secretConfigName := include "aistor.configSecretName" .Values }}
 
-{{- if not $secretConfigName }}
+{{- if and (not $secretConfigName) (not (.Values.secrets).existingSecret) }}
 
 {{- if not .Values.secrets }}
 {{- fail "secrets is required when secrets.name is not set" }}
