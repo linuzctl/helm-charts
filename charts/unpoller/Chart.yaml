@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: v2.21.0
+appVersion: v3.5.0
 description: 'A Helm chart for unpoller, a unifi prometheus exporter. This chart helps
   deploy Unpoller (unifi metrics exporter) in kubernetes clusters.  It crates a Deployment
   to run the unpoller container, confiuration is stored in a ConfigMap and mounted
@@ -20,4 +20,4 @@ name: unpoller
 sources:
 - https://github.com/unpoller/helm-chart
 type: application
-version: 2.1.0
+version: 2.4.0

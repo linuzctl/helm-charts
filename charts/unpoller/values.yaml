@@ -2,6 +2,10 @@
 
 replicaCount: 1
 
+extraEnv: []
+# - name: ENABLE_SERVER_STORAGE
+#   value: "false"
+
 image:
   repository:  "ghcr.io/unpoller/unpoller"
   pullPolicy: IfNotPresent
@@ -67,6 +71,24 @@ tolerations: []
 
 affinity: {}
 
+priorityClassName:
+
+# Service configuration
+service:
+  # Whether to create a Service resource
+  enabled: false
+  # Service type (ClusterIP, NodePort, LoadBalancer)
+  type: ClusterIP
+  # Service port for metrics endpoint
+  port: 9130
+  # Additional annotations for the Service (e.g., for Grafana Alloy autodiscovery)
+  annotations: {}
+
+# PodMonitor configuration for Prometheus Operator
+podMonitor:
+  # Whether to create a PodMonitor resource for Prometheus Operator
+  enabled: true
+
 # section to configure he unpoller dashboards, relaying on the CRDs from grafana operator. https://github.com/grafana/grafana-operator
 dashboards:
   create: true
@@ -90,6 +112,11 @@ dashboards:
       # Password for username, will create field GF_SECURITY_ADMIN_PASSWORD
       password: "prom-operator"
 
+# Use an existing secret for up.conf. When name is set, upConfig is ignored and no secret is created.
+upConfigExistingSecret:
+  name: ""
+  key: "up.conf"
+
 # Configuration file to be loaded by unpoller, See Github example page for more details.
 # https://github.com/unpoller/unpoller/blob/master/examples/up.conf.example
 upConfig: |
@@ -107,7 +134,7 @@ upConfig: |
       dynamic = false
   [loki]
       disable = true
-  [[unifi.controller]]    
+  [[unifi.controller]]
       url         = "https://unifi.home:8443"
       user        = "unifi"
       pass        = "unifi"
