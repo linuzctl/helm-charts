@@ -2,4 +2,4 @@
 repo_name: unpoller
 repo_url: https://unpoller.github.io/helm-chart
 chart_name: unpoller
-chart_version: 2.1.0
+chart_version: 2.4.0
