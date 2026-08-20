@@ -50,7 +50,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "19.2.4"
+  gitlabVersion: "19.3.0"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -421,6 +421,10 @@ global:
       enabled: false
       bucket: gitlab-agent-plan-content
       connection: {}
+    ciCatalogBundles:
+      enabled: false
+      bucket: gitlab-ci-catalog-bundles
+      connection: {}
     dependencyProxy:
       enabled: false
       proxy_download: true
@@ -443,6 +447,17 @@ global:
         key: secret
       azure_ad_endpoint: "https://login.microsoftonline.com"
       graph_endpoint: "https://graph.microsoft.com"
+
+    ## https://docs.gitlab.com/charts/charts/globals#outgoing-email
+    ## Amazon SES Mailer settings
+    amazon_ses_mailer:
+      enabled: false
+      region: ""
+      # role_arn: "arn:aws:iam::123456789012:role/your-role"
+      # access_key_id: "YOUR-AWS-ACCESS-KEY-ID"
+      secret_access_key:
+        secret: ""
+        key: secret_access_key
 
     ## https://docs.gitlab.com/charts/installation/command-line-options.html#incoming-email-configuration
     ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/index.html#incoming-email
@@ -514,12 +529,42 @@ global:
       #   secret:
       #   key:
 
-    knowledgeGraph:
-      enabled: false
+    orbit:
+      # enabled: false
       # jwtSecret:
       #   secret:
       #   key:
       # grpcEndpoint:
+
+    # Deprecated. Use `orbit` instead. Support is planned for removal in GitLab 19.5.
+    knowledgeGraph:
+      # enabled: false
+      # jwtSecret:
+      #   secret:
+      #   key:
+      # grpcEndpoint:
+
+    ## NATS (JetStream messaging, used for audit event streaming).
+    ## An empty (or absent) `servers` list means NATS is not configured;
+    ## audit event streaming then falls back to the Sidekiq delivery path.
+    nats:
+      servers: []
+        # - "tls://nats.example.com:4222"
+      # connectTimeout: 2
+      ## JetStream stream replication factor. Defaults to 1 for single-node
+      ## deployments; set to 3 for a clustered NATS deployment.
+      # streamReplicas: 1
+      ## Mutual TLS. The GitLab NATS clusters use verify_and_map, so the
+      ## client must present a client certificate whose CN maps to a NATS
+      ## user. The secret must contain `ca.crt`, `tls.crt`, and `tls.key`.
+      ##
+      ## Because verify_and_map maps each certificate's CN to a distinct NATS
+      ## user, each Rails component (webservice, sidekiq, toolbox) typically
+      ## needs its own client certificate. The `secret` below is a shared
+      ## fallback; override it per component via `<component>.nats.tls.secret`.
+      tls:
+        enabled: false
+        # secret:
 
     ## https://docs.gitlab.com/charts/charts/globals#kas-settings
     gitlab_kas: {}
@@ -896,6 +941,19 @@ global:
   # https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
   priorityClassName: ""
 
+  # Pod-level DNS configuration applied to all GitLab components by default.
+  # May be overridden per-component by setting `dnsConfig` at the sub-chart level.
+  # https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
+
+  # The cluster domain of the Kubernetes cluster, as configured in kubelet.
+  # When set, internal Service addresses are templated as fully qualified names
+  # (`<service>.<namespace>.svc.<clusterDomain>`), which do not depend on the pod
+  # DNS search list. When empty, the partial name `<service>.<namespace>.svc` is used.
+  # To resolve these addresses in a single lookup, also lower `ndots` above.
+  # https://docs.gitlab.com/charts/charts/globals#cluster-domain
+  clusterDomain: ""
+
   ## https://docs.gitlab.com/charts/charts/globals#configure-workhorse-settings
   ## Global settings related to Workhorse
   workhorse:
@@ -1052,6 +1110,9 @@ upgradeCheck:
     requests:
       cpu: 50m
   priorityClassName: ""
+  # Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
+  # See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
 
 ## Settings for the Let's Encrypt ACME Issuer
 # certmanager-issuer:
@@ -1397,6 +1458,9 @@ shared-secrets:
     capabilities:
       drop: [ "ALL" ]
   tolerations: []
+  # Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
+  # See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
   podLabels: {}
   annotations: {}
 

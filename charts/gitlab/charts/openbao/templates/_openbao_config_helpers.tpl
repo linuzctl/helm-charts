@@ -160,6 +160,8 @@ Render active TCP listener configuration.
 {{-     end -}}
 {{-     $_ := set $static "previous_key_id" $staticConf.previousKeyId -}}
 {{-     $_ := set $static "previous_key" (printf "file://%s" $staticConf.previousKey) -}}
+{{-   else if $staticConf.previousKey -}}
+{{-     fail "OpenBao: config.unseal.static.previousKeyId is required when previousKey is set." -}}
 {{-   end -}}
 {{-   $_ := set $conf "static" $static -}}
 {{- end -}}
