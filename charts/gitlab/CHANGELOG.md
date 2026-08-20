@@ -2,6 +2,35 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.3.0 (2026-08-20)
+
+### Added (4 changes)
+
+- [Add Amazon SES mailer chart settings](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bc768634bb8b74f257cf13cb77016867a7b8dd87) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5190))
+- [Set IAM_SERVICE_URL for Workhorse from iamAuthService](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/abb409e063caf45bcb8fd59a4b14fa915c1ce6e6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5251))
+- [Support appArmor and seLinux options in security context](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/60c0a2f2be56d3cfbbc4d72cde21dbf636bd0f22) by @iposadat ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5145))
+- [Add dnsConfig support for GitLab pod specs](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0689233ee7427c8be7b0c68cdfc49dde8d847ab9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5133))
+
+### Fixed (2 changes)
+
+- [feat(gitlab-shell): add BackendTrafficPolicy for PROXY v2 with Envoy Gateway](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5f5fc199f841569bf6fc3d0a32276d1b0fbe8f99) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5207))
+- [Remove namespace from GatewayClass](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/76dd6105f65e3710fa967917ea66986b87c59a36) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5228))
+
+### Changed (12 changes)
+
+- [Add Kubernetes 1.36 to k3d CI version matrix](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fda73524b77efa6f528894e6d3e9975e57a76c56) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5187))
+- [Update gitlab-runner to v0.91.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1957fd6e4a8066cb8a8f914be59101e1675a3bf3) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5258))
+- [feat: add Orbit app config alias](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/80fe0762b3b012eae52824c75153ddd607a6b993) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5249))
+- [Update ai-gateway to v0.15.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ef1f7c44ea9bd8fc9f505401f3f1fd0cfc7f2a77) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5243))
+- [Update openbao to v0.17.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f1b150b455c8b95315e008294053036c7786ae26) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5239))
+- [Update cert-manager to v1.21.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/80b60c66c679256e51614b31bf74eb105f940f11) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5234))
+- [Webservice: Enable IPv6 binding by default](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/588722a40d104829c88de1eeff7cf9a916c29cea) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5225))
+- [Update Envoy Gateway to v1.8.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/512d608bc1def344e3f8bd31557bdc8dd3f70dd5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5217))
+- [Raise HTTP/2 window on webservice Geo/main ClientTrafficPolicy](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/40e552be9805b3660e2b8f6e8bbc5c29ce3b9e42) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5200))
+- [Update helm to v4.2.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4e5bc5b7d74e118096452890ddb971c6364a7c0a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5202))
+- [Update gitlab-runner to v0.91.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6f8ff0bf646aa6fa2dc3b658b710f3570ba46cd0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5201))
+- [Update prometheus to v29.17.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/de64cf4a6c18fe3b1cd7d2f707eb9ca0a6b1720f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5097))
+
 ## 10.2.4 (2026-08-14)
 
 No changes.
@@ -43,6 +72,27 @@ No changes.
 - [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
 - [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
 
+## 10.1.6 (2026-08-14)
+
+No changes.
+
+## 10.1.5 (2026-08-13)
+
+No changes.
+
+## 10.1.4 (2026-08-12)
+
+### Fixed (2 changes)
+
+- [Prometheus: replace default scrapeConfigs to fix duplicate scrape job](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/afd86bac30637e8ced8427808525b1a9c323de6f)
+- [Remove namespace from GatewayClass](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/7575a4c36333700aad6ce469154288132ee7a04f)
+
+## 10.1.3 (2026-07-29)
+
+### Fixed (1 change)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/2d0a987d66bb65a1637b4a4d198156bc14f5e5e7)
+
 ## 10.1.2 (2026-07-07)
 
 ### Fixed (1 change)
@@ -81,6 +131,27 @@ No changes.
 - [Update prometheus to v29.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51ebff848d1b22e82ee67eb3c4dc5569a5af5e2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5070))
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
+
+## 10.0.8 (2026-08-14)
+
+No changes.
+
+## 10.0.7 (2026-08-13)
+
+No changes.
+
+## 10.0.6 (2026-08-12)
+
+### Fixed (2 changes)
+
+- [Prometheus: replace default scrapeConfigs to fix duplicate scrape job](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/86a75aea47e38fca6c800b6f82127130ca7267af)
+- [Remove namespace from GatewayClass](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/24a5b451c62be1992aa53a59464d402d033dc0e4)
+
+## 10.0.5 (2026-07-29)
+
+### Fixed (1 change)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/e68049679e4cc5dd8d3bc871b3d0a96dc65aa8e2)
 
 ## 10.0.4 (2026-07-07)
 
@@ -145,6 +216,22 @@ No changes.
 - [Breaking: Remove spamcheck subchart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7dababe2cefe0699131a1ce8d18b3b85c8b99641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5035))
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
+
+## 9.11.12 (2026-08-14)
+
+No changes.
+
+## 9.11.11 (2026-08-13)
+
+No changes.
+
+## 9.11.10 (2026-08-06)
+
+No changes.
+
+## 9.11.9 (2026-08-03)
+
+No changes.
 
 ## 9.11.8 (2026-07-07)
 

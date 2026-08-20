@@ -222,9 +222,9 @@ config:
       enabled: true
       currentKeyId: "static-unseal-0"
       currentKey: "/srv/openbao/keys/static-unseal-1"
-      # Optionally configure a previous key for rotation purposes. Needs an extra volume mount to the previous key path and a non-nil id.
+      # Optionally configure a previous key for rotation purposes. Set both or neither, and add an extra volume mount at the previous key path.
       previousKeyId: ""
-      previousKey: "/srv/openbao/keys/static-unseal-0"
+      previousKey: ""
     # AWS KMS auto-unseal. Mutually exclusive with static unsealing.
     # Set awskms.enabled=true and static.enabled=false to use AWS KMS.
     # With IRSA, no explicit AWS credentials are required — annotate the

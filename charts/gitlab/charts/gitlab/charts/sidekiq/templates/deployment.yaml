@@ -14,6 +14,7 @@
 {{- $resources := .Values.resources -}}
 {{- $nodeSelector := default .Values.global.nodeSelector .Values.nodeSelector -}}
 {{- $tolerations := default .Values.global.tolerations .Values.tolerations -}}
+{{- $dnsConfig := default .Values.global.dnsConfig .Values.dnsConfig -}}
 {{- $railsSecretName := include "gitlab.rails-secrets.secret" . -}}
 {{- $metricsEnabled := .Values.metrics.enabled -}}
 {{- $metricsPort := .Values.metrics.port -}}
@@ -26,6 +27,7 @@
 {{-   $queueName := printf "%s-%s" $fullname .name | trunc 63 }}
 {{-   $podNodeSelector := default $nodeSelector .nodeSelector -}}
 {{-   $tolerations := default $tolerations .tolerations -}}
+{{-   $dnsConfig := default $dnsConfig .dnsConfig -}}
 {{-   $maxReplicasPerPod := coalesce ((.keda).maxReplicaCount) ((.hpa).maxReplicas) .maxReplicas $maxReplicas }}
 {{-   include "sidekiq.pod.common.labels" . }}
 {{-   $_ := set . "podLabels" (merge (default (dict) .podLabels) (default (dict) $.Values.podLabels) (default (dict) $.Values.global.pod.labels)) -}}
@@ -90,6 +92,10 @@ spec:
       {{- end }}
       {{- with $tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $dnsConfig }}
+      dnsConfig:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- $priorityClassName := dict "Values" (dict "global" (dict "priorityClassName" $.Values.global.priorityClassName) "priorityClassName" (default $.Values.priorityClassName .priorityClassName)) -}}
@@ -248,6 +254,7 @@ spec:
         {{- end }}
           volumeMounts:
           {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "sidekiq-secrets") | nindent 10 }}
+          {{- include "gitlab.appConfig.nats.volumeMounts" (dict "context" $ "secretsVolumeName" "sidekiq-secrets") | nindent 10 }}
           {{- tpl (default "" .extraVolumeMounts) $ | nindent 10 }}
           {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
         {{- if $metricsEnabled }}
@@ -338,6 +345,7 @@ spec:
                   path: "sidekiq-metrics/sidekiq-metrics.key"
           {{- end }}
           {{- include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.nats.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.gitaly.clientSecrets" $ | nindent 10 }}
           {{- if $.Values.global.clickhouse.enabled }}
             {{- include "gitlab.clickhouse.main.secrets" $ | nindent 10 }}
@@ -374,12 +382,14 @@ spec:
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "agent_plan_content" "config" $.Values.global.appConfig.agentPlanContent) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "ci_catalog_bundles" "config" $.Values.global.appConfig.ciCatalogBundles) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 }}
           {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.duo.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.amazonSesMailer.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.smtp.mountSecrets" $ | nindent 10 }}
 {{- if $.Values.global.email.smime.enabled }}
       - name: smime-creds

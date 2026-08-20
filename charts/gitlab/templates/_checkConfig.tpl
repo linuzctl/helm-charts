@@ -63,12 +63,14 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_object_storage.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.registry.configured" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.pages.configured" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.backup.configured" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.consolidatedConfig" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.typeSpecificConfig" .) -}}
 
 {{/* _checkConfig_openbao.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.openbao.database" .) -}}
+
+{{/* _checkConfig_orbit.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.orbit.configurationRoots" .) -}}
 
 {{/* _checkConfig_redis.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.redis" .) -}}
@@ -128,6 +130,9 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_iam_data_access.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.host" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.port" .) -}}
+
+{{/* _checkConfig_outgoingEmail.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.outgoingEmail.mailerExclusive" .) -}}
 
 {{/* other checks */}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sentry" .) -}}
