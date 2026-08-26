@@ -2,4 +2,4 @@
 repo_name: cilium
 repo_url: https://helm.cilium.io
 chart_name: tetragon
-chart_version: 1.7.0
+chart_version: 1.7.1
