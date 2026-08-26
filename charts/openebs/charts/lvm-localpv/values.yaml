@@ -112,8 +112,10 @@ lvmController:
       repository: sig-storage/csi-snapshotter
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: v7.0.0
+      tag: v8.2.0
   snapshotController:
+    # There should only be one snapshot-controller per cluster. Set this to false if the cluster already runs one.
+    enabled: true
     name: "snapshot-controller"
     image:
       # Make sure that registry name end with a '/'.
@@ -122,7 +124,7 @@ lvmController:
       repository: sig-storage/snapshot-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: v7.0.0
+      tag: v8.2.0
   provisioner:
     name: "csi-provisioner"
     image:
@@ -182,7 +184,7 @@ lvmPlugin:
     repository: openebs/lvm-driver
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 1.9.1
+    tag: 1.10.0
   ioLimits:
     enabled: false
     containerRuntime: containerd
