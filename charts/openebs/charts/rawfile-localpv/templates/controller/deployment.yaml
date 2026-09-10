@@ -1,5 +1,5 @@
 {{- $cap := .Values.capabilities | default dict }}
-{{- if or ($cap.resize.enabled) ($cap.apiServer) }}
+{{- if or ($cap.resize.enabled) ($cap.apiServer.enabled) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,6 +34,8 @@ spec:
             - api
           ports:
             - containerPort: 8080
+          resources:
+            {{- include "rawfile-localpv.api-server-resources" . | nindent 12 }}
           env:
             - name: PROVISIONER_NAME
               value: "{{ .Values.provisionerName }}"
