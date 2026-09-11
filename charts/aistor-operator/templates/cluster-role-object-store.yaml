@@ -94,7 +94,7 @@ rules:
   # Manage pod disruption budgets
   - apiGroups: ["policy"]
     resources: ["poddisruptionbudgets"]
-    verbs: ["create", "list", "update", "watch"]
+    verbs: ["create", "delete", "list", "update", "watch"]
 
   # Monitor CRDs (to check if Prompt is installed)
   - apiGroups: ["apiextensions.k8s.io"]
