@@ -6,19 +6,11 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
-    {{- include "gitlab.commonLabels" . | nindent 4 }}
-    {{- include "gitlab.serviceLabels" . | nindent 4 }}
   annotations:
     {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    {{- if .Values.metrics.enabled }}
-    - port: {{ .Values.metrics.port }}
-      targetPort: http-metrics
-      protocol: TCP
-      name: http-metrics
-    {{- end }}
     - port: {{ include "gitlab.shell.port" . | int }}
       targetPort: {{ .Values.service.internalPort }}
       protocol: TCP
@@ -28,9 +20,6 @@ spec:
       {{- end }}
   {{- if or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
-  {{- end }}
-  {{- if and (eq .Values.service.type "LoadBalancer") (hasKey .Values.service "allocateLoadBalancerNodePorts") }}
-  allocateLoadBalancerNodePorts: {{ .Values.service.allocateLoadBalancerNodePorts }}
   {{- end }}
 {{- if .Values.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
@@ -46,5 +35,6 @@ spec:
     {{- toYaml .Values.service.externalIPs | nindent 4  }}
 {{- end }}
   selector:
-    {{- include "gitlab.selectorLabels" . | nindent 4 }}
+    app: {{ template "name" . }}
+    release: {{ .Release.Name }}
 {{- end }}

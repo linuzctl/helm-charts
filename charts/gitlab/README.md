@@ -1,8 +1,8 @@
 [![pipeline status](https://gitlab.com/gitlab-org/charts/gitlab/badges/master/pipeline.svg)](https://gitlab.com/gitlab-org/charts/gitlab/pipelines)
 
-# GitLab Helm chart
+# Cloud Native GitLab Helm Chart
 
-The GitLab Helm chart is the best way to operate GitLab on Kubernetes. It contains
+The `gitlab` chart is the best way to operate GitLab on Kubernetes. It contains
 all the required components to get started, and can scale to large deployments.
 
 Some of the key benefits of this chart and [corresponding containers](https://gitlab.com/gitlab-org/build/CNG) are:
@@ -13,12 +13,13 @@ Some of the key benefits of this chart and [corresponding containers](https://gi
 
 ## Detailed documentation
 
-See the [repository documentation](doc/_index.md) for how to install GitLab and
+See the [repository documentation](doc/index.md) for how to install GitLab and
 other information on charts, tools, and advanced configuration.
 
-For ease of reading, you can find this documentation published on <https://docs.gitlab.com/charts>.
+For easy of reading, you can find this documentation rendered on
+[docs.gitlab.com/charts](https://docs.gitlab.com/charts).
 
-### Configuration properties
+### Configuration Properties
 
 We're often asked to put a table of all possible properties directly into this README.
 These charts are _massive_ in scale, and as such the number of properties exceeds
@@ -30,15 +31,19 @@ jumping directly into the settings list.
 
 ## Architecture and goals
 
-See the [architecture documentation](doc/architecture/_index.md) for an overview
-of this project's goals and architecture.
+See [architecture documentation](doc/architecture/index.md) for an overview
+of this project goals and architecture.
+
+## Known issues and limitations
+
+See [limitations](doc/index.md#limitations).
 
 ## Release Notes
 
-Check the [version mappings documentation](doc/installation/version_mappings.md) for information on important releases,
+Check the [releases documentation](doc/releases/index.md) for information on important releases,
 and see the [changelog](CHANGELOG.md) for the full details on any release.
 
 ## Contributing
 
 See the [contribution guidelines](CONTRIBUTING.md) and then check out the
-[development style guide](doc/development/_index.md).
+[development styleguide](doc/development/index.md).

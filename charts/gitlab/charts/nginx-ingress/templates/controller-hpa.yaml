@@ -1,56 +1,30 @@
-{{- if and (eq .Values.controller.kind "Deployment") .Values.controller.autoscaling.enabled (not .Values.controller.keda.enabled) -}}
-{{- $hpaCfg := (dict "global" $.Values.global.hpa "local" .Values.controller.autoscaling "context" $) -}}
-apiVersion: {{ template "gitlab.hpa.apiVersion" $hpaCfg }}
+{{- if .Values.enabled -}}
+{{- if eq .Values.controller.kind "Deployment" }}
+{{- if .Values.controller.autoscaling.enabled }}
+apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  {{- with .Values.controller.autoscaling.annotations }}
-  annotations: {{ toYaml . | nindent 4 }}
-  {{- end }}
+  name: {{ template "nginx-ingress.controller.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
-    {{- include "gitlab.commonLabels" . | nindent 4 }}
-    {{- include "ingress-nginx.labels" . | nindent 4 }}
+{{ include "gitlab.standardLabels" . | indent 4 }}
     component: "{{ .Values.controller.name }}"
-    app.kubernetes.io/component: controller
-    {{- with .Values.controller.labels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  name: {{ include "ingress-nginx.controller.fullname" . }}
-  namespace: {{ include "ingress-nginx.namespace" . }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "ingress-nginx.controller.fullname" . }}
+    name: {{ template "nginx-ingress.controller.fullname" . }}
   minReplicas: {{ .Values.controller.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.controller.autoscaling.maxReplicas }}
   metrics:
-  {{- with .Values.controller.autoscaling.targetMemoryUtilizationPercentage }}
-  - type: Resource
-    resource:
-      name: memory
-      {{- if (include "gitlab.hpa.supportsV2MetricsSpec" $hpaCfg) }}
-      target:
-        type: Utilization
-        averageUtilization: {{ . }}
-      {{- else }}
-      targetAverageUtilization: {{ . }}
-      {{- end }}
-  {{- end }}
-  {{- with .Values.controller.autoscaling.targetCPUUtilizationPercentage }}
-  - type: Resource
-    resource:
-      name: cpu
-      {{- if (include "gitlab.hpa.supportsV2MetricsSpec" $hpaCfg) }}
-      target:
-        type: Utilization
-        averageUtilization: {{ . }}
-      {{- else }}
-      targetAverageUtilization: {{ . }}
-      {{- end }}
-  {{- end }}
-  {{- with .Values.controller.autoscalingTemplate }}
-  {{- toYaml . | nindent 2 }}
-  {{- end }}
-  {{- include "gitlab.hpa.behavior" $hpaCfg | nindent 2 }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.controller.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.controller.autoscaling.targetMemoryUtilizationPercentage }}
+{{- end }}
+{{- end }}
 {{- end }}

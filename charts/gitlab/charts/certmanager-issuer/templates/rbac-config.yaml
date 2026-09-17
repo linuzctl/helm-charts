@@ -1,14 +1,11 @@
-{{- $ingressConfigureCertmanager := pluck "configureCertmanager" .Values.global.ingress (dict "configureCertmanager" false) | first -}}
-{{- $configureGatewayCertmanager := .Values.global.gatewayApi.configureCertmanager }}
-{{ if and .Values.rbac.create (or $ingressConfigureCertmanager $configureGatewayCertmanager) }}
+{{ if and .Values.rbac.create (pluck "configureCertmanager" .Values.global.ingress (dict "configureCertmanager" false) | first) }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
-    {{- include "gitlab.commonLabels" . | nindent 4 }}
+{{ include "gitlab.standardLabels" . | indent 4 }}
   annotations:
     namespace: {{ .Release.Namespace }}
 ---
@@ -18,7 +15,7 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ .Release.Namespace }}
 rules:
-- apiGroups: ["cert-manager.io"]
+- apiGroups: ["certmanager.k8s.io"]
   resources: ["issuers"]
   verbs: ["get", "list", "update", "create", "patch"]
 ---

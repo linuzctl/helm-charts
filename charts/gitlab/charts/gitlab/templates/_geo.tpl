@@ -14,9 +14,6 @@ secondary
 {{- if .Values.global.geo.enabled -}}
 geo:
   node_name: {{ default "" .Values.global.geo.nodeName }}
-  registry_replication:
-    enabled: {{ eq true (default false .Values.global.geo.registry.replication.enabled) }}
-    primary_api_url: {{ .Values.global.geo.registry.replication.primaryApiUrl | quote }}
 {{- end -}}
 {{- end -}}
 
@@ -28,19 +25,20 @@ this should not be included _at all_ unless `gitlab.geo.secondary`. As
 such, we don't check that state here.
 */}}
 {{- define "gitlab.geo.database.yml" -}}
-geo:
+production:
   adapter: postgresql
   encoding: unicode
-  database_tasks: true
   database: {{ template "gitlab.geo.psql.database" . }}
+  pool: 1
   username: {{ template "gitlab.geo.psql.username" . }}
-  password: <%= File.read("/etc/gitlab/postgres/geo-psql-password").strip.to_json %>
+  password: "<%= File.read("/etc/gitlab/postgres/geo-psql-password").strip.dump[1..-2] %>"
   host: {{ template "gitlab.geo.psql.host" . }}
   port: {{ template "gitlab.geo.psql.port" . }}
   # load_balancing:
   #   hosts:
   #     - host1.example.com
   #     - host2.example.com
+  fdw: true
   {{- include "gitlab.geo.psql.ssl.config" . | nindent 2 }}
 {{- end -}}
 

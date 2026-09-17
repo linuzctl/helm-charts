@@ -24,6 +24,13 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "cert-manager.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "cert-manager.serviceAccountName" -}}
@@ -35,16 +42,12 @@ Create the name of the service account to use
 {{- end -}}
 
 {{/*
-Webhook templates
-*/}}
-
-{{/*
 Expand the name of the chart.
 Manually fix the 'app' and 'name' labels to 'webhook' to maintain
 compatibility with the v0.9 deployment selector.
 */}}
 {{- define "webhook.name" -}}
-{{- printf "webhook" -}}
+{{- printf "webhook" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -53,215 +56,37 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "webhook.fullname" -}}
-{{- $trimmedName := printf "%s" (include "cert-manager.fullname" .) | trunc 55 | trimSuffix "-" -}}
-{{- printf "%s-webhook" $trimmedName | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "webhook.caRef" -}}
-{{- template "cert-manager.namespace" }}/{{ template "webhook.fullname" . }}-ca
-{{- end -}}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "webhook.serviceAccountName" -}}
-{{- if .Values.webhook.serviceAccount.create -}}
-    {{ default (include "webhook.fullname" .) .Values.webhook.serviceAccount.name }}
+{{- if .Values.fullnameOverride -}}
+{{- printf "%s-webhook" .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-    {{ default "default" .Values.webhook.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
-cainjector templates
-*/}}
-
-{{/*
-Expand the name of the chart.
-Manually fix the 'app' and 'name' labels to 'cainjector' to maintain
-compatibility with the v0.9 deployment selector.
-*/}}
-{{- define "cainjector.name" -}}
-{{- printf "cainjector" -}}
-{{- end -}}
-
-{{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
-*/}}
-{{- define "cainjector.fullname" -}}
-{{- $trimmedName := printf "%s" (include "cert-manager.fullname" .) | trunc 52 | trimSuffix "-" -}}
-{{- printf "%s-cainjector" $trimmedName | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "cainjector.serviceAccountName" -}}
-{{- if .Values.cainjector.serviceAccount.create -}}
-    {{ default (include "cainjector.fullname" .) .Values.cainjector.serviceAccount.name }}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- printf "%s-webhook" .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-    {{ default "default" .Values.cainjector.serviceAccount.name }}
+{{- printf "%s-%s-webhook" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- end -}}
-
-{{/*
-startupapicheck templates
-*/}}
-
-{{/*
-Expand the name of the chart.
-Manually fix the 'app' and 'name' labels to 'startupapicheck' to maintain
-compatibility with the v0.9 deployment selector.
-*/}}
-{{- define "startupapicheck.name" -}}
-{{- printf "startupapicheck" -}}
-{{- end -}}
-
-{{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
-*/}}
-{{- define "startupapicheck.fullname" -}}
-{{- $trimmedName := printf "%s" (include "cert-manager.fullname" .) | trunc 52 | trimSuffix "-" -}}
-{{- printf "%s-startupapicheck" $trimmedName | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "startupapicheck.serviceAccountName" -}}
-{{- if .Values.startupapicheck.serviceAccount.create -}}
-    {{ default (include "startupapicheck.fullname" .) .Values.startupapicheck.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.startupapicheck.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "chartName" -}}
+{{- define "webhook.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{/*
-Labels that should be added on each resource
-*/}}
-{{- define "labels" -}}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- if eq .Values.creator "helm" }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-helm.sh/chart: {{ include "chartName" . }}
-{{- end -}}
-{{- if .Values.global.commonLabels}}
-{{ toYaml .Values.global.commonLabels }}
-{{- end }}
+{{- define "webhook.selfSignedIssuer" -}}
+{{ printf "%s-selfsign" (include "webhook.fullname" .) }}
 {{- end -}}
 
-{{/*
-Namespace for all resources to be installed into
-If not defined in values file then the helm release namespace is used
-By default this is not set so the helm release namespace will be used
-
-This gets around an problem within helm discussed here
-https://github.com/helm/helm/issues/5358
-*/}}
-{{- define "cert-manager.namespace" -}}
-    {{ .Values.namespace | default .Release.Namespace }}
+{{- define "webhook.rootCAIssuer" -}}
+{{ printf "%s-ca" (include "webhook.fullname" .) }}
 {{- end -}}
 
-{{/*
-Util function for generating the image URL based on the provided options.
-IMPORTANT: This function is standardized across all charts in the cert-manager GH organization.
-Any changes to this function should also be made in cert-manager, trust-manager, approver-policy, ...
-See https://github.com/cert-manager/cert-manager/issues/6329 for a list of linked PRs.
-*/}}
-{{- define "cert-manager.image" -}}
-{{- /*
-Calling convention:
-
-- (tuple <imageValues> <imageRegistry> <imageNamespace> <defaultReference>)
-
-We intentionally pass imageRegistry/imageNamespace as explicit arguments rather than reading
-from `.Values` inside this helper, because `helm-tool lint` does not reliably track `.Values.*`
-usage through tuple/variable indirection.
-*/ -}}
-
-{{- if ne (len .) 4 -}}
-    {{- fail (printf "ERROR: template \"cert-manager.image\" expects (tuple <imageValues> <imageRegistry> <imageNamespace> <defaultReference>), got %d arguments" (len .)) -}}
+{{- define "webhook.rootCACertificate" -}}
+{{ printf "%s-ca" (include "webhook.fullname" .) }}
 {{- end -}}
 
-{{- $image := index . 0 -}}
-{{- $imageRegistry := index . 1 | default "" -}}
-{{- $imageNamespace := index . 2 | default "" -}}
-{{- $defaultReference := index . 3 -}}
-
-{{- $repository := "" -}}
-{{- if $image.repository -}}
-    {{- $repository = $image.repository -}}
-
-    {{- /*
-        Backwards compatibility: if image.registry is set, additionally prefix the repository with this registry.
-    */ -}}
-    {{- if $image.registry -}}
-        {{- $repository = printf "%s/%s" $image.registry $repository -}}
-    {{- end -}}
-{{- else -}}
-    {{- $name := required "ERROR: image.name must be set when image.repository is empty" $image.name -}}
-    {{- $repository = $name -}}
-
-    {{- if $imageNamespace -}}
-        {{- $repository = printf "%s/%s" $imageNamespace $repository -}}
-    {{- end -}}
-
-    {{- if $imageRegistry -}}
-        {{- $repository = printf "%s/%s" $imageRegistry $repository -}}
-    {{- end -}}
-
-    {{- /*
-        Backwards compatibility: if image.registry is set, additionally prefix the repository with this registry.
-    */ -}}
-    {{- if $image.registry -}}
-        {{- $repository = printf "%s/%s" $image.registry $repository -}}
-    {{- end -}}
-{{- end -}}
-
-{{- $repository -}}
-{{- if and $image.tag $image.digest -}}
-    {{- printf ":%s@%s" $image.tag $image.digest -}}
-{{- else if $image.tag -}}
-    {{- printf ":%s" $image.tag -}}
-{{- else if $image.digest -}}
-    {{- printf "@%s" $image.digest -}}
-{{- else -}}
-    {{- printf "%s" $defaultReference -}}
-{{- end -}}
-{{- end }}
-
-{{/*
-Labels for the CRD resources.
-*/}}
-{{- define "cert-manager.crd-labels" -}}
-app: "{{ template "cert-manager.name" . }}"
-app.kubernetes.io/name: "{{ template "cert-manager.name" . }}"
-app.kubernetes.io/instance: "{{ .Release.Name }}"
-app.kubernetes.io/component: "crds"
-{{ include "labels" . }}
-{{- end -}}
-
-{{/*
-Check that the user has not set both .installCRDs and .crds.enabled or
-set .installCRDs and disabled .crds.keep.
-.installCRDs is deprecated and users should use .crds.enabled and .crds.keep instead.
-*/}}
-{{- define "cert-manager.crd-check" -}}
-  {{- if and (.Values.installCRDs) (.Values.crds.enabled) }}
-    {{- fail "ERROR: the deprecated .installCRDs option cannot be enabled at the same time as its replacement .crds.enabled" }}
-  {{- end }}
-  {{- if and (.Values.installCRDs) (not .Values.crds.keep) }}
-    {{- fail "ERROR: .crds.keep is not compatible with .installCRDs, please use .crds.enabled and .crds.keep instead" }}
-  {{- end }}
+{{- define "webhook.servingCertificate" -}}
+{{ printf "%s-tls" (include "webhook.fullname" .) }}
 {{- end -}}

@@ -1,128 +1,71 @@
 {{/* vim: set filetype=mustache: */}}
 
-{{- define "gitlab.extraEnvFrom" -}}
-{{- $global := deepCopy (get .root.Values.global "extraEnvFrom" | default (dict)) -}}
-{{- $values := deepCopy (get .root.Values "extraEnvFrom" | default (dict)) -}}
-{{- $local  := deepCopy (get .local "extraEnvFrom" | default (dict)) -}}
-{{- $allExtraEnvFrom := mergeOverwrite $global $values $local -}}
-{{- range $key, $value := $allExtraEnvFrom }}
-- name: {{ $key }}
-  valueFrom:
-{{ toYaml $value | nindent 4 }}
-{{- end -}}
-{{- end -}}
-
 {{/*
-Returns the extraEnv keys and values to inject into containers.
-
-Global values will override any chart-specific values.
+Return the version tag used to fetch the GitLab images
+Defaults to using the information from the chart appVersion field, but can be
+overridden using the global.gitlabVersion field in values.
 */}}
-{{- define "gitlab.extraEnv" -}}
-{{- $allExtraEnv := merge (default (dict) .Values.extraEnv) .Values.global.extraEnv -}}
-{{- range $key, $value := $allExtraEnv }}
-- name: {{ $key }}
-  value: {{ $value | quote }}
-{{- end -}}
+{{- define "gitlab.versionTag" -}}
+{{- template "gitlab.parseAppVersion" (dict "appVersion" (coalesce .Values.global.gitlabVersion .Chart.AppVersion) "prepend" "true") -}}
 {{- end -}}
 
 {{/*
-Detect whether to include internal Gitaly resources.
-Returns `true` when:
-  - Internal Gitaly is on
-  AND
-  - Either:
-    - Praefect is off, or
-    - Praefect is on, but replaceInternalGitaly is off
-*/}}
-{{- define "gitlab.gitaly.includeInternalResources" -}}
-{{- if and .Values.global.gitaly.enabled (or (not .Values.global.praefect.enabled) (and .Values.global.praefect.enabled (not .Values.global.praefect.replaceInternalGitaly))) -}}
-{{-   true }}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Optionally create a node affinity rule to optionally deploy pods
-under GitLab chart in a specific zone
-*/}}
-{{- define "gitlab.affinity" -}}
-{{- $affinityOptions := list "hard" "soft" }}
-{{- if or
-  (has (default .Values.global.antiAffinity "") $affinityOptions)
-  (has (default .Values.antiAffinity "") $affinityOptions)
-  (has (default .Values.global.nodeAffinity "") $affinityOptions)
-  (has (default .Values.nodeAffinity "") $affinityOptions)
-}}
-affinity:
-  {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
-    podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
-          labelSelector:
-            matchLabels:
-              {{- if ne .Chart.Name "toolbox" }}
-                {{- include "gitlab.selectorLabels" . | nindent 18 }}
-              {{- end -}}
-              {{- include "gitlab.affinity.selectorLabelsBySubchart" . | nindent 18 }}
-  {{- else if eq (default .Values.global.antiAffinity .Values.antiAffinity) "soft" }}
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 1
-          podAffinityTerm:
-            topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
-            labelSelector:
-              matchLabels:
-                {{- if ne .Chart.Name "toolbox" }}
-                  {{- include "gitlab.selectorLabels" . | nindent 18 }}
-                {{- end -}}
-                {{- include "gitlab.affinity.selectorLabelsBySubchart" . | nindent 18 }}
-  {{- end -}}
-  {{- if eq (default .Values.global.nodeAffinity .Values.nodeAffinity) "hard" }}
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: {{ default .Values.global.affinity.nodeAffinity.key .Values.affinity.nodeAffinity.key | quote }}
-                operator: In
-                values: {{ default .Values.global.affinity.nodeAffinity.values .Values.affinity.nodeAffinity.values | toYaml | nindent 16 }}
-
-  {{- else if eq (default .Values.global.nodeAffinity .Values.nodeAffinity) "soft" }}
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 1
-          preference:
-            matchExpressions:
-              - key: {{ default .Values.global.affinity.nodeAffinity.key .Values.affinity.nodeAffinity.key | quote }}
-                operator: In
-                values: {{ default .Values.global.affinity.nodeAffinity.values .Values.affinity.nodeAffinity.values | toYaml | nindent 16 }}
-  {{- end -}}
-{{- end -}}
-{{- end }}
-
-{{/*
-Selector Labels by subchart for podAntiAffinity
-*/}}
-{{- define "gitlab.affinity.selectorLabelsBySubchart" -}}
-{{- if eq .Chart.Name "gitaly" }}
-{{- if .storage }}
-storage: {{ .storage.name }}
-{{- end }}
-{{- end -}}
-{{- if eq .Chart.Name "toolbox" }}
-{{- toYaml .Values.antiAffinityLabels.matchLabels }}
-release: {{ .Release.Name }}
-{{- end }}
-{{- end }}
-
-{{/*
-Renders the TZ (time zone) environment variable.
-Except the root context as argument.
-
+Returns a image tag from the passed in app version or branchname
 Usage:
-  {{ include "gitlab.timeZone.env" $root }}
+{{ include "gitlab.parseAppVersion" (    \
+     dict                                \
+         "appVersion" .Chart.AppVersion  \
+         "prepend" "false"               \
+     ) }}
+1. If the version is 'master' we use the 'latest' image tag.
+2. Else if the version is a semver version, we check the prepend flag.
+   1. If it is true, we prepend a `v` and return `vx.y.z` image tag.
+   2. If it is false, we do not prepend a `v` and just use the input version
+3. Else we just use the version passed as the image tag
 */}}
-{{- define "gitlab.timeZone.env" -}}
-{{- with $.Values.global.time_zone }}
-- name: TZ
-  value: {{ . | quote }}
-{{- end }}
+{{- define "gitlab.parseAppVersion" -}}
+{{- $appVersion := coalesce .appVersion "master" -}}
+{{- if eq $appVersion "master" -}}
+latest
+{{- else if regexMatch "^\\d+\\.\\d+\\.\\d+(-rc\\d+)?(-pre)?$" $appVersion -}}
+{{-   if eq .prepend "true" -}}
+{{-      printf "v%s" $appVersion -}}
+{{-   else -}}
+{{-      $appVersion -}}
+{{-   end -}}
+{{- else -}}
+{{- $appVersion -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns the image repository depending on the value of global.edition.
+
+Used to switch the deployment from Enterprise Edition (default) to Community
+Edition. If global.edition=ce, returns the Community Edition image repository
+set in the Gitlab values.yaml, otherwise returns the Enterprise Edition
+image repository.
+*/}}
+{{- define "image.repository" -}}
+{{- if eq "ce" .Values.global.edition -}}
+{{ index .Values "global" "communityImages" .Chart.Name "repository" }}
+{{- else -}}
+{{ index .Values "global" "enterpriseImages" .Chart.Name "repository" }}
+{{- end -}}
+{{- end -}}
+
+{{- define "gitlab.extraContainers" -}}
+{{ tpl (default "" .Values.extraContainers) . }}
+{{- end -}}
+
+{{- define "gitlab.extraInitContainers" -}}
+{{ tpl (default "" .Values.extraInitContainers) . }}
+{{- end -}}
+
+{{- define "gitlab.extraVolumes" -}}
+{{ tpl (default "" .Values.extraVolumes) . }}
+{{- end -}}
+
+{{- define "gitlab.extraVolumeMounts" -}}
+{{ tpl (default "" .Values.extraVolumeMounts) . }}
 {{- end -}}

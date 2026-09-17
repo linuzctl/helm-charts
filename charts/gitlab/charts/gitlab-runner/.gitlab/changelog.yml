@@ -4,7 +4,6 @@ names:
   security-fix: Security fixes
   fix: Bug fixes
   maintenance: Maintenance
-  runner-distribution: GitLab Runner distribution
   documentation: Documentation changes
   other: Other changes
 order:
@@ -12,42 +11,26 @@ order:
 - security-fix
 - fix
 - maintenance
-- runner-distribution
 - documentation
 - other
 label_matchers:
 - labels:
-  - runner-distribution
-  scope: runner-distribution
+  - documentation
+  scope: documentation
 - labels:
-  - feature::addition
+  - feature
   scope: new-feature
 - labels:
   - security
   scope: security-fix
 - labels:
-  - type::bug
+  - bug
   scope: fix
 - labels:
-  - type::maintenance
+  - technical debt
   scope: maintenance
 - labels:
-  - feature::enhancement
-  scope: new-feature
-- labels:
-  - maintenance::refactor
+  - backstage
   scope: maintenance
-- labels:
-  - maintenance::pipelines
-  scope: maintenance
-- labels:
-  - maintenance::workflow
-  scope: maintenance
-- labels:
-  - documentation
-  scope: documentation
 authorship_labels:
 - Community contribution
-skip_changelog_labels:
-- skip-changelog
-

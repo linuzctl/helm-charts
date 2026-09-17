@@ -1,11 +1,11 @@
 # Default values for geo-logcursor.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-image: {}
+image:
+  pullSecrets: []
   # pullPolicy: IfNotPresent
-  # pullSecrets: []
   # repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-geo-logcursor
-  # tag: master
+  # tag: latest
 init:
   image: {}
     # repository:
@@ -13,7 +13,6 @@ init:
   resources:
     requests:
       cpu: 50m
-  containerSecurityContext: {}
 enabled: true
 replicaCount: 1
 global:
@@ -34,7 +33,7 @@ global:
       #   clientCertificate: client-cert.pem
       #   serverCA: server-ca.pem
   redis:
-    auth: {}
+    password: {}
   hosts:
     domain: example.com
     hostSuffix:
@@ -45,10 +44,12 @@ global:
     registry: {}
       #name: registry.example.com
       #https: false
+    minio: {}
+      #name: minio.example.com
+      #https: false
 
 redis:
-  auth: {}
-psql: {}
+  password: {}
 gitaly:
   # host: '0.0.0.0'
   # port: 8075
@@ -56,13 +57,16 @@ gitaly:
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
+minio:
+  serviceName: 'minio-svc'
+  port: 9000
 resources:
   # limits:
   #  cpu: 1
   #  memory: 1.5G
   requests:
     cpu: 300m
-    memory: 1G
+    memory: 700M
 
 deployment:
   livenessProbe:
@@ -77,55 +81,7 @@ deployment:
     timeoutSeconds: 2
     successThreshold: 1
     failureThreshold: 3
-  strategy: {}
-  # revisionHistoryLimit: 10
 
 nodeSelector: {}
 tolerations: []
-
-# Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
-# See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
-dnsConfig: {}
-affinity:
-  podAntiAffinity:
-    topologyKey:
-  nodeAffinity:
-       key:
-       values:
-
-podLabels: {}
-common:
-  labels: {}
-
-# Priority class assigned to pods
-priorityClassName: ""
-
-## Allow to overwrite under which User and Group the Pod will be running.
-securityContext:
-  runAsUser: 1000
-  fsGroup: 1000
-  # fsGroupChangePolicy: OnRootMismatch
-
-## Allow to overwrite the specific security context under which the container is running.
-containerSecurityContext:
-  runAsUser: 1000
-
-## Enable deployment to use a serviceAccount
-serviceAccount:
-  enabled: false
-  create: false
-  annotations: {}
-  ## Used for local override of global ServiceAccount token mounting
-  # automountServiceAccountToken: false
-  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
-  # name:
-
-## Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in.
-## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
-topologySpreadConstraints: []
- # - labelSelector:
- #     matchLabels:
- #       app: name
- #     maxSkew: 1
- #     topologyKey: topology.kubernetes.io/zone
- #     whenUnsatisfiable: DoNotSchedule
+affinity: {}

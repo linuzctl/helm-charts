@@ -1,56 +1,33 @@
 # Default values for sidekiq.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-image: {}
+image:
+  pullSecrets: []
   # pullPolicy: IfNotPresent
-  # pullSecrets: []
   # repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ee
-  # tag: master
+  # tag: latest
 
 init:
   image: {}
     # repository:
     # tag:
-    # pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 50m
-  containerSecurityContext:
-    runAsUser: 1000
-    allowPrivilegeEscalation: false
-    runAsNonRoot: true
-    capabilities:
-      drop: [ "ALL" ]
-
-# Node labels for pod assignment
-# nodeSelector: {}
 
 # Tolerations for pod scheduling
 tolerations: []
 
-# Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
-# May also be overridden per-pod via `pods[].dnsConfig`.
-# See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
-dnsConfig: {}
-
 enabled: true
-
-## NATS connection settings are configured globally under global.appConfig.nats.
-## Override this component's mutual-TLS client-certificate secret here (contains
-## `ca.crt`, `tls.crt`, `tls.key`); defaults to global.appConfig.nats.tls.secret.
-nats:
-  tls: {}
-    # secret:
+cluster: false
+experimentalQueueSelector: false
 
 annotations: {}
-podLabels: {}
-common:
-  labels: {}
 
 logging:
   # set to "json" for json
   # structured logs
-  format: "json"
+  format: "default"
 
 networkpolicy:
   enabled: false
@@ -64,33 +41,20 @@ networkpolicy:
 
 metrics:
   enabled: true
-  listenAddr: null # binds IPv4 and IPv6
   port: 3807
-  path: /metrics
-  log_enabled: false
-  podMonitor:
-    enabled: false
-    additionalLabels: {}
-    endpointConfig: {}
-  # DEPRECATED
-  annotations: {}
-  tls:
-    enabled: false
-    # secretName:
-
-health_checks:
-  listenAddr: null # binds IPv4 and IPv6
-  port: 3808
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3807"
 
 redis:
-  auth: {}
+  password: {}
 
 psql: {}
   # port: 5432
 
-# https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/
+# https://docs.gitlab.com/ee/administration/operations/sidekiq_memory_killer.html#sidekiq-memorykiller
 memoryKiller:
-  daemonMode: true
+  daemonMode: false
   maxRss: 2000000
   graceTime: 900
   shutdownWait: 30
@@ -111,6 +75,7 @@ readinessProbe:
   failureThreshold: 3
 
 global:
+  # imagePullPolicy: IfNotPresent
   hosts:
     domain: example.com
     hostSuffix:
@@ -121,14 +86,16 @@ global:
     registry: {}
       #name: registry.example.com
       #https: false
+    minio: {}
+      #name: minio.example.com
+      #https: false
   psql: {}
     # host: '0.0.0.0'
     # port: '5432'
     # database: 'gitlabhq_production'
     # username: 'gitlab'
-    # applicationName:
+    # pool: 10
     # preparedStatements: false
-    # databaseTasks: true
     # password:
     #   secret: gitlab-postgres
     #   key: psql-password
@@ -138,22 +105,18 @@ global:
     #   clientCertificate: client-cert.pem
     #   serverCA: server-ca.pem
   redis:
-    auth: {}
+    password: {}
   gitaly:
     internal:
       names: ["default"]
     external: []
     authToken: {}
-  webservice: {}
+  unicorn: {}
+  minio:
+    enabled:
+    credentials: {}
   appConfig:
-    microsoft_graph_mailer:
-      enabled: false
-    amazon_ses_mailer:
-      enabled: false
     incomingEmail:
-      enabled: false
-      address:
-    serviceDeskEmail:
       enabled: false
       address:
     lfs:
@@ -185,11 +148,6 @@ global:
       enabled: false
       bucket:
       connection: {}
-    dependencyProxy:
-      enabled: false
-      proxy_download: true
-      bucket:
-      connection: {}
     ldap:
       servers: {}
       # 'main' is the GitLab 'provider ID' of this LDAP server
@@ -210,18 +168,15 @@ global:
       blockAutoCreatedUsers: true
       autoLinkLdapUser: false
       autoLinkSamlUser: false
-      autoLinkUser: []
       externalProviders: []
       allowBypassTwoFactor: []
       providers: []
       # - secret: gitlab-google-oauth2
       #   key: provider
-    sentry:
-      enabled: false
-      dsn:
-      clientside_dsn:
-      environment:
-
+    pseudonymizer:
+      configMap:
+      bucket:
+      connection: {}
 gitaly:
   # host: '0.0.0.0'
   # port: 8075
@@ -229,17 +184,19 @@ gitaly:
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
-
-
+minio:
+  serviceName: 'minio-svc'
+  port: 9000
+registry:
+  enabled: true
+  host:
+  # port: 443
+  api:
+    protocol: http
+    serviceName: registry
+    port: 5000
+  tokenIssuer: gitlab-issuer
 extra: {}
-
-## Additional environment variables to set
-## Note that these will be applied to every
-##   container in the pod.
-extraEnv: {}
-# extraEnv:
-#   SOMEKEY: SOMEVALUE
-#   SOMEKEY2: SOMEVALUE2
 
 rack_attack:
   git_basic_auth:
@@ -255,151 +212,23 @@ trusted_proxies: []
 # Global defaults
 minReplicas: 1
 maxReplicas: 10
-concurrency: 20
-
-# `deployment.strategy` is utilized to configure the desired upgrade approach and
-# configuration for the deployment.  See the Kubernetes documentation
-# related to this subject.
-# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
-deployment:
-  strategy: {}
-  terminationGracePeriodSeconds: 30
-  # revisionHistoryLimit: 10
-
+concurrency: 25
 hpa:
-  # targetAverageValue: 350m  # DEPRECATED: in favor of `hpa.cpu.targetAverageValue` below
-  cpu:
-    targetType: AverageValue  # Utilization or AverageValue
-    targetAverageValue: 350m
-    # targetAverageUtilization: 75
-  # memory:
-  #   targetType: Utilization  # Utilization or AverageValue
-  #   targetAverageValue: 1G
-  #   targetAverageUtilization: 75
-  # Note that the HPA is limited to autoscaling/v2beta1, autoscaling/v2beta2 and autoscaling/v2
-  customMetrics: []  # Overrides HPA metrics definition
-  behavior:
-    scaleDown:
-      stabilizationWindowSeconds: 300
-
-keda:
-  enabled: false
-  ## See https://keda.sh/docs/2.10/concepts/scaling-deployments/#scaledobject-spec
-  pollingInterval: 30
-  cooldownPeriod: 300
-  # minReplicaCount: 2
-  # maxReplicaCount: 10
-  # fallback:
-  #   failureThreshold: 3
-  #   replicas: 6
-  # hpaName: keda-hpa-{scaled-object-name}
-  # restoreToOriginalReplicaCount: false
-  # behavior: {}
-  # triggers: []
-
-timeout: 25
+  targetAverageValue: 350m
+timeout: 5
 resources:
   # limits:
-  #  memory: 5G
+  #  cpu: 500m
+  #  memory: 1G
   requests:
-    cpu: 900m
-    memory: 2G
+    cpu: 50m
+    memory: 650M
 maxUnavailable: 1
 
 # Define queue groups into Pods
 pods:
   - name: all-in-1
-    # concurrency: 20
-    # memoryKiller:
-    #   maxRss: 2000000
-    #   graceTime: 900
-    #   shutdownWait: 30
-    #   checkInterval: 3
+    # concurrency: 25
     # minReplicas: 1
     # maxReplicas: 10
-    # strategy: {}
-    # queues: ''
-    # extraVolumes
-    # extraVolumeMounts
-    # priorityClassName: ""
-    # hpa:
-    #   cpu:
-    #     targetType: AverageValue
-    #     targetAverageValue:
-    #     targetAverageUtilization:
-    #   memory:
-    #     targetType: AverageValue
-    #     targetAverageValue:
-    #     targetAverageUtilization:
-    #   customMetrics: []
-    #   behavior:
-    #     scaleDown:
-    #       stabilizationWindowSeconds:
-    # keda:
-    #   enabled: false
-    #   ## See https://keda.sh/docs/2.10/concepts/scaling-deployments/#scaledobject-spec
-    #   pollingInterval: 30
-    #   cooldownPeriod: 300
-    #   minReplicaCount: 2
-    #   maxReplicaCount: 10
-    #   fallback:
-    #     failureThreshold: 3
-    #     replicas: 6
-    #   hpaName: keda-hpa-{scaled-object-name}
-    #   restoreToOriginalReplicaCount: false
-    #   behavior: {}
-    #   triggers: []
-    #
-    # common:
-    #   labels: {}
-    # podLabels: {}
-    # terminationGracePeriodSeconds: 30
-    # nodeSelector: {}
-    # tolerations: []
-    # dnsConfig: {}
-
-## Allow to overwrite under which User and Group the Pod will be running.
-securityContext:
-  runAsUser: 1000
-  fsGroup: 1000
-  # fsGroupChangePolicy: OnRootMismatch
-  seccompProfile:
-    type: "RuntimeDefault"
-
-## Allow to overwrite the specific security context under which the container is running.
-containerSecurityContext:
-  runAsUser: 1000
-  allowPrivilegeEscalation: false
-  runAsNonRoot: true
-  capabilities:
-    drop: [ "ALL" ]
-
-## Enable deployment to use a serviceAccount
-serviceAccount:
-  enabled: false
-  create: false
-  annotations: {}
-  ## Used for local override of global ServiceAccount token mounting
-  # automountServiceAccountToken: false
-  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
-  # name:
-
-## Allow configuring pods' priorityClassName. This is used to control pod priority in case of eviction:
-#  https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
-priorityClassName: ""
-
-antiAffinity: "" # options: "hard", "soft"
-
-affinity:
-  podAntiAffinity:
-    topologyKey:
-
-## Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in.
-## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
-topologySpreadConstraints: []
- # - labelSelector:
- #     matchLabels:
- #       app: name
- #     maxSkew: 1
- #     topologyKey: topology.kubernetes.io/zone
- #     whenUnsatisfiable: DoNotSchedule
+    queues:

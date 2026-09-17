@@ -1,36 +1,17 @@
-{{- if .Values.defaultBackend.enabled -}}
-{{- $replicas := .Values.defaultBackend.replicaCount }}
-{{- if .Values.defaultBackend.autoscaling.enabled }}
-{{- $replicas = .Values.defaultBackend.autoscaling.minReplicas }}
-{{- end }}
-{{- if gt ($replicas | int) 1 }}
-{{- $pdbCfg := (dict "global" $.Values.global.pdb "local" .Values.pdb "context" $) }}
-apiVersion: {{ template "gitlab.pdb.apiVersion" $pdbCfg }}
+{{- if and .Values.enabled (gt (.Values.defaultBackend.replicaCount | int) 1 ) -}}
+apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
+  name: {{ template "nginx-ingress.defaultBackend.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
-    {{- include "gitlab.commonLabels" . | nindent 4 }}
-    {{- include "ingress-nginx.labels" . | nindent 4 }}
+{{ include "gitlab.standardLabels" . | indent 4 }}
     component: "{{ .Values.defaultBackend.name }}"
-    app.kubernetes.io/component: default-backend
-    {{- with .Values.defaultBackend.labels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  name: {{ include "ingress-nginx.defaultBackend.fullname" . }}
-  namespace: {{ include "ingress-nginx.namespace" . }}
 spec:
   selector:
     matchLabels:
-      {{- include "ingress-nginx.selectorLabels" . | nindent 6 }}
+      app: {{ template "nginx-ingress.name" . }}
+      release: {{ .Release.Name }}
       component: "{{ .Values.defaultBackend.name }}"
-  {{- if and .Values.defaultBackend.minAvailable (not (hasKey .Values.defaultBackend "maxUnavailable")) }}
   minAvailable: {{ .Values.defaultBackend.minAvailable }}
-  {{- else if .Values.defaultBackend.maxUnavailable }}
-  maxUnavailable: {{ .Values.defaultBackend.maxUnavailable }}
-  {{- end }}
-  {{- if .Values.defaultBackend.unhealthyPodEvictionPolicy }}
-  unhealthyPodEvictionPolicy: {{ .Values.defaultBackend.unhealthyPodEvictionPolicy }}
-  {{- end }}
-{{- end }}
 {{- end }}

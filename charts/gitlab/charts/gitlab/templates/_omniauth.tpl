@@ -11,9 +11,6 @@ omniauth:
   block_auto_created_users: {{ .omniauth.blockAutoCreatedUsers }}
   auto_link_ldap_user: {{ .omniauth.autoLinkLdapUser }}
   auto_link_saml_user: {{ .omniauth.autoLinkSamlUser }}
-  {{- if .omniauth.autoLinkUser }}
-  auto_link_user: {{ toJson .omniauth.autoLinkUser }}
-  {{- end }}
   external_providers: {{ .omniauth.externalProviders }}
   {{- if .omniauth.allowBypassTwoFactor }}
   allow_bypass_two_factor: {{ toJson .omniauth.allowBypassTwoFactor }}
@@ -21,11 +18,7 @@ omniauth:
   {{- if .omniauth.providers }}
   providers:
   {{-   range $index, $entry := .omniauth.providers }}
-  {{-     if $entry.secret }}
     - <%= YAML.load_file({{ printf "/etc/gitlab/omniauth/%s/%s" $entry.secret (default "provider" $entry.key) | quote }}).to_json() %>
-  {{-     else }}
-    - {{ toJson $entry }}
-  {{-     end }}
   {{-   end }}
   {{- end }}
 {{- end -}}
@@ -35,13 +28,11 @@ omniauth:
 {{- with $.Values.global.appConfig -}}
 {{- if .omniauth.providers }}
 {{-   range $index, $entry := .omniauth.providers }}
-{{-     if hasKey $entry "secret" }}
 - secret:
     name: {{ $entry.secret }}
     items:
       - key: {{ default "provider" $entry.key }}
         path: {{ printf "omniauth/%s/%s" $entry.secret (default "provider" $entry.key) | quote }}
-{{-     end }}
 {{-   end }}
 {{- end -}}
 {{- end -}}

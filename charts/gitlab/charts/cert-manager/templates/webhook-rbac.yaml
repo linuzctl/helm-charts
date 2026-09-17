@@ -1,90 +1,76 @@
-{{- if .Values.global.rbac.create }}
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+{{- if .Values.webhook.enabled -}}
+{{- if .Values.global.rbac.create -}}
+### Webhook ###
+---
+# apiserver gets the auth-delegator role to delegate auth decisions to
+# the core apiserver
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
 metadata:
-  name: {{ template "webhook.fullname" . }}:dynamic-serving
-  namespace: {{ include "cert-manager.namespace" . }}
+  name: {{ include "webhook.fullname" . }}:auth-delegator
   labels:
     app: {{ include "webhook.name" . }}
     app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: "webhook"
-    {{- include "labels" . | nindent 4 }}
-rules:
-- apiGroups: [""]
-  resources: ["secrets"]
-  resourceNames:
-  - '{{ template "webhook.fullname" . }}-ca'
-  {{- $certmanagerNamespace := include "cert-manager.namespace" . }}
-  {{- with (.Values.webhook.config.metricsTLSConfig).dynamic }}
-  {{- if $certmanagerNamespace | eq .secretNamespace }}
-  # Allow webhook to read and update the metrics CA Secret when dynamic TLS is
-  # enabled for the metrics server and if the Secret is configured to be in the
-  # same namespace as cert-manager.
-  - {{ .secretName | quote }}
-  {{- end }}
-  {{- end }}
-  verbs: ["get", "list", "watch", "update"]
-# It's not possible to grant CREATE permission on a single resourceName.
-- apiGroups: [""]
-  resources: ["secrets"]
-  verbs: ["create"]
+    app.kubernetes.io/instance:  {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "webhook.chart" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- apiGroup: ""
+  kind: ServiceAccount
+  name: {{ include "webhook.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+
 ---
 
-apiVersion: rbac.authorization.k8s.io/v1
+# apiserver gets the ability to read authentication. This allows it to
+# read the specific configmap that has the requestheader-* entries to
+# api agg
+apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
-  name: {{ template "webhook.fullname" . }}:dynamic-serving
-  namespace: {{ include "cert-manager.namespace" . }}
+  name: {{ include "webhook.fullname" . }}:webhook-authentication-reader
+  namespace: kube-system
   labels:
     app: {{ include "webhook.name" . }}
     app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: "webhook"
-    {{- include "labels" . | nindent 4 }}
+    app.kubernetes.io/instance:  {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "webhook.chart" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ template "webhook.fullname" . }}:dynamic-serving
+  name: extension-apiserver-authentication-reader
 subjects:
-- kind: ServiceAccount
-  name: {{ template "webhook.serviceAccountName" . }}
-  namespace: {{ include "cert-manager.namespace" . }}
+- apiGroup: ""
+  kind: ServiceAccount
+  name: {{ include "webhook.fullname" . }}
+  namespace: {{ .Release.Namespace }}
 
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "webhook.fullname" . }}:subjectaccessreviews
+  name: {{ include "webhook.fullname" . }}:webhook-requester
   labels:
     app: {{ include "webhook.name" . }}
     app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: "webhook"
-    {{- include "labels" . | nindent 4 }}
+    app.kubernetes.io/instance:  {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "webhook.chart" . }}
 rules:
-- apiGroups: ["authorization.k8s.io"]
-  resources: ["subjectaccessreviews"]
-  verbs: ["create"]
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ template "webhook.fullname" . }}:subjectaccessreviews
-  labels:
-    app: {{ include "webhook.name" . }}
-    app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: "webhook"
-    {{- include "labels" . | nindent 4 }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ template "webhook.fullname" . }}:subjectaccessreviews
-subjects:
-- kind: ServiceAccount
-  name: {{ template "webhook.serviceAccountName" . }}
-  namespace: {{ include "cert-manager.namespace" . }}
-{{- end }}
+- apiGroups:
+  - admission.certmanager.k8s.io
+  resources:
+  - certificates
+  - certificaterequests
+  - issuers
+  - clusterissuers
+  verbs:
+  - create
+{{- end -}}
+{{- end -}}

@@ -19,8 +19,3 @@
 .project
 .idea/
 *.tmproj
-
-README.template.md
-OWNERS
-cert-manager*.tgz
-tests/

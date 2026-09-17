@@ -1,48 +1,39 @@
-apiVersion: admissionregistration.k8s.io/v1
+{{- if .Values.webhook.enabled -}}
+apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
   name: {{ include "webhook.fullname" . }}
   labels:
     app: {{ include "webhook.name" . }}
     app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: "webhook"
-    {{- include "labels" . | nindent 4 }}
+    app.kubernetes.io/instance:  {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "webhook.chart" . }}
   annotations:
-    cert-manager.io/inject-ca-from-secret: {{ printf "%s/%s-ca" (include "cert-manager.namespace" .) (include "webhook.fullname" .) | quote }}
-    {{- with .Values.webhook.mutatingWebhookConfigurationAnnotations }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+{{- if .Values.webhook.injectAPIServerCA }}
+    certmanager.k8s.io/inject-apiserver-ca: "true"
+{{- end }}
 webhooks:
-  - name: webhook.cert-manager.io
-    {{- with .Values.webhook.mutatingWebhookConfiguration.namespaceSelector }}
-    namespaceSelector:
-      {{- toYaml . | nindent 6 }}
-    {{- end }}
+  - name: webhook.certmanager.k8s.io
     rules:
       - apiGroups:
-          - "cert-manager.io"
+          - "certmanager.k8s.io"
         apiVersions:
-          - "v1"
+          - v1alpha1
         operations:
           - CREATE
+          - UPDATE
         resources:
-          - "certificaterequests"
-    admissionReviewVersions: ["v1"]
-    # This webhook only accepts v1 cert-manager resources.
-    # Equivalent matchPolicy ensures that non-v1 resource requests are sent to
-    # this webhook (after the resources have been converted to v1).
-    matchPolicy: Equivalent
-    timeoutSeconds: {{ .Values.webhook.timeoutSeconds }}
+          - certificates
+          - issuers
+          - clusterissuers
+          - orders
+          - challenges
+          - certificaterequests
     failurePolicy: Fail
-    # Only include 'sideEffects' field in Kubernetes 1.12+
-    sideEffects: None
     clientConfig:
-      {{- if .Values.webhook.url.host }}
-      url: https://{{ .Values.webhook.url.host }}/mutate
-      {{- else }}
       service:
-        name: {{ template "webhook.fullname" . }}
-        namespace: {{ include "cert-manager.namespace" . }}
-        path: /mutate
-      {{- end }}
+        name: kubernetes
+        namespace: default
+        path: /apis/webhook.certmanager.k8s.io/v1beta1/mutations
+{{- end -}}

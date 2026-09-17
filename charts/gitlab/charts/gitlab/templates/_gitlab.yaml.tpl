@@ -1,150 +1,20 @@
 {{- define "gitlab.appConfig.gitaly" -}}
 gitaly:
   client_path: /home/git/gitaly/bin
-  {{- if dig "client" "maxAttempts" false .Values.global.gitaly }}
-  client_max_attempts: {{ .Values.global.gitaly.client.maxAttempts }}
-  {{- end }}
-  {{- if dig "client" "maxBackoff" false .Values.global.gitaly }}
-  client_max_backoff: {{ .Values.global.gitaly.client.maxBackoff | quote }}
-  {{- end }}
-  token: <%= File.read('/etc/gitlab/gitaly/gitaly_token').strip.to_json %>
+  token: "<%= File.read('/etc/gitlab/gitaly/gitaly_token').strip.dump[1..-2] %>"
 {{- end -}}
 
 {{- define "gitlab.appConfig.repositories" -}}
 repositories:
   storages: # You must have at least a `default` storage path.
-    {{- if .Values.global.praefect.enabled }}
-    {{-   include "gitlab.praefect.storages" . | nindent 4 }}
-    {{- end }}
     {{- include "gitlab.gitaly.storages" . | nindent 4 }}
 {{- end -}}
 
-
-{{- define "gitlab.appConfig.microsoft_graph_mailer" -}}
-microsoft_graph_mailer:
-  enabled: {{ eq .microsoft_graph_mailer.enabled true }}
-  user_id: {{ .microsoft_graph_mailer.user_id | quote }}
-  tenant: {{ .microsoft_graph_mailer.tenant | quote }}
-  client_id: {{ .microsoft_graph_mailer.client_id | quote }}
-  client_secret: <%= File.read('/etc/gitlab/microsoft_graph_mailer/client_secret').strip.to_json %>
-  azure_ad_endpoint: {{ .microsoft_graph_mailer.azure_ad_endpoint | quote }}
-  graph_endpoint: {{ .microsoft_graph_mailer.graph_endpoint | quote }}
-{{- end -}}
-
-{{- define "gitlab.appConfig.amazon_ses_mailer" -}}
-amazon_ses_mailer:
-  enabled: {{ eq .amazon_ses_mailer.enabled true }}
-  {{- if .amazon_ses_mailer.region }}
-  region: {{ .amazon_ses_mailer.region | quote }}
-  {{- end }}
-  {{- if .amazon_ses_mailer.role_arn }}
-  role_arn: {{ .amazon_ses_mailer.role_arn | quote }}
-  {{- end }}
-  {{- if .amazon_ses_mailer.access_key_id }}
-  access_key_id: {{ .amazon_ses_mailer.access_key_id | quote }}
-  {{- end }}
-  {{- if .amazon_ses_mailer.secret_access_key.secret }}
-  secret_access_key: <%= File.read('/etc/gitlab/amazon_ses_mailer/secret_access_key').strip.to_json %>
-  {{- end }}
-{{- end -}}
 
 {{- define "gitlab.appConfig.incoming_email" -}}
 incoming_email:
   enabled: {{ eq .incomingEmail.enabled true }}
   address: {{ .incomingEmail.address | quote }}
-  {{- if eq .incomingEmail.deliveryMethod "webhook" }}
-  secret_file: /etc/gitlab/mailroom/incoming_email_webhook_secret
-  {{- end }}
-{{- end -}}
-
-{{- define "gitlab.appConfig.service_desk_email" -}}
-service_desk_email:
-  enabled: {{ eq .serviceDeskEmail.enabled true }}
-  address: {{ .serviceDeskEmail.address | quote }}
-  {{- if eq .serviceDeskEmail.deliveryMethod "webhook" }}
-  secret_file: /etc/gitlab/mailroom/service_desk_email_webhook_secret
-  {{- end }}
-{{- end -}}
-
-{{- define "gitlab.appConfig.kas" -}}
-{{- if (or .Values.global.kas.enabled .Values.global.appConfig.gitlab_kas.enabled) -}}
-gitlab_kas:
-  enabled: true
-  secret_file: /etc/gitlab/kas/.gitlab_kas_secret
-  external_url: {{ include "gitlab.appConfig.kas.externalUrl" . | quote }}
-  internal_url: {{ include "gitlab.appConfig.kas.internalUrl" . | quote }}
-  {{- include "gitlab.appConfig.kas.clientTimeoutSeconds" . | nindent 2 }}
-{{- end -}}
-{{- end -}}
-
-{{- define "gitlab.appConfig.iamAuthService" -}}
-iam_auth_service:
-  {{- with .Values.global.appConfig.iamAuthService }}
-  enabled: {{ eq .enabled true }}
-  secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
-  http:
-    host: {{ dig "http" "host" "" . | quote }}
-    port: {{ dig "http" "port" 0 . | int }}
-  grpc:
-    host: {{ dig "grpc" "host" "" . | quote }}
-    port: {{ dig "grpc" "port" 0 . | int }}
-  jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
-  jwt_issuer: {{ dig "jwtIssuer" "" . | quote }}
-  {{- end }}
-{{- end }}
-
-{{- define "gitlab.appConfig.iamDataAccessService" -}}
-iam_data_access_service:
-  {{- with .Values.global.appConfig.iamDataAccessService }}
-  enabled: {{ eq .enabled true }}
-  secret_file: /etc/gitlab/iam-data-access/.gitlab_iam_data_access_secret
-  grpc:
-    host: {{ dig "grpc" "host" "" . | quote }}
-    port: {{ dig "grpc" "port" 0 . | int }}
-  {{- end }}
-{{- end }}
-
-{{- define "gitlab.appConfig.workspaces" -}}
-{{- if .Values.global.workspaces.enabled -}}
-workspaces:
-  enabled: true
-  host: {{ include "gitlab.workspaces.hostname" . | quote }}
-{{- end -}}
-{{- end -}}
-
-{{- define "gitlab.appConfig.databaseTrafficCapture" -}}
-{{- with .Values.global.appConfig.databaseTrafficCapture -}}
-{{- $connector := dig "config" "storage" "connector" (dict "provider" "") . -}}
-{{- if ne $connector.provider "" -}}
-database_traffic_capture:
-  config:
-    storage:
-      connector:
-        provider: {{ $connector.provider | quote }}
-        project_id: {{ $connector.projectId | quote }}
-        bucket: {{ $connector.bucket | quote }}
-{{- end -}}
-{{- end -}}
-{{- end -}}
-
-{{- define "gitlab.appConfig.cell" -}}
-{{- if eq .Values.global.appConfig.cell.enabled true -}}
-{{- with .Values.global.appConfig.cell -}}
-cell:
-  enabled: true
-  id: {{ .id }}
-  database:
-    skip_sequence_alteration: {{ eq .database.skipSequenceAlteration true }}
-  topology_service_client:
-    address: {{ .topologyServiceClient.address | quote }}
-    tls:
-      enabled: {{ .topologyServiceClient.tls.enabled }}
-    {{- if .topologyServiceClient.tls.enabled }}
-    private_key_file: "/srv/gitlab/config/topology-service/tls.key"
-    certificate_file: "/srv/gitlab/config/topology-service/tls.crt"
-    {{- end }}
-{{- end -}}
-{{- end -}}
 {{- end -}}
 
 {{- define "gitlab.appConfig.shell" -}}
@@ -153,9 +23,6 @@ gitlab_shell:
   hooks_path: /home/git/gitlab-shell/hooks/
   upload_pack: true
   receive_pack: true
-  {{- if .Values.global.appConfig.gitTimeout }}
-  git_timeout: {{ .Values.global.appConfig.gitTimeout }}
-  {{- end }}
 {{- end -}}
 
 {{- define "gitlab.appConfig.shell.ssh_port" -}}
@@ -171,23 +38,11 @@ extra:
   {{ if .extra.googleAnalyticsId }}
   google_analytics_id: {{ .extra.googleAnalyticsId | quote }}
   {{- end }}
-  {{ if .extra.matomoUrl }}
-  matomo_url: {{ .extra.matomoUrl | quote }}
+  {{ if .extra.piwikUrl }}
+  piwik_url: {{ .extra.piwikUrl | quote }}
   {{- end }}
-  {{ if .extra.matomoSiteId }}
-  matomo_site_id: {{ .extra.matomoSiteId | quote }}
-  {{- end }}
-  {{- if .extra.matomoDisableCookies }}
-  matomo_disable_cookies: {{ eq true .extra.matomoDisableCookies }}
-  {{- end }}
-  {{ if .extra.oneTrustId }}
-  one_trust_id: {{ .extra.oneTrustId | quote }}
-  {{- end }}
-  {{ if .extra.googleTagManagerNonceId }}
-  google_tag_manager_nonce_id: {{ .extra.googleTagManagerNonceId | quote }}
-  {{- end }}
-  {{ if .extra.bizible }}
-  bizible: {{ eq true .extra.bizible }}
+  {{ if .extra.piwikSiteId }}
+  piwik_site_id: {{ .extra.piwikSiteId | quote }}
   {{- end }}
 {{- end -}}
 
@@ -195,7 +50,7 @@ extra:
 rack_attack:
   git_basic_auth:
     {{- if .Values.rack_attack.git_basic_auth.enabled }}
-    {{- toYaml .Values.rack_attack.git_basic_auth | nindent 4 }}
+  {{- toYaml .Values.rack_attack.git_basic_auth | nindent 2 }}
     {{- end }}
 {{- end -}}
 
@@ -209,7 +64,7 @@ cron_jobs:
 {{- define "gitlab.appConfig.maxRequestDurationSeconds" -}}
 {{/*
     Unless explicitly provided, we need to set maxRequestDurationSeconds to 95% of the
-    workerTimeout value specified for webservice (and use its ceiling value).
+    workerTimeout value specified for unicorn (and use its ceiling value).
     However, sprig's `mul` function does not work with floats, so a
     multiplication with `0.95` is not possible. To workaround this, we do the
     following
@@ -219,13 +74,13 @@ cron_jobs:
     3. If a reminder was present during the division (this is checked using
        modular division), we increment the result by 1. This does the function
        of `ceil` in Ruby.
-    4. For example, if webservice's timeout is the default value of 60, the result
+    4. For example, if unicorn's timeout is the default value of 60, the result
        we need is 57. The various values in this workaround will be
        (i)   $workerTimeout = 60
        (ii)  $scaledResult = 570000
        (iii) $reminder = 0
        (iv)  $result = 57
-    5. Another example, if webservice's timeout is 61, the result we need is
+    5. Another example, if unicorn's timeout is 61, the result we need is
        58 (ceiling of 0.95 * 61 = 57.95). The various values in this workaround
        will be
        (i)   $workerTimeout = 61
@@ -234,7 +89,7 @@ cron_jobs:
        (iv)  $result = 57
        (v)   $result = 58 (because there was a remainder, result got incremented)
 */}}
-{{- $workerTimeout := $.Values.global.webservice.workerTimeout }}
+{{- $workerTimeout := $.Values.global.unicorn.workerTimeout }}
 {{- $scaledResult := mul $workerTimeout 100 95 }}
 {{- $remainder := mod $scaledResult 10000 }}
 {{- $doCeil := gt $remainder 0 }}
@@ -245,73 +100,3 @@ cron_jobs:
 {{- $result }}
 {{- end }}
 {{/* END gitlab.appConfig.maxRequestDurationSeconds */}}
-
-{{/*
-Generates gitlab_docs configuration.
-
-Usage:
-{{ include "gitlab.appConfig.gitlab_docs.configuration" $ }}
-*/}}
-{{- define "gitlab.appConfig.gitlab_docs.configuration" -}}
-gitlab_docs:
-  enabled: {{ eq $.Values.global.appConfig.gitlab_docs.enabled true }}
-  host: {{ $.Values.global.appConfig.gitlab_docs.host | quote }}
-{{- end -}}{{/* "gitlab.appConfig.gitlab_docs.configuration" */}}
-
-{{/*
-Generates oidc_provider configuration.
-
-Usage:
-{{ include "gitlab.appConfig.oidcProvider.configuration" $ }}
-*/}}
-{{- define "gitlab.appConfig.oidcProvider.configuration" -}}
-oidc_provider:
-  openid_id_token_expire_in_seconds: {{ $.Values.global.appConfig.oidcProvider.openidIdTokenExpireInSeconds }}
-{{- end -}}{{/* "gitlab.appConfig.oidcProvider.configuration" */}}
-
-
-{{/*
-Generates OpenBao configuration.
-
-Usage:
-{{ include "gitlab.appConfig.openbao.configuration" $ }}
-*/}}
-{{- define "gitlab.appConfig.openbao.configuration" -}}
-{{- if $.Values.global.openbao.enabled }}
-openbao:
-  url: {{ include "gitlab.openbao.url" $ | quote }}
-  {{- if include "gitlab.openbao.internal_url" . }}
-  internal_url: {{ include "gitlab.openbao.internal_url" . | quote }}
-  {{- end }}
-  {{- if include "gitlab.openbao.jwt_audience" . }}
-  jwt_audience: {{ include "gitlab.openbao.jwt_audience" . | quote }}
-  {{- end }}
-  authentication_token_secret_file_path: /etc/gitlab/openbao/.gitlab_openbao_authentication_token_secret
-{{- end }}
-{{- end -}}{{/* "gitlab.appConfig.openbao.configuration" */}}
-
-
-{{/*
-Generates CI ID token configuration.
-
-Usage:
-{{ include "gitlab.appConfig.ciIdTokens.configuration" $ }}
-*/}}
-{{- define "gitlab.appConfig.ciIdTokens.configuration" -}}
-{{- with $.Values.global.appConfig.ciIdTokens.issuerUrl }}
-ci_id_tokens:
-  issuer_url: {{ . }}
-{{- end }}
-{{- end }}
-
-{{/*
-Generates Gravatar/Libravatar configuration.
-
-Usage:
-{{ include "gitlab.appConfig.gravatar" .Values.global.appConfig }}
-*/}}
-{{- define "gitlab.appConfig.gravatar" -}}
-gravatar:
-  plain_url: {{ .gravatar.plainUrl }}
-  ssl_url: {{ .gravatar.sslUrl }}
-{{- end -}}

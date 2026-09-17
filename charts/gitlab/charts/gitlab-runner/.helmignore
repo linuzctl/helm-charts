@@ -22,4 +22,3 @@
 
 gitlab-runner*.tgz
 scripts/
-tests/

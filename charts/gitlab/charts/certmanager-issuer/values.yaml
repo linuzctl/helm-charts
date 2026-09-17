@@ -1,4 +1,4 @@
-# Configure an ACME Issuer in cert-manager. Only used if global.ingress.configureCertmanager is true.
+# Configure an ACME Issuer in cert-manager. Only used if configure==true
 server: https://acme-v02.api.letsencrypt.org/directory
 
 # Provide an email to associate with your TLS certificates
@@ -10,25 +10,3 @@ rbac:
 resources:
   requests:
     cpu: 50m
-
-# Priority class assigned to pods
-priorityClassName: ""
-
-# Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
-# See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
-dnsConfig: {}
-
-containerSecurityContext:
-  runAsUser: 65534
-  runAsGroup: 65534
-  allowPrivilegeEscalation: false
-  runAsNonRoot: true
-  capabilities:
-    drop: [ "ALL" ]
-
-common:
-  labels: {}
-
-useNewIngressForCerts: false
-
-ttlSecondsAfterFinished: 1800

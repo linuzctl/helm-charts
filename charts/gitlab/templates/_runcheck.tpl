@@ -12,12 +12,6 @@ greater_version()
   test "$(printf '%s\n' "$@" | sort -V | tail -n 1)" = "$1";
 }
 
-is_semver()
-{
-  printf '%s' "$1" | grep -Eq "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
-  return "$?"
-}
-
 # For the PostgreSQL upgrade, you either need both secrets, or no secrets.
 # If there are no secrets, we will create them for you.
 # If the secrets aren't in either of these states, we assume you are upgrading from an older version
@@ -35,14 +29,11 @@ if [ -d "${secrets_dir}" ]; then
     fi
   fi
 fi
-MIN_VERSION=19.2
-CHART_MIN_VERSION=10.2
-
-# Remove 'v' prefix from GitLab version if present (set in Chart.yaml appVersions)
-GITLAB_VERSION=${GITLAB_VERSION#v}
+MIN_VERSION=12.6
+CHART_MIN_VERSION=2.6
 
 # Only run check for semver releases
-if ! is_semver "$GITLAB_VERSION"; then
+if ! awk 'BEGIN{exit(!(ARGV[1] ~ /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/))}' "$GITLAB_VERSION"; then
   exit 0
 fi
 
@@ -54,16 +45,15 @@ NEW_CHART_MINOR_VERSION=$(echo $CHART_VERSION | awk -F "." '{print $1"."$2}')
 
 if [ ! -f /chart-info/gitlabVersion ]; then
   notify "It seems you are attempting an unsupported upgrade path."
-  notify "Please follow the upgrade documentation at https://docs.gitlab.com/update/#upgrade-paths"
+  notify "Please follow the upgrade documentation at https://docs.gitlab.com/ee/policy/maintenance.html#upgrade-recommendations"
   exit 1
 fi
 
 OLD_VERSION_STRING=$(cat /chart-info/gitlabVersion)
-OLD_VERSION_STRING=${OLD_VERSION_STRING#v}
 OLD_CHART_VERSION_STRING=$(cat /chart-info/gitlabChartVersion)
 
 # Skip check if old version wasn't semver
-if ! is_semver "$OLD_VERSION_STRING"; then
+if ! awk 'BEGIN{exit(!(ARGV[1] ~ /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/))}' "$OLD_VERSION_STRING"; then
   exit 0
 fi
 
@@ -73,13 +63,15 @@ OLD_CHART_MAJOR_VERSION=$(echo $OLD_CHART_VERSION_STRING | awk -F "." '{print $1
 OLD_CHART_MINOR_VERSION=$(echo $OLD_CHART_VERSION_STRING | awk -F "." '{print $1"."$2}')
 
 # Checking Version
-if ( ! greater_version "$OLD_MINOR_VERSION" "$MIN_VERSION" ) || ( ! greater_version "$OLD_CHART_MINOR_VERSION" "$CHART_MIN_VERSION" ); then
-  notify "It seems you are upgrading the GitLab Helm Chart from ${OLD_CHART_VERSION_STRING} (GitLab ${OLD_VERSION_STRING}) to ${CHART_VERSION} (GitLab ${GITLAB_VERSION})."
-  notify "It is required to upgrade to the latest ${CHART_MIN_VERSION}.x version first before proceeding."
-  # Link to upgrade docs if it is a major version jump
-  if [ "${OLD_MAJOR_VERSION}" -lt "${NEW_MAJOR_VERSION}" ] || [ "${OLD_CHART_MAJOR_VERSION}" -lt "${NEW_CHART_MAJOR_VERSION}" ]; then
-    notify "Please follow the upgrade documentation at https://docs.gitlab.com/charts/releases/8_0.html"
-    notify "and upgrade to GitLab Helm Chart version ${CHART_MIN_VERSION}.x before upgrading to ${CHART_VERSION}."
+# (i) if it is a major version jump
+# (ii) if existing version is less than required minimum version
+if [ ${OLD_MAJOR_VERSION} -lt ${NEW_MAJOR_VERSION} ] || [ ${OLD_CHART_MAJOR_VERSION} -lt ${NEW_CHART_MAJOR_VERSION} ]; then
+  if ( ! greater_version $OLD_MINOR_VERSION $MIN_VERSION ) || ( ! greater_version $OLD_CHART_MINOR_VERSION $CHART_MIN_VERSION ); then
+    notify "It seems you are upgrading the GitLab Helm Chart from ${OLD_CHART_VERSION_STRING} (GitLab ${OLD_VERSION_STRING}) to ${CHART_VERSION} (GitLab ${GITLAB_VERSION})."
+    notify "It is required to upgrade to the last minor version in a major version series"
+    notify "first before jumping to the next major version."
+    notify "Please follow the upgrade documentation at https://docs.gitlab.com/charts/releases/3_0.html"
+    notify "and upgrade to GitLab Helm Chart version 2.6.0 before upgrading to ${CHART_VERSION}."
+    exit 1
   fi
-  exit 1
 fi

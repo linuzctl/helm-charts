@@ -1,11 +1,14 @@
 {{/* ######### SMTP templates */}}
 
 {{/*
-  Generates smtp settings for ActionMailer to be used in webservice and sidekiq
+  Generates smtp settings for ActionMailer to be used in unicorn and sidekiq
 */}}
 {{- define "gitlab.smtp_settings" -}}
 {{- if .Values.global.smtp.enabled -}}
-smtp_settings = {
+Rails.application.config.action_mailer.delivery_method = :smtp
+
+ActionMailer::Base.delivery_method = :smtp
+ActionMailer::Base.smtp_settings = {
   address: {{ .Values.global.smtp.address | quote }},
   port: {{ .Values.global.smtp.port | int }},
   ca_file: "/etc/ssl/certs/ca-certificates.crt",
@@ -14,11 +17,7 @@ smtp_settings = {
   {{- end }}
   {{ if has .Values.global.smtp.authentication (list "login" "plain" "cram_md5") }}
   authentication: :{{.Values.global.smtp.authentication}},
-  {{- if .Values.global.smtp.user_name_secret.secret }}
-  user_name: File.read("/etc/gitlab/smtp/smtp-username").strip,
-  {{- else }}
   user_name: {{ .Values.global.smtp.user_name | quote }},
-  {{- end }}
   password: File.read("/etc/gitlab/smtp/smtp-password").strip,
   {{- end }}
   {{- if .Values.global.smtp.starttls_auto }}
@@ -29,36 +28,14 @@ smtp_settings = {
   {{- if has .Values.global.smtp.tls (list true false) }}
   tls: {{ .Values.global.smtp.tls }},
   {{- end }}
-  {{- if .Values.global.smtp.openssl_verify_mode }}
-  openssl_verify_mode: {{ .Values.global.smtp.openssl_verify_mode | quote }},
-  {{- end }}
-  {{- if .Values.global.smtp.open_timeout }}
-  open_timeout: {{ .Values.global.smtp.open_timeout | int }},
-  {{- end }}
-  {{- if .Values.global.smtp.read_timeout }}
-  read_timeout: {{ .Values.global.smtp.read_timeout | int }}
+  {{- if eq .Values.global.smtp.openssl_verify_mode "peer" }}
+  openssl_verify_mode: 'peer'
+  {{- else if eq .Values.global.smtp.openssl_verify_mode "none" }}
+  openssl_verify_mode: 'none'
+  {{- else if eq .Values.global.smtp.openssl_verify_mode "ssl/tls" }}
+  openssl_verify_mode: :ssl/:tls
   {{- end }}
 }
-
-{{ if eq .Values.global.smtp.pool true -}}
-require 'mail/smtp_pool'
-
-ActionMailer::Base.add_delivery_method :smtp_pool, Mail::SMTPPool
-
-Gitlab::Application.config.action_mailer.delivery_method = :smtp_pool
-ActionMailer::Base.delivery_method = :smtp_pool
-
-ActionMailer::Base.smtp_pool_settings = {
-  pool: Mail::SMTPPool.create_pool(
-    smtp_settings.merge(pool_size: Gitlab::Runtime.max_threads)
-  )
-}
-{{- else -}}
-Rails.application.config.action_mailer.delivery_method = :smtp
-ActionMailer::Base.delivery_method = :smtp
-
-ActionMailer::Base.smtp_settings = smtp_settings
-{{- end -}}
 {{- end -}}
 {{- end -}}
 
@@ -83,53 +60,5 @@ email_smime:
   enabled: true
   key_file: /home/git/gitlab/.gitlab_smime_key
   cert_file: /home/git/gitlab/.gitlab_smime_cert
-{{- end }}
-{{- end }}
-
-{{/* microsoftGraphMailer secrets */}}
-{{- define "gitlab.appConfig.microsoftGraphMailer.mountSecrets" -}}
-# mount secrets for microsoftGraphMailer
-{{- if $.Values.global.appConfig.microsoft_graph_mailer.enabled }}
-- secret:
-    name: {{ $.Values.global.appConfig.microsoft_graph_mailer.client_secret.secret | required "Missing required secret containing the OAuth2 Client ID for outgoing email. Make sure to set `global.appConfig.microsoft_graph_mailer.client_secret.secret`" }}
-    items:
-      - key: {{ $.Values.global.appConfig.microsoft_graph_mailer.client_secret.key }}
-        path: microsoft_graph_mailer/client_secret
-{{- end }}
-{{- end -}}{{/* "gitlab.appConfig.microsoftGraphMailer.mountSecrets" "*/}}
-
-{{/* amazonSesMailer secrets */}}
-{{- define "gitlab.appConfig.amazonSesMailer.mountSecrets" -}}
-# mount secrets for amazonSesMailer
-{{- if $.Values.global.appConfig.amazon_ses_mailer.enabled }}
-{{- if $.Values.global.appConfig.amazon_ses_mailer.secret_access_key.secret }}
-- secret:
-    name: {{ $.Values.global.appConfig.amazon_ses_mailer.secret_access_key.secret }}
-    items:
-      - key: {{ $.Values.global.appConfig.amazon_ses_mailer.secret_access_key.key }}
-        path: amazon_ses_mailer/secret_access_key
-{{- end }}
-{{- end }}
-{{- end -}}{{/* "gitlab.appConfig.amazonSesMailer.mountSecrets" "*/}}
-
-{{/* SMTP authentication secret */}}
-{{- define "gitlab.smtp.mountSecrets" -}}
-# mount secrets for SMTP
-{{- with $.Values.global.smtp }}
-{{-   $isNoneAuth := eq "none" (.authentication | default "none") }}
-{{-   if and .enabled (not $isNoneAuth) }}
-- secret:
-    name: {{ .password.secret | required "Missing required secret containing the SMTP password. Make sure to set `global.smtp.password.secret`" }}
-    items:
-      - key: {{ .password.key }}
-        path: smtp/smtp-password
-{{-     if .user_name_secret.secret }}
-- secret:
-    name: {{ .user_name_secret.secret }}
-    items:
-      - key: {{ .user_name_secret.key }}
-        path: smtp/smtp-username
-{{-     end }}
-{{-   end }}
 {{- end }}
 {{- end }}

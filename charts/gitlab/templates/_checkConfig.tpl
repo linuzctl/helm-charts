@@ -3,17 +3,9 @@ Template for checking configuration
 
 The messages templated here will be combined into a single `fail` call. This creates a means for the user to receive all messages at one time, instead of a frustrating iterative approach.
 
-- Pick a location for the new check.
-  + Checks of a group reside in a sub file, `_checkConfig_xxx.tpl`.
-  + If there isn't a group for that check yet, put it at the end of this file
-  + If there are more than 1 check of a same group, extract those checks into a new
-  file following the above format. Don't forget to extract the tests too.
 - `define` a new template, prefixed `gitlab.checkConfig.`
 - Check for known problems in configuration, and directly output messages (see message format below)
 - Add a line to `gitlab.checkConfig` to include the new template.
-- Add tests for the newly created check.
-  + Tests for checks of a group are put in `spec/integration/check_config/xxx_spec.rb`
-  + Tests for other miscellaneous checks are put in `spec/integration/check_config_spec.rb`
 
 Message format:
 
@@ -32,120 +24,18 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- define "gitlab.checkConfig" -}}
 {{- $messages := list -}}
 {{/* add templates here */}}
-
-{{/* _checkConfig_mailroom.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.incomingEmail.microsoftGraph" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.serviceDesk" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.serviceDesk.microsoftGraph" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.incomingEmail.deliveryMethod" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.serviceDeskEmail.deliveryMethod" .) -}}
-
-{{/* _checkConfig_geo.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.geo.secondary.database" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.geo.registry.replication.primaryApiUrl" .) -}}
-
-{{/* _checkConfig_gitaly.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.gitaly.storageNames" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.gitaly.tls" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.gitaly.extern.repos" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.gitaly.gpgSigning" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.praefect.storageNames" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.praefect.defaultReplicationFactor" .) -}}
-
-{{/* _checkConfig_ingress.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.ingress.alternatives" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.ingress.class" .) -}}
-
-{{/* _checkConfig_nginx.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.nginx.controller.extraArgs" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.nginx.clusterrole.scope" .) -}}
-
-{{/* _checkConfig_object_storage.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.registry.configured" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.pages.configured" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.consolidatedConfig" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.typeSpecificConfig" .) -}}
-
-{{/* _checkConfig_openbao.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.openbao.database" .) -}}
-
-{{/* _checkConfig_orbit.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.orbit.configurationRoots" .) -}}
-
-{{/* _checkConfig_redis.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.redis" .) -}}
-
-{{/* _checkConfig_postgresql.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.postgresql" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.postgresql.noPasswordFile" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.database.externalLoadBalancing" .) -}}
-
-{{/* _checkConfig_registry.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.sentry.dsn" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.notifications" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.database" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.database.loadBalancing" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.database.metrics" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.cache" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.rateLimiting" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.loadBalancing" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.tls" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.registry.debug.tls" .) -}}
-
-{{/* _checkConfig_sidekiq.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.queues" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.timeout" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.routingRules" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.server_ports" .) -}}
-
-{{/* _checkConfig_toolbox.tpl*/}}
-{{- $messages = append $messages (include "gitlab.toolbox.replicas" .) -}}
-
-{{/* _checkConfig_webservice.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.appConfig.maxRequestDurationSeconds" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.appConfig.relativeUrlRoot" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.webservice.gracePeriod" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.webservice.loadBalancer" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.webservice.gatewayApi.ruleSyntax" .) -}}
-
-{{/* _checkConfig_workhorse.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.workhorse.exporter.tls.enabled" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.redis.sentinel.ssl" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.redis.tls.certificates" .) -}}
-
-{{/* _checkConfig_gitlab_shell.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.gitlabShell.proxyPolicy" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.gitlabShell.metrics" .) -}}
-
-{{/* _checkConfig_omniauth.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.omniauth.providerFormat" .) -}}
-
-{{/* _checkConfig_iamAuth.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.http.host" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.http.port" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.grpc.host" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.grpc.port" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.jwtIssuer" .) -}}
-
-{{/* _checkConfig_iam_data_access.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.host" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.port" .) -}}
-
-{{/* _checkConfig_outgoingEmail.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.outgoingEmail.mailerExclusive" .) -}}
-
-{{/* other checks */}}
-{{- $messages = append $messages (include "gitlab.checkConfig.sentry" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.gitlab_docs" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.smtp.openssl_verify_mode" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.smtp.tls_kind" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.globalServiceAccount" .) -}}
-{{- $messages = append $messages (include "gitlab.duoAuth.checkConfig" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.prometheus" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.envoy.global" .) -}}
-
+{{- $messages := append $messages (include "gitlab.checkConfig.gitaly.tls" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.sidekiq.queues.mixed" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.sidekiq.queues.cluster" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.sidekiq.experimentalQueueSelector" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.appConfig.maxRequestDurationSeconds" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.gitaly.extern.repos" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.geo.database" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.geo.secondary.database" .) -}}
+{{- $messages := append $messages (include "gitlab.task-runner.replicas" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.multipleRedis" .) -}}
 {{- /* prepare output */}}
-{{- $messages = without $messages "" -}}
+{{- $messages := without $messages "" -}}
 {{- $message := join "\n" $messages -}}
 
 {{- /* print output */}}
@@ -155,74 +45,147 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- end -}}
 
 {{/*
-Ensure that sentry has a DSN configured if enabled
-*/}}
-{{- define "gitlab.checkConfig.sentry" -}}
-{{-   if $.Values.global.appConfig.sentry.enabled }}
-{{-     if (not (or $.Values.global.appConfig.sentry.dsn $.Values.global.appConfig.sentry.clientside_dsn)) }}
-sentry:
-    When enabling sentry, you must configure at least one DSN.
-    See https://docs.gitlab.com/charts/charts/globals.html#sentry-settings
+Ensure a certificate is provided when Gitaly is enabled and is instructed to
+listen over TLS */}}
+{{- define "gitlab.checkConfig.gitaly.tls" -}}
+{{- if and (and $.Values.gitlab.gitaly.enabled $.Values.global.gitaly.tls.enabled) (not $.Values.global.gitaly.tls.secretName) }}
+gitaly: no tls certificate
+    It appears Gitaly is specified to listen over TLS, but no certificate was specified.
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.gitaly.tls */}}
+
+{{/* Check configuration of Sidekiq - don't supply queues and negateQueues */}}
+{{- define "gitlab.checkConfig.sidekiq.queues.mixed" -}}
+{{- if .Values.gitlab.sidekiq.pods -}}
+{{-   range $pod := .Values.gitlab.sidekiq.pods -}}
+{{-     if and (hasKey $pod "queues") (hasKey $pod "negateQueues") }}
+sidekiq: mixed queues
+    It appears you've supplied both `queues` and `negateQueues` for the pod definition of `{{ $pod.name }}`. `negateQueues` is not usable if `queues` is provided. Please use only one.
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
-{{/* END gitlab.checkConfig.sentry */}}
-
-{{/*
-Ensure that gitlab_docs has a host configured if enabled
-host mush be starts with https:// or http://, and not empty.
-*/}}
-{{- define "gitlab.checkConfig.gitlab_docs" -}}
-{{-   if $.Values.global.appConfig.gitlab_docs.enabled }}
-{{-     with $.Values.global.appConfig.gitlab_docs -}}
-{{-       if or (not .host) (and (not (hasPrefix "http://"  .host)) (not (hasPrefix "https://" .host))) }}
-gitlab_docs:
-    When enabling gitlab_docs, you must configure host, and it must start with `http://` or `https://`.
-{{-       end }}
-{{-     end }}
-{{-   end }}
 {{- end -}}
-{{/* END gitlab.checkConfig.gitlab_docs */}}
+{{/* END gitlab.checkConfig.sidekiq.queues.mixed */}}
 
-{{/*
-Ensure that a correct value is provided for
-`global.smtp.openssl_verify_mode`.
-*/}}
-{{- define "gitlab.checkConfig.smtp.openssl_verify_mode" -}}
-{{-   $opensslVerifyModes := list "none" "peer" "client_once" "fail_if_no_peer_cert" -}}
-{{-   if .Values.global.smtp.openssl_verify_mode -}}
-{{-     if not (has .Values.global.smtp.openssl_verify_mode $opensslVerifyModes) }}
-smtp:
-    "{{ .Values.global.smtp.openssl_verify_mode }}" is not a valid value for `global.smtp.openssl_verify_mode`.
-    Valid values are: {{ join ", " $opensslVerifyModes }}.
-{{-     end }}
-{{-   end }}
-{{- end -}}
-{{/* END gitlab.checkConfig.smtp.openssl_verify_mode */}}
-
-{{/*
-Ensure that either `global.smtp.tls` or `global.smtp.starttls_auto` is set to true, but not both.
-*/}}
-{{- define "gitlab.checkConfig.smtp.tls_kind" -}}
-{{-   if and .Values.global.smtp.tls .Values.global.smtp.starttls_auto -}}
-smtp:
-    global.smtp.tls and global.smtp.starttls_auto are mutually exclusive.
-    Set one of them to false. SMTP providers usually use port 465 for TLS and port 587 for STARTTLS.
-{{-     end }}
-{{-   end }}
-{{/* END gitlab.checkConfig.smtp.tls_kind */}}
-
-{{/*
-Ensure that global service account settings are correct.
-*/}}
-{{- define "gitlab.checkConfig.globalServiceAccount" -}}
-{{-   if and .Values.global.serviceAccount.enabled .Values.global.serviceAccount.create -}}
-{{-     if .Values.global.serviceAccount.name }}
-serviceAccount:
-  `global.serviceAccount.name` is set to {{ .Values.global.serviceAccount.name | quote }}.
-  Please set `global.serviceAccount.create=false` and manually create a ServiceAccount
-  object in the cluster with a matching name.
+{{/* Check configuration of Sidekiq - queues must be a string when cluster is enabled */}}
+{{- define "gitlab.checkConfig.sidekiq.queues.cluster" -}}
+{{- if .Values.gitlab.sidekiq.pods -}}
+{{-   range $pod := .Values.gitlab.sidekiq.pods -}}
+{{-     if and ($pod.cluster) (hasKey $pod "queues") (ne (kindOf $pod.queues) "string") }}
+sidekiq: cluster
+    The pod definition `{{ $pod.name }}` has `cluster` enabled, but `queues` is not a string.
+{{-     else if and ($pod.cluster) (hasKey $pod "negateQueues") (ne (kindOf $pod.negateQueues) "string") }}
+sidekiq: cluster
+    The pod definition `{{ $pod.name }}` has `cluster` enabled, but `negateQueues` is not a string.
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
-{{/* END gitlab.checkConfig.globalServiceAccount */}}
+{{- end -}}
+{{/* END gitlab.checkConfig.sidekiq.queues.cluster */}}
+
+{{/* Check configuration of Sidekiq - cluster must be enabled for experimentalQueueSelector to be valid */}}
+{{- define "gitlab.checkConfig.sidekiq.experimentalQueueSelector" -}}
+{{- if .Values.gitlab.sidekiq.pods -}}
+{{-   range $pod := .Values.gitlab.sidekiq.pods -}}
+{{-     if and ($pod.experimentalQueueSelector) (not $pod.cluster) }}
+sidekiq: experimentalQueueSelector
+    The pod definition `{{ $pod.name }}` has `experimentalQueueSelector` enabled, but does not have `cluster` enabled. `experimentalQueueSelector` only works when `cluster` is enabled.
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.sidekiq.experimentalQueueSelector */}}
+
+{{/*
+Ensure a database is configured when using Geo
+listen over TLS */}}
+{{- define "gitlab.checkConfig.geo.database" -}}
+{{- with $.Values.global -}}
+{{- if eq true .geo.enabled -}}
+{{-   if not .psql.host }}
+geo: no database provided
+    It appears Geo was configured but no database was provided. Geo behaviors require external databases. Ensure `global.psql.host` is set.
+{{    end -}}
+{{-   if not .psql.password.secret }}
+geo: no database password provided
+    It appears Geo was configured, but no database password was provided. Geo behaviors require external databases. Ensure `global.psql.password.secret` is set.
+{{   end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.geo.database */}}
+
+{{/*
+Ensure a database is configured when using Geo secondary
+listen over TLS */}}
+{{- define "gitlab.checkConfig.geo.secondary.database" -}}
+{{- with $.Values.global.geo -}}
+{{- if include "gitlab.geo.secondary" $ }}
+{{-   if not .psql.host }}
+geo: no secondary database provided
+    It appears Geo was configured with `role: secondary`, but no database was provided. Geo behaviors require external databases. Ensure `global.geo.psql.host` is set.
+{{    end -}}
+{{-   if not .psql.password.secret }}
+geo: no secondary database password provided
+    It appears Geo was configured with `role: secondary`, but no database password was provided. Geo behaviors require external databases. Ensure `global.geo.psql.password.secret` is set.
+{{    end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.geo.secondary.database */}}
+
+{{/*
+Ensure the provided global.appConfig.maxRequestDurationSeconds value is smaller than
+unicorn's worker timeout */}}
+{{- define "gitlab.checkConfig.appConfig.maxRequestDurationSeconds" -}}
+{{- $maxDuration := $.Values.global.appConfig.maxRequestDurationSeconds }}
+{{- if $maxDuration }}
+{{- $workerTimeout := $.Values.global.unicorn.workerTimeout }}
+{{- if not (lt $maxDuration $workerTimeout) }}
+gitlab: maxRequestDurationSeconds should be smaller than Unicorn's worker timeout
+        The current value of global.appConfig.maxRequestDurationSeconds ({{ $maxDuration }}) is greater than or equal to global.unicorn.workerTimeout ({{ $workerTimeout }}) while it should be a lesser value.
+{{- end }}
+{{- end }}
+{{- end }}
+{{/* END gitlab.checkConfig.appConfig.maxRequestDurationSeconds */}}
+
+{{/* Check configuration of Gitaly external repos*/}}
+{{- define "gitlab.checkConfig.gitaly.extern.repos" -}}
+{{-   if (and (not .Values.global.gitaly.enabled) (not .Values.global.gitaly.external) ) }}
+gitaly:
+    external Gitaly repos needs to be specified if global.gitaly.enabled is not set
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.gitaly.extern.repos */}}
+
+{{/*
+Ensure that gitlab/task-runner is not configured with `replicas` > 1 if
+persistence is enabled.
+*/}}
+{{- define "gitlab.task-runner.replicas" -}}
+{{-   $replicas := index $.Values.gitlab "task-runner" "replicas" | int -}}
+{{-   if and (gt $replicas 1) (index $.Values.gitlab "task-runner" "persistence" "enabled") -}}
+task-runner: replicas is greater than 1, with persistence enabled.
+    It appear that `gitlab/task-runner` has been configured with more than 1 replica, but also with a PersistentVolumeClaim. This is not supported. Please either reduce the replicas to 1, or disable persistence.
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.task-runner.replicas */}}
+
+{{/*
+Ensure that `redis.install: false` if configuring multiple Redis instances
+*/}}
+{{- define "gitlab.checkConfig.multipleRedis" -}}
+{{/* "cache" "sharedState" "queues" "actioncable" */}}
+{{- $x := dict "count" 0 -}}
+{{- range $redis := list "cache" "sharedState" "queues" "actioncable" -}}
+{{-   if hasKey $.Values.global.redis $redis -}}
+{{-     $_ := set $x "count" ( add1 $x.count ) -}}
+{{-    end -}}
+{{- end -}}
+{{- if and .Values.redis.install ( lt 0 $x.count ) }}
+redis:
+  If configuring multiple Redis servers, you can not use the in-chart Redis server. Please see https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.multipleRedis */}}

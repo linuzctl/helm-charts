@@ -6,17 +6,16 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
-    {{- include "gitlab.commonLabels" . | nindent 4 }}
-    {{- include "gitlab.serviceLabels" . | nindent 4 }}
   annotations:
     {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.externalPort }}
-      targetPort: http-metrics
+      targetPort: {{ .Values.service.internalPort }}
       protocol: TCP
-      name: {{ .Values.tls.enabled | ternary "https" "http" }}-metrics
+      name: gitlab-exporter
   selector:
-    {{- include "gitlab.selectorLabels" . | nindent 4 }}
+    app: {{ template "name" . }}
+    release: {{ .Release.Name }}
 {{- end }}

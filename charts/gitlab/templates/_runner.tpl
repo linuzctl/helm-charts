@@ -13,12 +13,19 @@ Override the runner charts secret name containing the tokens so everything match
 {{- end -}}
 
 {{/*
-Override gitlab external URL
+Override the runner charts cache secret name to match minio
 */}}
-{{- define "gitlab-runner.gitlabUrl" -}}
-{{- if .Values.gitlabUrl -}}
-{{-   .Values.gitlabUrl -}}
-{{- else -}}
-{{-   template "gitlab.gitlab.url" . -}}
+{{- define "gitlab-runner.cache.secret" -}}
+{{- if .Values.runners.cache.secretName -}}
+{{    .Values.runners.cache.secretName | quote }}
+{{- else if .Values.global.minio.enabled -}}
+{{    include "gitlab.minio.credentials.secret" . }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Override runner charts cache.s3ServerAddress value to match minio
+*/}}
+{{- define "gitlab-runner.cache.s3ServerAddress" -}}
+{{ default ( include "gitlab.minio.hostname" . ) .Values.runners.cache.s3ServerAddress | quote }}
 {{- end -}}

@@ -1,21 +1,12 @@
-{{- if .Values.rbac.create }}
-
-{{- if and .Values.rbac.scope (not .Values.controller.scope.enabled) -}}
-  {{ required "Invalid configuration: 'rbac.scope' should be equal to 'controller.scope.enabled' (true/false)." (index (dict) ".") }}
-{{- end }}
-
-{{- if not .Values.rbac.scope -}}
+{{- if .Values.enabled -}}
+{{- if and .Values.rbac.create (not .Values.controller.scope.enabled) -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  name: {{ template "nginx-ingress.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
-    {{- include "gitlab.commonLabels" . | nindent 4 }}
-    {{- include "ingress-nginx.labels" . | nindent 4 }}
-    {{- with .Values.controller.labels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  name: {{ include "ingress-nginx.fullname" . }}
+{{ include "gitlab.standardLabels" . | indent 4 }}
 rules:
   - apiGroups:
       - ""
@@ -25,16 +16,6 @@ rules:
       - nodes
       - pods
       - secrets
-{{- if not .Values.controller.scope.enabled }}
-      - namespaces
-{{- end}}
-    verbs:
-      - list
-      - watch
-  - apiGroups:
-      - coordination.k8s.io
-    resources:
-      - leases
     verbs:
       - list
       - watch
@@ -61,9 +42,10 @@ rules:
     verbs:
       - get
       - list
+      - update
       - watch
   - apiGroups:
-      - networking.k8s.io
+      - extensions
     resources:
       - ingresses
     verbs:
@@ -78,27 +60,10 @@ rules:
       - create
       - patch
   - apiGroups:
-      - networking.k8s.io
+      - extensions
     resources:
       - ingresses/status
     verbs:
       - update
-  - apiGroups:
-      - networking.k8s.io
-    resources:
-      - ingressclasses
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - discovery.k8s.io
-    resources:
-      - endpointslices
-    verbs:
-      - list
-      - watch
-      - get
-{{- end }}
-
-{{- end }}
+{{- end -}}
+{{- end -}}

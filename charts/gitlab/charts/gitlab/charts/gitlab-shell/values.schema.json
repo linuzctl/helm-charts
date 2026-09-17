@@ -5,27 +5,6 @@
       "title": "Pod annotations",
       "type": "object"
     },
-    "logging": {
-      "properties": {
-        "format": {
-          "title": "Format to be used for gitlab-shell logs",
-          "enum": [
-            "text",
-            "json"
-          ]
-        },
-        "sshdLogLevel": {
-          "title": "Log level for underlying SSH daemon",
-          "enum": [
-            "QUIET",
-            "FATAL",
-            "ERROR",
-            "INFO",
-            "VERBOSE"
-          ]
-        }
-      }
-    },
     "config": {
       "properties": {
         "loginGraceTime": {
@@ -64,140 +43,6 @@
           },
           "title": "Maximum number of concurrent unauthenticated connections to the SSH daemon",
           "type": "object"
-        },
-        "proxyProtocol": {
-          "title": "Enable PROXY support for gitlab-sshd",
-          "type": "boolean"
-        },
-        "proxyPolicy": {
-          "title": "The policy for handling PROXY protocol in gitlab-sshd",
-          "type": "string",
-          "enum": [
-            "use",
-            "require",
-            "ignore",
-            "reject"
-          ]
-        },
-        "proxyHeaderTimeout": {
-          "title": "The maximum duration gitlab-sshd will wait before giving up on reading the PROXY protocol header",
-          "pattern": "^[0-9]+(ms|s|m)$",
-          "type": "string"
-        },
-        "ciphers": {
-          "title": "The available ciphers in gitlab-sshd",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "kexAlgorithms": {
-          "title": "The available KEX (Key Exchange) algorithms in gitlab-sshd",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "macs": {
-          "title": "The available MAC (message authentication code) algorithms in gitlab-sshd",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "publicKeyAlgorithms": {
-          "title": "Accepted public key algorithms in gitlab-sshd",
-          "description": "Custom list of public key algorithms. If empty, the default algorithms are used.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "gssapi": {
-          "properties": {
-            "enabled": {
-              "title": "Enable GSS-API support for then gitlab-sshd daemon",
-              "type": "boolean"
-            },
-            "libpath": {
-              "title": "Library path for gssapi shared library",
-              "type": "string"
-            },
-            "keytab": {
-              "properties": {
-                "secret": {
-                    "title": "The Kubernetes secret name"
-                },
-                "key": {
-                    "title": "The Kubernetes secret key"
-                }
-              },
-              "title": "The Kubernetes secret holding the keytab for the gssapi-with-mic authentication method",
-              "type": "object"
-            },
-            "krb5Config": {
-              "title": "Content of the `/etc/krb5.conf` file in the gitlab-shell container",
-              "type": "string"
-            },
-            "servicePrincipalName": {
-              "title": "The Kerberos service name to be used by the gitlab-sshd daemon",
-              "type": "string"
-            }
-          },
-          "title": "GSS-API related settings",
-          "type": "object"
-        },
-        "lfs": {
-          "properties": {
-            "pureSSHProtocol": {
-              "title": "Enable LFS pure SSH protocol support",
-              "type": "boolean"
-            }
-          },
-          "title": "LFS related settings",
-          "type": "object"
-        },
-        "pat": {
-          "properties": {
-            "enabled": {
-              "title": "Enable PAT using SSH",
-              "type": "boolean"
-            },
-            "allowedScopes": {
-              "title": "An array of scopes allowed for PATs generated with SSH",
-              "type": "array"
-            }
-          },
-          "title": "Personal access token (PAT) related settings",
-          "type": "object"
-        },
-        "topologyService": {
-          "properties": {
-            "enabled": {
-              "title": "Enable the Topology Service gRPC client (Cells routing) for GitLab Shell",
-              "description": "Must be explicitly enabled for GitLab Shell; it does not inherit the global Cells setting. When true, the global Cells topology service (address and mTLS) must also be configured.",
-              "type": "boolean"
-            }
-          },
-          "title": "Topology Service gRPC client (Cells routing) settings for GitLab Shell",
-          "type": "object"
-        },
-        "trustedUserCAKeys": {
-          "properties": {
-            "secret": {
-              "title": "Name of the Kubernetes Secret containing trusted user CA public keys",
-              "type": "string"
-            },
-            "keys": {
-              "title": "List of key names within the Secret that contain CA public keys",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "title": "Trusted user CA keys for instance-level SSH certificate authentication",
-          "type": "object"
         }
       },
       "required": [
@@ -229,20 +74,12 @@
           },
           "title": "Liveness probe settings",
           "type": "object"
-        },
-        "terminationGracePeriodSeconds": {
-          "type": "integer",
-          "minimum": 5
-	      },
-        "revisionHistoryLimit": {
-          "type": "integer",
-          "minimum": 0
         }
       },
       "required": [
         "livenessProbe"
       ],
-      "title": "Deployment details",
+      "title": "Deploment details",
       "type": "object"
     },
     "enabled": {
@@ -284,47 +121,14 @@
     },
     "hpa": {
       "properties": {
-        "cpu": {
-          "properties": {
-            "targetType": {
-              "title": "Autoscaling CPU target type",
-              "type": "string"
-            },
-            "targetAverageUtilization": {
-              "title": "Autoscaling CPU target utilization",
-              "type": "number"
-            },
-            "targetAverageValue": {
-              "title": "Autoscaling CPU target value",
-              "type": "string"
-            }
-          }
-        },
-        "memory": {
-          "properties": {
-            "targetType": {
-              "title": "Autoscaling memory target type",
-              "type": "string"
-            },
-            "targetAverageUtilization": {
-              "title": "Autoscaling memory target utilization",
-              "type": "number"
-            },
-            "targetAverageValue": {
-              "title": "Autoscaling memory target value",
-              "type": "string"
-            }
-          }
-        },
-        "customMetrics": {
-          "title": "Autoscaling custom metrics",
-          "type": "array"
-        },
-        "behavior": {
-          "title": "Autoscaling behavior definition",
-          "type": "object"
+        "targetAverageValue": {
+          "title": "Autoscaling target value",
+          "type": "string"
         }
       },
+      "required": [
+        "targetAverageValue"
+      ],
       "title": "Horizontal Pod Autoscaler settings",
       "type": "object"
     },
@@ -402,52 +206,11 @@
     },
     "maxUnavailable": {
       "title": "Maximum number of unavailable pods",
-      "anyOf": [
-        { "type": "string" },
-        { "type": "number" }
-      ]
+      "type": "number"
     },
     "minReplicas": {
       "title": "Minimum number of pod replicas",
       "type": "number"
-    },
-    "metrics": {
-      "properties": {
-        "enabled": {
-          "title": "Enable generation of metrics via annotations or ServiceMonitor",
-          "type": "boolean"
-        },
-        "port": {
-          "title": "Metrics port",
-          "type": "integer"
-        },
-        "path": {
-          "title": "Metrics path",
-          "type": "string"
-        },
-        "serviceMonitor": {
-          "properties": {
-            "enabled": {
-              "title": "Create a ServiceMonitor",
-              "type": "boolean"
-            },
-            "additionalLabels": {
-              "title": "Additional labels",
-              "type": "object"
-            },
-            "endpointConfig": {
-              "title": "Endpoint config",
-              "type": "object"
-            }
-          },
-          "title": "ServiceMonitor",
-          "type": "object"
-        },
-        "annotations": {
-          "title": "Metrics annotations",
-          "type": "object"
-        }
-      }
     },
     "resources": {
       "properties": {
@@ -481,6 +244,10 @@
           "title": "List of external IPs",
           "type": "array"
         },
+        "externalPort": {
+          "title": "Service external port",
+          "type": "number"
+        },
         "externalTrafficPolicy": {
           "title": "Service external traffic policy",
           "type": "string"
@@ -492,10 +259,6 @@
         "loadBalancerIP": {
           "title": "IP address to assign to LoadBalancer",
           "type": "string"
-        },
-        "allocateLoadBalancerNodePorts": {
-          "title": "If the LoadBalancer Service should also have a NodePort",
-          "type": "boolean"
         },
         "loadBalancerSourceRanges": {
           "title": "List of IP CIDRs allowed access to LoadBalancer",
@@ -522,20 +285,9 @@
       "title": "GitLab Shell Kubernetes Service details",
       "type": "object"
     },
-    "sshDaemon": {
-      "title": "SSH daemon that would be executed inside container",
-      "enum": [
-        "openssh",
-        "gitlab-sshd"
-      ]
-    },
     "tolerations": {
       "title": "Tolerations labels for pod assignment",
       "type": "array"
-    },
-    "priorityClassName": {
-      "title": "Priority class assigned to pods",
-      "type": "string"
     },
     "workhorse": {
       "properties": {

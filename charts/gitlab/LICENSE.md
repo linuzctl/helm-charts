@@ -1,4 +1,4 @@
-Copyright (c) 2011-2017 GitLab Inc.
+Copyright (c) 2011-2017 GitLab B.V.
 
 With regard to the GitLab Software:
 

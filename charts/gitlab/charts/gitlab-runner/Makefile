@@ -18,6 +18,3 @@ $(GITLAB_CHANGELOG):
 	@mkdir -p $(shell dirname $(GITLAB_CHANGELOG))
 	@curl -sL "$(DOWNLOAD_URL)" -o "$(GITLAB_CHANGELOG)"
 	@chmod +x "$(GITLAB_CHANGELOG)"
-
-unit-test: ## Execute Unit tests locally
-	@helm unittest -f 'tests/*.yaml' .

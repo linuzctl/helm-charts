@@ -6,10 +6,10 @@ all contributions. By participating in this project, you agree to abide by the
 
 ## Developer Certificate of Origin + License
 
-By contributing to GitLab Inc., You accept and agree to the following terms and
-conditions for Your present and future Contributions submitted to GitLab Inc.
-Except for the license granted herein to GitLab Inc. and recipients of software
-distributed by GitLab Inc., You reserve all right, title, and interest in and to
+By contributing to GitLab B.V., You accept and agree to the following terms and
+conditions for Your present and future Contributions submitted to GitLab B.V.
+Except for the license granted herein to GitLab B.V. and recipients of software
+distributed by GitLab B.V., You reserve all right, title, and interest in and to
 Your Contributions. All Contributions are subject to the following DCO + License
 terms.
 
@@ -49,33 +49,30 @@ request is as follows:
 1. Write code and charts changes.
 1. If deemed necessary, provide MR to the [Cloud Native GitLab containers][CNG].
     - Provide the related Issue and MR link from that repository.
-1. [Generate a changelog entry][changelog]
+1. [Generate a changelog entry with `bin/changelog`][changelog]
 1. If you have multiple commits please combine them into a few logically
   organized commits by [squashing them][git-squash]
 1. Push the commit(s) to your fork
 1. Submit a merge request (MR) to the `master` branch
-    1. Ensure the MR description uses the `General Change` template, and the appropriate
-    items are checked off.
-    1. Your merge request needs at least 1 approval but feel free to require more.
+  1. Your merge request needs at least 1 approval but feel free to require more.
     For instance if you're touching multiple charts, replacing a provider, or
     altering an behavior on a global level.
-    1. You don't have to select any approvers, but you can if you really want
+  1. You don't have to select any approvers, but you can if you really want
     specific people to approve your merge request.
 1. The MR title should describe the change you want to make
 1. The MR description should give a motive for your change and the method you
    used to achieve it.
-    1. If you are contributing code, fill in the template already provided in the
+  1. If you are contributing code, fill in the template already provided in the
      "Description" field.
-    1. If you are contributing documentation
-       1. Choose `Documentation` from the "Choose a template" menu and fill in the template.
-       1. Ensure the branch name starts with `docs-` or ends with `-docs`
-    1. Mention the issue(s) your merge request solves, using the `Solves #XXX` or
+  1. If you are contributing documentation, choose `Documentation` from the
+     "Choose a template" menu and fill in the template.
+  1. Mention the issue(s) your merge request solves, using the `Solves #XXX` or
     `Closes #XXX` syntax to auto-close the issue(s) once the merge request will
     be merged.
 1. If you're allowed to, set a relevant milestone and labels
 1. Be prepared to answer questions and incorporate feedback even if requests
    for this arrive weeks or months after your MR submission
-    1. If a discussion has been addressed, select the "Resolve discussion" button
+  1. If a discussion has been addressed, select the "Resolve discussion" button
     beneath it to mark it resolved.
 1. When writing commit messages please follow
    [these](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
@@ -167,9 +164,9 @@ reported by emailing contact@gitlab.com.
 This Code of Conduct is adapted from the [Contributor Covenant][contributor-covenant], version 1.1.0,
 available at [http://contributor-covenant.org/version/1/1/0/](http://contributor-covenant.org/version/1/1/0/).
 
-[accepting-mrs]: https://gitlab.com/gitlab-org/charts/gitlab/-/issues?label_name=Accepting+Merge+Requests
-[gitlab-mr-tracker]: https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests
-[closed-merge-requests]: https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests?assignee_id=&label_name=&milestone_id=&scope=&sort=&state=closed
+[accepting-mrs]: https://gitlab.com/gitlab-org/charts/gitlab/issues?label_name=Accepting+Merge+Requests
+[gitlab-mr-tracker]: https://gitlab.com/gitlab-org/charts/gitlab/merge_requests
+[closed-merge-requests]: https://gitlab.com/gitlab-org/charts/gitlab/merge_requests?assignee_id=&label_name=&milestone_id=&scope=&sort=&state=closed
 [contributor-covenant]: http://contributor-covenant.org
 [changelog]: doc/development/changelog.md "Generate a changelog entry"
 [git-squash]: https://git-scm.com/book/en/Git-Tools-Rewriting-History#Squashing-Commits
