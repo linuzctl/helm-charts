@@ -1,0 +1,5 @@
+---
+repo_name: gitlab
+repo_url: https://charts.gitlab.io/
+chart_name: gitlab-operator
+chart_version: 3.3.2
