@@ -93,9 +93,10 @@ spec:
         - --host=127.0.0.1
         {{- end }}
         - --port={{ $servicePort }}
-        {{-  if .Values.collectors  }}
-        - --resources={{ .Values.collectors | join "," }}
-        {{-  end  }}
+        {{- $activeCollectors := include "kube-state-metrics.collectors" . | fromYamlArray }}
+        {{- if $activeCollectors }}
+        - --resources={{ join "," $activeCollectors }}
+        {{- end }}
         {{- if .Values.metricLabelsAllowlist }}
         - --metric-labels-allowlist={{ .Values.metricLabelsAllowlist | join "," }}
         {{- end }}
@@ -179,10 +180,12 @@ spec:
             {{- if .Values.hostNetwork }}
             host: 127.0.0.1
             {{- end }}
+            {{- if .Values.startupProbe.httpGet.httpHeaders }}
             httpHeaders:
             {{- range $_, $header := .Values.startupProbe.httpGet.httpHeaders }}
             - name: {{ $header.name }}
               value: {{ $header.value }}
+            {{- end }}
             {{- end }}
             path: /healthz
             port: http
@@ -202,10 +205,12 @@ spec:
             {{- if .Values.hostNetwork }}
             host: 127.0.0.1
             {{- end }}
+            {{- if .Values.livenessProbe.httpGet.httpHeaders }}
             httpHeaders:
             {{- range $_, $header := .Values.livenessProbe.httpGet.httpHeaders }}
             - name: {{ $header.name }}
               value: {{ $header.value }}
+            {{- end }}
             {{- end }}
             path: /livez
             port: http
@@ -224,10 +229,12 @@ spec:
             {{- if .Values.hostNetwork }}
             host: 127.0.0.1
             {{- end }}
+            {{- if .Values.readinessProbe.httpGet.httpHeaders }}
             httpHeaders:
             {{- range $_, $header := .Values.readinessProbe.httpGet.httpHeaders }}
             - name: {{ $header.name }}
               value: {{ $header.value }}
+            {{- end }}
             {{- end }}
             path: /readyz
             port: metrics

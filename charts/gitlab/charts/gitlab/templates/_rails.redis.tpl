@@ -42,10 +42,13 @@ Input: dict "context" $ "name" string
     {{- if $write_timeout }}
     write_timeout: {{ $write_timeout }}
     {{- end }}
-    {{- include "gitlab.redis.sentinels" .context | nindent 4 }}
-    {{- $password := include "gitlab.redis.sentinel.password" .context }}
-    {{- if $password }}
-    sentinel_password: "{{- include "gitlab.redis.sentinel.password" .context }}"
+    {{- $sentinels := include "gitlab.redis.sentinels" .context }}
+    {{- $sentinels | nindent 4 }}
+    {{- if $sentinels }}
+    {{-   $password := include "gitlab.redis.sentinel.password" .context }}
+    {{-   if $password }}
+    sentinel_password: "{{ $password }}"
+    {{-   end }}
     {{- end }}
     id:
     {{- if eq .name "cable" }}
@@ -151,7 +154,7 @@ If no `global.redis.actioncable`, use `global.redis`
 {{-     if kindIs "map" $settings -}}
 {{-       $_ := set $ "redisConfigName" $redis -}}
 {{-       $_ := set $ "usingOverride" true -}}
-{{-       $password := include "gitlab.redis.url.password" $ | trimPrefix ":" | trimSuffix "@" -}}
+{{-       $password := include "gitlab.redis.plainPassword" $ -}}
 {{-       if kindIs "map" (dig $.redisConfigName "password" "" $.Values.global.redis.redisYmlOverride) -}}
 {{-         if dig "password" "enabled" true $settings -}}
 {{-           $_ := set $settings "password" $password -}}

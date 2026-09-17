@@ -42,7 +42,7 @@ spec:
           annotations:
             checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
             cluster-autoscaler.kubernetes.io/safe-to-evict: {{ .Values.backups.cron.safeToEvict | quote }}
-          {{- range $key, $value := .Values.annotations }}
+          {{- range $key, $value := merge (default (dict) .Values.backups.cron.annotations) (deepCopy .Values.annotations) }}
             {{ $key }}: {{ $value | quote }}
           {{- end }}
         spec:
@@ -86,7 +86,7 @@ spec:
                 - /bin/bash
                 - -c
                 {{- if eq .Values.backups.objectStorage.backend "s3" }}
-                - cp /etc/gitlab/.s3cfg $HOME/.s3cfg && backup-utility {{ .Values.backups.cron.extraArgs }} # alpine sleep has no infinity
+                - test -f /etc/gitlab/.s3cfg && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility {{ .Values.backups.cron.extraArgs }}
                 {{- else if eq .Values.backups.objectStorage.backend "gcs" }}
                 - sh /var/opt/gitlab/templates/configure-gcloud-storage && backup-utility {{ .Values.backups.cron.extraArgs }}
                 {{- else if eq .Values.backups.objectStorage.backend "azure" }}

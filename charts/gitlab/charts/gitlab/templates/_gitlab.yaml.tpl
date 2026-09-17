@@ -88,6 +88,7 @@ iam_auth_service:
   grpc:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 0 . | int }}
+    secure: {{ dig "grpc" "secure" true . }}
   jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
   jwt_issuer: {{ dig "jwtIssuer" "" . | quote }}
   {{- end }}
@@ -101,8 +102,28 @@ iam_data_access_service:
   grpc:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 0 . | int }}
+    secure: {{ dig "grpc" "secure" true . }}
   {{- end }}
 {{- end }}
+
+{{/*
+Renders nothing unless the operator configured an Artifact Registry endpoint, so
+an install that leaves the block unset keeps the key out of gitlab.yml entirely
+rather than writing an empty api_url. service_token is a mapping, unlike the
+flat secret_file the iam_data_access_service block above renders.
+*/}}
+{{- define "gitlab.appConfig.artifactRegistry" -}}
+{{- with .Values.global.appConfig.artifactRegistry -}}
+{{- if and .enabled .apiUrl -}}
+artifact_registry:
+  api_url: {{ .apiUrl | quote }}
+{{- if (.authToken).secret }}
+  service_token:
+    secret_file: /etc/gitlab/artifact-registry/.gitlab_artifact_registry_secret
+{{- end }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
 
 {{- define "gitlab.appConfig.workspaces" -}}
 {{- if .Values.global.workspaces.enabled -}}

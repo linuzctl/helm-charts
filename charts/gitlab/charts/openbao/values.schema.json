@@ -385,6 +385,9 @@
                 "gatewayName": {
                     "type": "string"
                 },
+                "gatewayNamespace": {
+                    "type": "string"
+                },
                 "sectionName": {
                     "type": "string"
                 },
