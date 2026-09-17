@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: 3.3.2
+appVersion: 3.4.0
 dependencies:
 - condition: cert-manager.install
   name: cert-manager
@@ -19,4 +19,4 @@ name: gitlab-operator
 sources:
 - https://gitlab.com/gitlab-org/cloud-native/gitlab-operator
 type: application
-version: 3.3.2
+version: 3.4.0
