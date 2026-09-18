@@ -7,7 +7,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-07-21T22-41-48Z
+    aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -27,9 +27,10 @@ rules:
   ### Operator permissions for managing ObjectStore components
 
   # Monitor ObjectStore resources
+  # patch: removes the one-shot aistor.min.io/approve-upgrade annotation once spent
   - apiGroups: ["aistor.min.io"]
     resources: ["objectstores"]
-    verbs: ["get", "list", "watch"]
+    verbs: ["get", "list", "patch", "watch"]
 
   # Allow updating the status of ObjectStore resources
   - apiGroups: ["aistor.min.io"]
@@ -64,7 +65,7 @@ rules:
   # Manage statefulsets (for MinIO pools)
   - apiGroups: ["apps"]
     resources: ["statefulsets"]
-    verbs: ["create", "delete", "list", "patch", "update", "watch"]
+    verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
   
   # Allow updating finalizers (required by blockOwnerDeletion in owner references)
   - apiGroups: ["apps"]
@@ -76,10 +77,23 @@ rules:
     resources: ["deployments"]
     verbs: ["create", "list", "update", "watch"]
 
+  {{- if eq (include "aistor.resolveImageDigest" $) "on" }}
+  # Monitor pods, actively delete pods (during upgrades) and run a short-lived
+  # pod to read the AIStor version of a digest-pinned image
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["create", "delete", "deletecollection", "get", "list", "watch"]
+
+  # Read the output of the AIStor version probe pod
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  {{- else }}
   # Monitor pods and actively delete pods (during upgrades)
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["delete", "deletecollection", "list", "watch"]
+  {{- end }}
 
   # Manage services
   - apiGroups: [""]

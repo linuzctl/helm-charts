@@ -12,7 +12,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-07-21T22-41-48Z
+    aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -40,7 +40,7 @@ spec:
         aistor.min.io/authors: MinIO, Inc.
         aistor.min.io/license: Enterprise
         aistor.min.io/support: https://subnet.min.io
-        aistor.min.io/version: RELEASE.2026-07-21T22-41-48Z
+        aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
         {{- $podAnnotations := default $.Values.global.operator.podAnnotations .podAnnotations }}
         {{- if $podAnnotations }}
         {{- toYaml $podAnnotations | nindent 8 }}
@@ -117,7 +117,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /readyz
               port: 8443
               scheme: HTTPS
             initialDelaySeconds: 5
@@ -129,23 +129,26 @@ spec:
           resources:
             {{- toYaml $resources | nindent 12 }}
           {{- end }}
-          {{- if not (include "aistor.isOpenShift" $) }}
           {{- $securityContext := default $.Values.global.operator.securityContext .securityContext }}
           {{- if $securityContext }}
           securityContext:
-          {{- toYaml $securityContext | nindent 12 }}
+          {{- include "aistor.containerSecurityContext" (dict "sc" $securityContext "root" $) | nindent 12 }}
           {{- end }}
-          {{- end }}
-          {{- if and (include "aistor.isOpenShift" $) (not (include "aistor.webhookUsesCustomCert" $)) }}
           volumeMounts:
+            - name: minio-tmp
+              mountPath: /tmp
+            {{- if and (include "aistor.isOpenShift" $) (not (include "aistor.webhookUsesCustomCert" $)) }}
             - name: tls
               mountPath: /tmp/object-store-webhook
               readOnly: true
-          {{- end }}
-      {{- if and (include "aistor.isOpenShift" $) (not (include "aistor.webhookUsesCustomCert" $)) }}
+            {{- end }}
       volumes:
+        {{- if and (include "aistor.isOpenShift" $) (not (include "aistor.webhookUsesCustomCert" $)) }}
         - name: tls
           secret:
             secretName: object-store-webhook-service-cert
-      {{- end }}
+        {{- end }}
+        - name: minio-tmp
+          emptyDir:
+            sizeLimit: 100Mi
 {{- end }}

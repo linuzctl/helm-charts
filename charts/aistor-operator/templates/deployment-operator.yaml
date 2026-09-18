@@ -14,7 +14,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-07-21T22-41-48Z
+    aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -39,7 +39,7 @@ spec:
         aistor.min.io/authors: MinIO, Inc.
         aistor.min.io/license: Enterprise
         aistor.min.io/support: https://subnet.min.io
-        aistor.min.io/version: RELEASE.2026-07-21T22-41-48Z
+        aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
         {{- $podAnnotations := default $.Values.global.operator.podAnnotations .podAnnotations }}
         {{- with $podAnnotations }}
         {{- toYaml $podAnnotations | nindent 8 }}
@@ -78,8 +78,6 @@ spec:
       containers:
       - args:
         - {{ $op }}
-        - -license
-        - /tmp/license/minio.license
         env:
         - name: POD_NODENAME
           valueFrom:
@@ -104,6 +102,12 @@ spec:
         - name: OPERATOR_HELM_CHART_VERSION
           value: {{ printf "%s-%s" $.Chart.Name $.Chart.Version | quote }}
         {{- end }}
+        {{- if .hotReload }}
+        - name: OPERATOR_HOTRELOAD
+          value: "on"
+        {{- end }}
+        - name: OPERATOR_RESOLVE_IMAGE_DIGEST
+          value: {{ include "aistor.resolveImageDigest" $ | quote }}
         {{- end }}
         {{- $watchedNamespaces := include "aistor.watchedNamespaces" (dict "operator" $op "root" $.Values) | fromJsonArray }}
         {{- if $watchedNamespaces }}
@@ -133,26 +137,20 @@ spec:
         resources:
         {{- toYaml $resources | nindent 10 }}
         {{- end }}
-        {{- if not (include "aistor.isOpenShift" $) }}
         {{- $securityContext := default $.Values.global.operator.securityContext .securityContext }}
         {{- if $securityContext }}
         securityContext:
-        {{- toYaml $securityContext | nindent 10 }}
-        {{- end }}
+        {{- include "aistor.containerSecurityContext" (dict "sc" $securityContext "root" $) | nindent 10 }}
         {{- end }}
         volumeMounts:
+        - name: minio-tmp
+          mountPath: /tmp
         {{- if include "aistor.isOpenShift" $ }}
         - mountPath: /tmp/service-ca
           name: openshift-service-ca
         - mountPath: /tmp/csr-signer-ca
           name: openshift-csr-signer-ca
-        {{- if has $op (list "object-store") }}
-        - mountPath: /tmp/object-store-operator
-          name: object-store-operator-tls
         {{- end }}
-        {{- end }}
-        - mountPath: /tmp/license
-          name: minio-license
         {{- if has $op (list "aihub" "object-store") }}
         - name: minio-token-volume
           mountPath: /var/run/secrets/sts.min.io
@@ -176,20 +174,6 @@ spec:
       serviceAccountName: {{ $op }}
       volumes:
       {{- if include "aistor.isOpenShift" $ }}
-      {{- if has $op (list "object-store") }}
-      - name: object-store-operator-tls
-        projected:
-          defaultMode: 420
-          sources:
-            - secret:
-                name: object-store-operator-tls
-                items:
-                  - key: tls.crt
-                    path: public.crt
-                  - key: tls.key
-                    path: private.key
-                optional: true
-      {{- end }}
       - name: openshift-service-ca
         configMap:
           name: openshift-service-ca.crt
@@ -208,11 +192,9 @@ spec:
                     path: tls.crt
                 optional: true
       {{- end }}
-      - name: minio-license
-        secret:
-          defaultMode: 444
-          optional: true
-          secretName: minio-license
+      - name: minio-tmp
+        emptyDir:
+          sizeLimit: 100Mi
       {{- if has $op (list "aihub" "object-store") }}
       - name: minio-token-volume
         projected:

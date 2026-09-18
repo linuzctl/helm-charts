@@ -119,6 +119,20 @@
 {{- end -}}
 {{- end -}}
 
+{{/*
+    aistor.containerSecurityContext renders the container security context. On
+    OpenShift the SCC assigns the UID and GID, so runAsUser and runAsGroup are
+    dropped while the remaining hardening fields are preserved.
+    Expects a dict with "sc" (the security context) and "root" (the root context).
+*/}}
+{{- define "aistor.containerSecurityContext" -}}
+{{- $sc := .sc -}}
+{{- if include "aistor.isOpenShift" .root -}}
+{{- $sc = omit $sc "runAsUser" "runAsGroup" -}}
+{{- end -}}
+{{- toYaml $sc -}}
+{{- end -}}
+
 
 {{/*
     aistor.webhookUsesCustomCert returns "true" when the object-store webhook is
@@ -193,6 +207,21 @@ warp:
 */}}
 {{- define "aistor.tokenValidation" -}}
 {{- dig "operators" "object-store" "tokenValidation" "TokenReview" (.Values | merge (dict)) -}}
+{{- end -}}
+
+{{/*
+    aistor.resolveImageDigest returns "on" when the object-store operator determines the
+    AIStor version of a digest-pinned image by running that image, and "off" when
+    disableImageDigestResolve opts out of it. Opting out also drops the RBAC rules that
+    running such a pod requires, so the cluster role and the deployment must agree on
+    this value.
+*/}}
+{{- define "aistor.resolveImageDigest" -}}
+{{- if dig "operators" "object-store" "disableImageDigestResolve" false (.Values | merge (dict)) -}}
+off
+{{- else -}}
+on
+{{- end -}}
 {{- end -}}
 
 {{/*
