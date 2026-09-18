@@ -160,6 +160,9 @@ spec:
   {{- with (dig "sftp" (dict) .) }}
   sftp: {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with (dig "rdma" (dict) .) }}
+  rdma: {{- toYaml . | nindent 4 }}
+  {{- end }}
   podManagementPolicy: {{ dig "podManagementPolicy" "Parallel" . }}
   {{- if dig "rollingTimeoutSeconds" "" . }}
   rollingTimeoutSeconds: {{ dig "rollingTimeoutSeconds" "" . }}
