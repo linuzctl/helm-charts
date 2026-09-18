@@ -65,9 +65,11 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.pages.configured" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.consolidatedConfig" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.typeSpecificConfig" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.allowedDownloadModes" .) -}}
 
 {{/* _checkConfig_openbao.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.openbao.database" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.openbao.unseal" .) -}}
 
 {{/* _checkConfig_orbit.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.orbit.configurationRoots" .) -}}
@@ -125,14 +127,22 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.http.port" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.grpc.host" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.grpc.port" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.grpc.secure" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.jwtIssuer" .) -}}
 
 {{/* _checkConfig_iam_data_access.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.host" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.port" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.secure" .) -}}
+
+{{/* _checkConfig_artifact_registry.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.artifactRegistry.apiUrl" .) -}}
 
 {{/* _checkConfig_outgoingEmail.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.outgoingEmail.mailerExclusive" .) -}}
+
+{{/* _checkConfig_mobilePush.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.mobilePush.apns" .) -}}
 
 {{/* other checks */}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sentry" .) -}}
@@ -162,7 +172,7 @@ Ensure that sentry has a DSN configured if enabled
 {{-     if (not (or $.Values.global.appConfig.sentry.dsn $.Values.global.appConfig.sentry.clientside_dsn)) }}
 sentry:
     When enabling sentry, you must configure at least one DSN.
-    See https://docs.gitlab.com/charts/charts/globals.html#sentry-settings
+    See https://docs.gitlab.com/charts/charts/globals/#sentry-settings
 {{-     end -}}
 {{-   end -}}
 {{- end -}}

@@ -45,6 +45,11 @@ You can upgrade in-place:
 
 1. [upgrade](#upgrading-chart) your existing release name using the new chart repository
 
+## Upgrading to v8.0.0
+
+This version drops support for configuring `CiliumNetworkPolicy` as it is a vendor specific resource.
+In addition, the `networkPolicy.flavor` setting is no longer persistent and can be safely dropped as only Kubernetes `NetworkPolicy` resources are supported.
+
 ## Upgrading to v6.0.0
 
 This version drops support for deprecated Pod Security Policy resources.
@@ -66,6 +71,34 @@ See [Customizing the Chart Before Installing](https://helm.sh/docs/intro/using_h
 ```console
 helm show values oci://ghcr.io/prometheus-community/charts/kube-state-metrics
 ```
+
+### Admission policy collectors
+
+kube-state-metrics v2.20.0 and later supports the following admission policy collectors.
+They use the `admissionregistration.k8s.io/v1` API and are opt-in in this chart to preserve compatibility with older Kubernetes versions and image overrides.
+
+| Collectors | Required Kubernetes version |
+| --- | --- |
+| `validatingadmissionpolicies`, `validatingadmissionpolicybindings` | [v1.30 or later](https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/) |
+| `mutatingadmissionpolicies`, `mutatingadmissionpolicybindings` | [v1.36 or later](https://kubernetes.io/docs/reference/access-authn-authz/mutating-admission-policy/) |
+
+Enable only the collectors supported by your cluster through `collectorsExtra` or `collectors`.
+For example, on Kubernetes v1.36 or later:
+
+```yaml
+collectorsExtra:
+  - mutatingadmissionpolicies
+  - mutatingadmissionpolicybindings
+  - validatingadmissionpolicies
+  - validatingadmissionpolicybindings
+```
+
+On Kubernetes v1.30 through v1.35, enable only the two validating admission policy collectors.
+Do not enable these collectors when overriding the image to a kube-state-metrics version older than v2.20.0.
+
+These resources are cluster-scoped and require cluster-wide RBAC permissions.
+With the default RBAC settings, the chart adds `list` and `watch` permissions only for the selected collectors.
+If you manage RBAC separately, grant those permissions on the selected resources in the `admissionregistration.k8s.io` API group.
 
 ### kube-rbac-proxy
 

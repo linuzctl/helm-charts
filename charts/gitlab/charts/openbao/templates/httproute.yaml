@@ -13,8 +13,7 @@ metadata:
   {{- end }}
 spec:
   parentRefs:
-  - name: {{ template "gitlab.gatewayApi.route.gateway" . }}
-    sectionName: {{ .Values.gatewayRoute.sectionName }}
+  {{- include "gitlab.gatewayApi.gatewayRef" . | nindent 2 }}
   hostnames:
   - {{ $hostname | quote }}
   rules:

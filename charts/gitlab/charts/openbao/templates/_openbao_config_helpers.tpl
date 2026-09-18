@@ -126,6 +126,17 @@ Render active TCP listener configuration.
 {{- define "openbao.telemetry.config" -}}
 {{- with .Values.config.telemetry -}}
 {{-   if .enabled }}
+{{-     $prefix := .metricsPrefix -}}
+{{-     range .prefixFilter -}}
+{{-       if and (not (hasPrefix "+" .)) (not (hasPrefix "-" .)) -}}
+{{-         fail (printf "OpenBao: config.telemetry.prefixFilter entry '%s' must start with '+' or '-'." .) -}}
+{{-       end -}}
+{{-       if $prefix -}}
+{{-         if not (or (hasPrefix (printf "+%s." $prefix) .) (hasPrefix (printf "-%s." $prefix) .)) -}}
+{{-           fail (printf "OpenBao: config.telemetry.prefixFilter entry '%s' must be '+%s' or '-%s' followed by '.' and a metric path." . $prefix $prefix) -}}
+{{-         end -}}
+{{-       end -}}
+{{-     end -}}
 {{-     $tele := dict "disable_hostname" .disableHostname -}}
 {{-     $_ := set $tele "prometheus_retention_time" .prometheusRetentionTime -}}
 {{-     $_ := set $tele "metrics_prefix" .metricsPrefix -}}

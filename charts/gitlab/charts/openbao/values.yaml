@@ -92,6 +92,8 @@ gatewayRoute:
   enabled: null
   sectionName: "openbao-web"
   gatewayName: ""
+  # Namespace of the Gateway. Defaults to the release namespace when empty.
+  gatewayNamespace: ""
   annotations: {}
   timeouts: {}
   filters: []
@@ -195,16 +197,18 @@ config:
     metricsPrefix: openbao
     usageGaugePeriod: 0
     numLeaseMetricsBuckets: 1
-    prefixFilter:  
+    # Matched after metricsPrefix is prepended to the metric key, so every entry
+    # must start with '+' or '-' followed by metricsPrefix and a dot. Enforced at render time.
+    prefixFilter:
       # Disable high-cardinality audit log metrics, but keep the rest.
-      - "-secrets_manager_openbao.audit"
-      - "+secrets_manager_openbao.audit.log_request_failure"
-      - "+secrets_manager_openbao.audit.log_request"
-      - "+secrets_manager_openbao.audit.log_response_failure"
-      - "+secrets_manager_openbao.audit.log_response"
+      - "-openbao.audit"
+      - "+openbao.audit.log_request_failure"
+      - "+openbao.audit.log_request"
+      - "+openbao.audit.log_response_failure"
+      - "+openbao.audit.log_response"
       # Disable high-cardinality rollback and route metrics.
-      - "-secrets_manager_openbao.rollback.attempt"
-      - "-secrets_manager_openbao.route"
+      - "-openbao.rollback.attempt"
+      - "-openbao.route"
   # Configure additional listener for metrics. Implicitly disabled if telemetry is disabled.
   # Note: This listener serves the regular OpenBao API but needs no authentication of the metrics path by default.
   metricsListener:

@@ -34,7 +34,11 @@ Returns "true" when the section-scoped ClientTrafficPolicy targeting the
 gitlab-web listener should be rendered.
 
 Conditions:
-- Gateway API is enabled and Envoy Gateway is the implementation.
+- Gateway API is enabled and Envoy Gateway's Gateway API resources are configured
+  (global.gatewayApi.configureEnvoy, defaulting to global.gatewayApi.installEnvoy).
+- The Gateway is in the same namespace as this release. ClientTrafficPolicy targets the
+  Gateway through a LocalPolicyTargetReference, which has no namespace field, so it can
+  only ever target a Gateway in its own namespace.
 - HTTPS is enabled either globally (global.hosts.https) or for the gitlab
   service specifically (global.hosts.gitlab.https). In HTTP-only mode all
   listeners share port 80, so Envoy Gateway rejects section-scoped CTPs
@@ -42,9 +46,10 @@ Conditions:
   (gatewayApiResources.envoy.clientTrafficPolicySpec) covers that case.
 */}}
 {{- define "webservice.gatewayApi.sectionCtp.enabled" -}}
-{{- $envoy := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy -}}
+{{- $envoy := and .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) -}}
+{{- $sameNamespace := eq "true" (include "gitlab.gatewayApi.gateway.sameNamespace" .) -}}
 {{- $https := or .Values.global.hosts.https .Values.global.hosts.gitlab.https -}}
-{{- if and $envoy $https -}}
+{{- if and $envoy $sameNamespace $https -}}
 true
 {{- end -}}
 {{- end -}}
@@ -53,7 +58,7 @@ true
 Renders all hostnames webservice accepts traffic for.
 */}}
 {{- define "webservice.gatewayApi.hostnames" }}
-- {{ include "gitlab.gitlab.hostname" . | quote }}
+- {{ include "gitlab.gitlab.gatewayHostname" . | quote }}
 {{-   with .Values.global.geo.gatewayApi.additionalHostname }}
 - {{ . | quote }}
 {{-   end }}
