@@ -7,7 +7,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-07-21T22-41-48Z
+    aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
     controller-gen.kubebuilder.io/version: v0.20.0
     helm.sh/resource-policy: keep
     {{- if $.Values.annotations }}
@@ -2908,6 +2908,10 @@ spec:
                 pools:
                   items:
                     properties:
+                      additionalHostsTemplate:
+                        items:
+                          type: string
+                        type: array
                       affinity:
                         properties:
                           nodeAffinity:
@@ -3554,6 +3558,14 @@ spec:
                         x-kubernetes-validations:
                           - message: servers is immutable
                             rule: self == oldSelf
+                      setDriveCount:
+                        format: int32
+                        maximum: 16
+                        minimum: 2
+                        type: integer
+                        x-kubernetes-validations:
+                          - message: setDriveCount is immutable
+                            rule: self == oldSelf
                       spreadZoneConfig:
                         properties:
                           enabled:
@@ -3851,6 +3863,48 @@ spec:
                 pvcProtection:
                   default: false
                   type: boolean
+                rdma:
+                  properties:
+                    devicePath:
+                      default: /dev/infiniband
+                      maxLength: 4096
+                      pattern: ^(/dev(/.*)?)?$
+                      type: string
+                      x-kubernetes-validations:
+                        - message: devicePath must not contain a '..' path segment
+                          rule: "!self.contains('/../') && !self.endsWith('/..')"
+                    enabled:
+                      default: false
+                      type: boolean
+                    fabric:
+                      properties:
+                        nodeAddressLabel:
+                          maxLength: 317
+                          pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?[a-zA-Z0-9]([-._a-zA-Z0-9]*[a-zA-Z0-9])?$
+                          type: string
+                        secondaryNodeAddressLabel:
+                          maxLength: 317
+                          pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?[a-zA-Z0-9]([-._a-zA-Z0-9]*[a-zA-Z0-9])?$
+                          type: string
+                      required:
+                        - nodeAddressLabel
+                      type: object
+                      x-kubernetes-validations:
+                        - message: secondaryNodeAddressLabel must differ from nodeAddressLabel
+                          rule:
+                            "!has(self.secondaryNodeAddressLabel) || self.secondaryNodeAddressLabel
+                            != self.nodeAddressLabel"
+                    internode:
+                      type: boolean
+                    peerPort:
+                      default: 5555
+                      format: int32
+                      maximum: 65535
+                      minimum: 1
+                      type: integer
+                  required:
+                    - enabled
+                  type: object
                 readiness:
                   properties:
                     exec:
@@ -5852,6 +5906,8 @@ spec:
               type: object
             status:
               properties:
+                appliedConfigYAMLHash:
+                  type: string
                 certificates:
                   nullable: true
                   properties:

@@ -82,7 +82,8 @@ global:
         ephemeral-storage: 500Mi
         memory: 256Mi
 
-    # Security context for the operator containers (ignored on OpenShift)
+    # Security context for the operator containers (runAsUser/runAsGroup are
+    # dropped on OpenShift, where the SCC assigns them)
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
@@ -93,6 +94,7 @@ global:
       runAsUser: 1000
       seccompProfile:
         type: RuntimeDefault
+      readOnlyRootFilesystem: true
 
     # Security context for the operator pods (ignored on OpenShift)
     podSecurityContext: {}
@@ -188,6 +190,29 @@ operators:
     # OIDC discovery and JWKS document can instead set `tokenValidation: OIDC` to avoid the
     # `aistor-tokenreview` cluster role binding.
     tokenValidation: TokenReview
+
+    # hotReload controls how MinIO applies config.yaml changes. When false (the
+    # default) the operator restarts MinIO to apply configuration changes, which is
+    # required for AIStor versions that cannot hot-reload pool changes. Set to true
+    # to have the sidecar send SIGHUP so MinIO reloads config.yaml in place.
+    hotReload: false
+
+    # disableImageDigestResolve opts out of determining the AIStor version of a MinIO
+    # image that is pinned by digest (`image@sha256:...`) instead of by tag. A digest
+    # names no version, but the operator needs one to decide how to configure MinIO
+    # (config.yaml v3 or MINIO_ARGS) and whether a pool can be upgraded in place. By
+    # default it runs the image once as a short-lived pod in the object-store
+    # namespace to read its version, and remembers the answer per digest.
+    #
+    # Running that pod requires `create` and `get` on `pods` and `get` on `pods/log`
+    # in the object-store namespaces. Setting this to true is the way to avoid
+    # granting them: the `aistor-object-store` cluster role is then installed
+    # without those permissions, and the operator never creates a pod of its own.
+    #
+    # The cost of opting out is that a digest-pinned image is assumed to run a recent
+    # release, which is wrong for images that predate config.yaml v3 or in-place
+    # rolling upgrades. Images pinned by tag are unaffected either way.
+    disableImageDigestResolve: false
 
     webhook:
       enabled: true   # set to false to disable webhook deployment
@@ -297,10 +322,10 @@ images:
     image: minio:RELEASE.2026-09-07T08-39-31Z
   minio-sidecar:
     repository: aistor
-    image: minio-sidecar:RELEASE.2026-07-14T22-07-12Z
+    image: minio-sidecar:RELEASE.2026-09-18T00-46-19Z
   operator:
     repository: aistor
-    image: operator:RELEASE.2026-07-21T22-41-48Z
+    image: operator:RELEASE.2026-09-18T18-03-16Z
   prompt:
     repository: aistor
     image: prompt:RELEASE.2025-01-17T21-55-43Z
