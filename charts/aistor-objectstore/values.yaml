@@ -403,6 +403,25 @@ objectStore:
   # When true, the operator does not create PodDisruptionBudgets and removes any it previously created.
   disablePodDisruptionBudget: false
   ###
+  # Configures S3 over RDMA (GPU-Direct and inter-node). Requires the RDMA-enabled
+  # AIStor image and an RDMA-capable fabric (InfiniBand or RoCE v2). When enabled,
+  # the Operator runs the Object Store pods on the host network with the security
+  # context, device mounts, and NIC binding required for RDMA, and injects a
+  # required pod anti-affinity so exactly one server runs per node (a pool may
+  # override it with its own podAntiAffinity).
+  #
+  # .. code-block:: yaml
+  #
+  #    rdma:
+  #      enabled: true
+  #      # internode: true            # inter-node RDMA shard transfers (MINIO_RDMA_INTERNODE)
+  #      # peerPort: 5555             # MINIO_RDMA_PEER_PORT
+  #      # devicePath: /dev/infiniband
+  #      # fabric:                    # only for multi-NIC nodes (fabric NIC != node primary IP)
+  #      #   nodeAddressLabel: aistor.min.io/rdma-ip          # Node label holding the RDMA NIC IP
+  #      #   secondaryNodeAddressLabel: aistor.min.io/rdma-ip2  # optional 2nd NIC
+  # rdma: {}
+  ###
   # Directs the Object Store Operator to add the Object Store's metric scrape configuration to an existing Kubernetes Prometheus deployment managed by the Prometheus Operator.
   prometheusOperator: false
   # Optional list of metric paths to scrape when `prometheusOperator: true`, if not provided the default path `/minio/v2/metrics/cluster` is used.
