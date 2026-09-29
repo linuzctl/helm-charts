@@ -1,7 +1,7 @@
 # stalwart
 
-![Chart version: 0.3.16](https://img.shields.io/badge/chart-0.3.16-blue)
-![Stalwart version: v0.16.23](https://img.shields.io/badge/stalwart-v0.16.23-blue)
+![Chart version: 0.3.17](https://img.shields.io/badge/chart-0.3.17-blue)
+![Stalwart version: v0.16.24](https://img.shields.io/badge/stalwart-v0.16.24-blue)
 
 Helm chart for [Stalwart](https://stalw.art) - an all-in-one Mail & Collaboration server. Secure, scalable and fluent in every protocol (IMAP, JMAP, SMTP, CalDAV, CardDAV, WebDAV).
 
