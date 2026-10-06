@@ -1,2 +1,3 @@
 # Helm artifacts - packaged charts are not committed
 *.tgz
+.idea
