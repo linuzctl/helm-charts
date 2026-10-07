@@ -229,6 +229,7 @@ serviceAccount:
 # annotations
 statefulset:
   annotations: {}
+  podAnnotations: {}
 
 tcpRoute:
   enabled: false
