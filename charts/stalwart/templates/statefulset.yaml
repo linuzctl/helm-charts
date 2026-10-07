@@ -19,6 +19,9 @@ spec:
       labels:
         {{- include "stalwart.selectorLabels" . | nindent 8 }}
       annotations:
+        {{- with .Values.statefulset.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
