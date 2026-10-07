@@ -31,7 +31,7 @@ logFormat: json
 auth:
   # -- Enables authentication for internal gRPC server
   enabled: true
-  # -- Sets authentication token for internal gRPC server, will generate one if nothing provided
+  # -- Sets authentication token for internal gRPC server, will generate one if nothing provided. Must be base64-encoded if provided
   token: ""
   # -- If managing secrets outside the chart, use this to reference the secret name; otherwise, leave empty.
   secretName: ""
@@ -107,6 +107,9 @@ controller:
 
   # -- Number of gRPC workers for controller component
   grpcWorkers: 10
+
+  # -- Labels for the controller pods
+  podLabels: {}
 
 node:
   # -- Enables hostNetwork for node component
@@ -214,6 +217,9 @@ node:
   # -- Annotations for the node DaemonSet pods
   podAnnotations: {}
 
+  # -- Labels for the node DaemonSet pods
+  podLabels: {}
+
   # -- Number of gRPC workers for node component
   grpcWorkers: 10
 
@@ -293,3 +299,7 @@ capabilities:
   apiServer:
     # -- Sets whether API Server has been enabled or not
     enabled: true
+
+tls:
+  # -- Skips strict x509 TLS verification when the driver's Kubernetes client talks to the API server if true. Dangerous: do not set to true if you are not sure of the implications
+  insecureSkipVerify: false

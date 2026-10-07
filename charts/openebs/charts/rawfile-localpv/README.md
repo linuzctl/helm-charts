@@ -1,6 +1,6 @@
 # rawfile-localpv
 
-![Version: 0.15.1](https://img.shields.io/badge/Version-0.15.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.15.1](https://img.shields.io/badge/AppVersion-0.15.1-informational?style=flat-square)
+![Version: 0.15.3](https://img.shields.io/badge/Version-0.15.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.15.3](https://img.shields.io/badge/AppVersion-0.15.3-informational?style=flat-square)
 
 RawFile Driver Container Storage Interface
 
@@ -20,7 +20,7 @@ Kubernetes: `>= 1.21`
 
 ## Install and Upgrades
 
-Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tree/v0.15.1/docs/install-guide.md)
+Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tree/v0.15.3/docs/install-guide.md)
 
 ## Values
 
@@ -30,7 +30,7 @@ Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tre
 | analytics.gaDnsNameservers | string | `"8.8.8.8:53"` | Comma-separated DNS nameservers (each optionally `ip:port`) used to resolve the analytics endpoint. Leave empty to use the cluster's default resolver (CoreDNS). |
 | auth.enabled | bool | `true` | Enables authentication for internal gRPC server |
 | auth.secretName | string | `""` | If managing secrets outside the chart, use this to reference the secret name; otherwise, leave empty. |
-| auth.token | string | `""` | Sets authentication token for internal gRPC server, will generate one if nothing provided |
+| auth.token | string | `""` | Sets authentication token for internal gRPC server, will generate one if nothing provided. Must be base64-encoded if provided |
 | capabilities.apiServer.enabled | bool | `true` | Sets whether API Server has been enabled or not |
 | capabilities.resize.enabled | bool | `true` | Sets whether volume resizing is enabled. If disabled, don't deploy controller component |
 | capabilities.snapshots.enabled | bool | `true` | Sets whether taking volume snapshots is enabled. Required for volume cloning. Runs externalSnapshotter and snapshotController containers. |
@@ -43,6 +43,7 @@ Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tre
 | controller.externalResizer.resources | object | `{}` | Sets compute resources for external-resizer container |
 | controller.grpcWorkers | int | `10` | Number of gRPC workers for controller component |
 | controller.nodeSelector | string | `nil` | nodeSelector for controller component |
+| controller.podLabels | object | `{}` | Labels for the controller pods |
 | controller.priorityClassName | string | `"system-cluster-critical"` | priorityClassName for controller component since this part is critical for cluster `system-cluster-critical` is default |
 | controller.resources | object | `{}` | Sets compute resources for controller component |
 | controller.tolerations | list | `[{"effect":"NoSchedule","key":"node-role.kubernetes.io/control-plane","operator":"Exists"},{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Exists"}]` | Tolerations for controller component |
@@ -96,6 +97,7 @@ Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tre
 | node.metrics.enabled | bool | `false` |  |
 | node.nodeSelector | string | `nil` | nodeSelector for node component |
 | node.podAnnotations | object | `{}` | Annotations for the node DaemonSet pods |
+| node.podLabels | object | `{}` | Labels for the node DaemonSet pods |
 | node.priorityClassName | string | `"system-node-critical"` | priorityClassName for node component since this part is critical for node `system-node-critical` is default |
 | node.resources | object | `{}` | Sets compute resources for node component |
 | node.snapshotController.enabled | bool | `true` | Runs the snapshot-controller container. There should only be one snapshot-controller per cluster, so disable this if the cluster already runs one. That controller must be started with `--enable-distributed-snapshotting=true`, or rawfile snapshots will never be provisioned. Requires `capabilities.snapshots.enabled`. |
@@ -124,3 +126,4 @@ Please follow the [install guide](https://github.com/openebs/rawfile-localpv/tre
 | storageClasses[0].storagePool | string | `""` | Sets storage pool used for volumes |
 | storageClasses[0].thinProvision | string | `""` | Enables thin provisioning of volumes |
 | storageClasses[0].volumeBindingMode | string | `"WaitForFirstConsumer"` | Sets volumeBindingMode for StorageClass |
+| tls.insecureSkipVerify | bool | `false` | Skips strict x509 TLS verification when the driver's Kubernetes client talks to the API server if true. Dangerous: do not set to true if you are not sure of the implications |
