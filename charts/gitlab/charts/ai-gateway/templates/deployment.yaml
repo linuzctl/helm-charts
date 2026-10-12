@@ -9,6 +9,10 @@ metadata:
   name: {{ include "ai-gateway.fullname" . }}
   labels:
     {{- include "ai-gateway.labels" . | nindent 4 }}
+  {{- with .Values.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -30,9 +34,10 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- $imagePullSecrets := include "ai-gateway.imagePullSecrets" . }}
+      {{- if $imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        {{- $imagePullSecrets | trim | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "ai-gateway.serviceAccountName" . }}
       securityContext:

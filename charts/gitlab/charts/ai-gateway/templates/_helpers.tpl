@@ -126,3 +126,16 @@ Secret AIGW duoWorkflowValidationKey key helper
 {{- define "ai-gateway.ingress.grpc.enabled" -}}
 {{- and .Values.ingress.enabled .Values.duoWorkflow.enabled (eq .Values.ingress.gitlabIngressEnabled false) }}
 {{- end }}
+
+{{/*
+Image pull secrets - merges global.image.pullSecrets from the parent GitLab chart
+with the chart-local imagePullSecrets, mirroring the parent chart's
+"gitlab.image.pullSecrets" helper. Both lists must be `- name: <secret>` entries.
+A copy of this helper lives in charts/grpc-tls-proxy/templates/_helpers.tpl.
+*/}}
+{{- define "ai-gateway.imagePullSecrets" -}}
+{{- $secrets := concat (default (list) ((.Values.global).image).pullSecrets) (default (list) .Values.imagePullSecrets) -}}
+{{- range $secrets }}
+- name: {{ .name }}
+{{- end }}
+{{- end }}

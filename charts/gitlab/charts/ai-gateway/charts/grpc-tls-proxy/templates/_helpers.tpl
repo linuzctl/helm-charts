@@ -20,3 +20,14 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/name: {{ include "grpc-tls-proxy.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Image pull secrets - merges global.image.pullSecrets with the subchart-local
+imagePullSecrets. Keep in sync with "ai-gateway.imagePullSecrets" in the parent chart.
+*/}}
+{{- define "grpc-tls-proxy.imagePullSecrets" -}}
+{{- $secrets := concat (default (list) ((.Values.global).image).pullSecrets) (default (list) .Values.imagePullSecrets) -}}
+{{- range $secrets }}
+- name: {{ .name }}
+{{- end }}
+{{- end }}

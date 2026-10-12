@@ -243,6 +243,34 @@ To release a new version of the GitLab Helm chart:
 
 Pushing the git tag will automatically trigger the CI/CD pipeline, which will build and publish the Helm chart to the GitLab package registry.
 
+## GitLab chart integration
+
+When this chart is deployed as a subchart of the [GitLab parent chart](https://gitlab.com/gitlab-org/charts/gitlab), it honours `global.image.pullSecrets` so image pull secrets can be configured centrally for all GitLab components.
+
+```yaml
+global:
+  image:
+    pullSecrets:
+      - name: my-registry-secret
+```
+
+**Behavior:**
+
+- `global.image.pullSecrets` must be a list of `{name: <secret-name>}` entries, matching the Kubernetes `imagePullSecrets` shape and the parent chart's convention.
+- `global.image.pullSecrets` and the chart-local `imagePullSecrets` are merged: global entries first, then local entries. This mirrors the parent chart's `gitlab.image.pullSecrets` helper, so a component-specific registry secret can be added without losing the shared one.
+- When only one of the two is set, only that list is rendered. When neither is set, no `imagePullSecrets` block is emitted.
+- The `grpc-tls-proxy` subchart applies the same logic for its own pod, merging `global.image.pullSecrets` with `grpc-tls-proxy.imagePullSecrets`.
+
+You can verify the rendered secrets with:
+
+```shell
+helm template . \
+  --set 'global.image.pullSecrets[0].name=my-registry-secret' \
+  --set 'imagePullSecrets[0].name=my-component-secret'
+```
+
+Both secrets should appear under `imagePullSecrets` in the Deployment manifests.
+
 ## gRPC TLS Proxy
 
 The chart includes a `grpc-tls-proxy` subchart that runs a standalone NGINX pod to provide TLS termination for the Duo Workflow Service gRPC endpoint (port 50052). When enabled, the gRPC ingress routes external traffic through the proxy over TLS, making the Duo Agent Platform service accessible to GitLab without any manual post-upgrade patching.
@@ -398,4 +426,3 @@ sidecars:
       - name: custom-volume
         mountPath: /data
 ```
-
