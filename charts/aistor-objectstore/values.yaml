@@ -342,6 +342,18 @@ objectStore:
     # serviceType: ClusterIP
     # nodePort: 31002
     # domainName: ""
+    #
+    # ConfigMap key that holds the OpenSSH public key of the CA that signs SSH user
+    # certificates. Enables SSH certificate-based client authentication.
+    # trustedUserCAKey:
+    #   name: sftp-ca
+    #   key: ca.pub
+    #
+    # Additional parameters passed to AIStor as `--sftp key=value` arguments.
+    # The `address`, `ssh-private-key` and `trusted-user-ca-key` parameters are managed by the Operator.
+    # extraParameters:
+    #   cipher-algos: aes128-gcm@openssh.com,aes256-gcm@openssh.com
+    #   mac-algos: hmac-sha2-256-etm@openssh.com
   ###
   # The `PodManagement <https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#pod-management-policy>`__ policy for Object Store Pods.
   # Can be "OrderedReady" or "Parallel"
