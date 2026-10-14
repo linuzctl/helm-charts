@@ -14,7 +14,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
+    aistor.min.io/version: RELEASE.2026-10-14T04-16-30Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -39,7 +39,7 @@ spec:
         aistor.min.io/authors: MinIO, Inc.
         aistor.min.io/license: Enterprise
         aistor.min.io/support: https://subnet.min.io
-        aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
+        aistor.min.io/version: RELEASE.2026-10-14T04-16-30Z
         {{- $podAnnotations := default $.Values.global.operator.podAnnotations .podAnnotations }}
         {{- with $podAnnotations }}
         {{- toYaml $podAnnotations | nindent 8 }}
@@ -151,7 +151,7 @@ spec:
         - mountPath: /tmp/csr-signer-ca
           name: openshift-csr-signer-ca
         {{- end }}
-        {{- if has $op (list "aihub" "object-store") }}
+        {{- if eq $op "object-store" }}
         - name: minio-token-volume
           mountPath: /var/run/secrets/sts.min.io
           readOnly: true
@@ -195,7 +195,7 @@ spec:
       - name: minio-tmp
         emptyDir:
           sizeLimit: 100Mi
-      {{- if has $op (list "aihub" "object-store") }}
+      {{- if eq $op "object-store" }}
       - name: minio-token-volume
         projected:
           sources:

@@ -192,8 +192,6 @@
 {{- define "aistor.operators" -}}
 adminjob:
   images: ["mc"]
-aihub:
-  images: ["aihub"]
 object-store:
   images: ["minwall","kes","kes-sidecar","minio","minio-sidecar"]
 prompt:
@@ -248,8 +246,8 @@ on
 
 {{/*
     aistor.render renders a value that may itself contain template directives.
-    This mirrors the helper already used by the aistor-objectstore, aistor-aihub,
-    aistor-prompt and minkms charts, so extraResources behaves identically here.
+    This mirrors the helper already used by the aistor-objectstore, aistor-prompt
+    and minkms charts, so extraResources behaves identically here.
     Usage:
     {{ include "aistor.render" ( dict "value" .Values.path.to.the.Value "context" $) }}
 */}}
