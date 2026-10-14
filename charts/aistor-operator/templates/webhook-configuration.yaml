@@ -14,7 +14,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-09-18T18-03-16Z
+    aistor.min.io/version: RELEASE.2026-10-14T04-16-30Z
     {{- if and (include "aistor.isOpenShift" $) (not (include "aistor.webhookUsesCustomCert" $)) }}
     service.beta.openshift.io/inject-cabundle: "true"
     {{- end }}
@@ -40,7 +40,14 @@ webhooks:
         operations: ["CREATE"]
         scope: "*"
     clientConfig:
-      caBundle: {{ $webhook.caBundle | default "" | quote }}
+      {{- /* Render caBundle only when the chart supplies one. Without a custom
+             certificate the operator writes the bundle itself (and OpenShift's
+             service-ca injects it), so rendering an empty value here would make
+             a server-side apply claim a field another writer owns, and every
+             later upgrade would fail with a conflict on it. */}}
+      {{- with $webhook.caBundle }}
+      caBundle: {{ . | quote }}
+      {{- end }}
       service:
         name: object-store-webhook
         namespace: {{ include "aistor.namespace" . }}
