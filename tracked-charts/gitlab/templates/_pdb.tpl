@@ -3,10 +3,13 @@
 {{/*
 Returns the appropriate apiVersion for PodDisruptionBudget.
 
-It expects a dictionary with three entries:
+It expects a dictionary with two entries:
   - `global` which contains global PDB settings, e.g. .Values.global.pdb
   - `local` which contains local PDB settings, e.g. .Values.sidekiq.pdb
-  - `context` which is the parent context (either `.` or `$`)
+
+Callers also pass `context` (the parent context, either `.` or `$`) for parity
+with `gitlab.hpa.apiVersion` and `gitlab.ingress.apiVersion`. It is accepted but
+not used, because the helper no longer probes `.Capabilities.APIVersions`.
 */}}
 {{- define "gitlab.pdb.apiVersion" -}}
 {{-   $local := default dict .local -}}
@@ -14,9 +17,7 @@ It expects a dictionary with three entries:
 {{-     .local.apiVersion -}}
 {{-   else if .global.apiVersion -}}
 {{-     .global.apiVersion -}}
-{{-   else if .context.Capabilities.APIVersions.Has "policy/v1/PodDisruptionBudget" -}}
-{{-     print "policy/v1" -}}
 {{-   else -}}
-{{-     print "policy/v1beta1" -}}
+{{-     print "policy/v1" -}}
 {{-   end -}}
 {{- end -}}

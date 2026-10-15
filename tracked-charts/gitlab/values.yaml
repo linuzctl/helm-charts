@@ -50,7 +50,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "19.4.2"
+  gitlabVersion: "19.5.0"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -241,6 +241,7 @@ global:
         maxUnavailable: 1
     psql:
       sslMode: disable
+      ssl: {}
     # serviceName:
     service:
       name: praefect
@@ -559,6 +560,13 @@ global:
       ## JetStream stream replication factor. Defaults to 1 for single-node
       ## deployments; set to 3 for a clustered NATS deployment.
       # streamReplicas: 1
+      ## Audit event streaming partition topology. drainPartitionCount is how
+      ## many partitions (and durable consumers) are provisioned and drained;
+      ## publishPartitionCount is how many of those publishing spreads across
+      ## (capped at drain). Both default to 1; raise them for a high-volume
+      ## deployment.
+      # drainPartitionCount: 1
+      # publishPartitionCount: 1
       ## Mutual TLS. The GitLab NATS clusters use verify_and_map, so the
       ## client must present a client certificate whose CN maps to a NATS
       ## user. The secret must contain `ca.crt`, `tls.crt`, and `tls.key`.
@@ -777,6 +785,14 @@ global:
     enabled: true
     service:
       apiExternalPort: 8153 # port for connections from the GitLab backend
+    ingress:
+      grpc:
+        # Whether the KAS gRPC Ingress is rendered, and therefore whether agents are
+        # pointed at grpcs:// when Ingress is used. Unset renders it for the NGINX
+        # Ingress provider only. Set `true` or `false` to force it. Traefik needs
+        # `true`, after its entrypoint is configured for gRPC:
+        # https://docs.gitlab.com/charts/charts/gitlab/kas/#traefik
+        enabled:
     tls:
       enabled: false
       verify: true
@@ -929,6 +945,7 @@ global:
   ## https://docs.gitlab.com/charts/charts/globals#outgoing-email
   ## Email persona used in email sent by GitLab
   email:
+    enabled: true
     from: ""
     display_name: GitLab
     reply_to: ""
@@ -1303,7 +1320,31 @@ prometheus:
     enabled: false
   prometheus-pushgateway:
     enabled: false
-  scrapeConfigs: []
+  # Disable the default scrape jobs of the Prometheus chart. GitLab supplies
+  # its own jobs in `serverFiles."prometheus.yml".scrape_configs` below. Two
+  # sources of jobs make duplicate job names, and Prometheus does not start.
+  # Issue #6413 tracks the move of the GitLab jobs to this structure.
+  scrapeConfigs:
+    prometheus:
+      enabled: false
+    kubernetes-api-servers:
+      enabled: false
+    kubernetes-nodes:
+      enabled: false
+    kubernetes-nodes-cadvisor:
+      enabled: false
+    kubernetes-service-endpoints:
+      enabled: false
+    kubernetes-service-endpoints-slow:
+      enabled: false
+    prometheus-pushgateway:
+      enabled: false
+    kubernetes-services:
+      enabled: false
+    kubernetes-pods:
+      enabled: false
+    kubernetes-pods-slow:
+      enabled: false
   server:
     retention: 15d
     strategy:
@@ -1463,6 +1504,12 @@ prometheus:
 ## https://docs.gitlab.com/charts/charts/shared-secrets/
 shared-secrets:
   enabled: true
+  ## Which backend provisions the generated secrets.
+  ##   job        - the pre-install/pre-upgrade hook Job runs the generation script
+  ##   controller - render an apps.gitlab.com/v2alpha1 GitLabSecrets resource and let a
+  ##                controller generate the values. Requires the GitLab Operator.
+  ## `enabled: false` disables provisioning entirely, regardless of this setting.
+  provider: job
   rbac:
     create: true
   selfsign:
@@ -1652,6 +1699,11 @@ gatewayApiResources:
     infrastructure: {}
     addresses: []
     protocol: "HTTPS"
+    ## Name of a single TLS Secret to serve from every HTTPS/TLS listener, replacing the
+    ## per-listener certificateRefs below. Use this when one certificate (for example a
+    ## wildcard) covers all hostnames. Leave empty to configure listeners individually.
+    tls:
+      secretName: ""
     listeners:
       http-default:
         protocol: HTTP

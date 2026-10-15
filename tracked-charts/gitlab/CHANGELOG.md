@@ -2,6 +2,44 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.5.0 (2026-10-15)
+
+### Added (3 changes)
+
+- [Support KAS gRPC Ingress with Traefik](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/de24b83ad7f65ab3e16df81cf5fed4d1c84185b6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5448))
+- [Mount PostgreSQL SSL certificates in Praefect](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2580423ef71a8d066ecd0f3ff7e8af0f2ed96024) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5215))
+- [feat(email): add outgoing email toggle](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/716738f8815c1ccb6f93a5625ca15eebc4b33be2) by @dkalics_fs ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5366))
+
+### Fixed (6 changes)
+
+- [Encode Redis Sentinel passwords inside runtime ERB](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/12f007f0b24098c95f00f9582b5e4bc54b24f45c) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5450))
+- [Default toolbox backup CronJob to batch/v1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5d508d00ef37285ccdcec7da880f3df5aafea209) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5416))
+- [Default HorizontalPodAutoscaler to autoscaling/v2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/96dc00680f8b3af21363fe1ec2a1a7a55a71bfaa) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5409))
+- [Add SSL cert mount to registry init container](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0712bf72a36f2f4d287b2edec7410996c2435de3) by @dcc-netcraft ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5369))
+- [Fix path configuration check](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2e6436dcee284c6c42152a67c8b6e972c906d454) by @iposadat ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5375))
+- [Document the Pages bucket override in globals.md](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/cddfc2ef08024c9b025c93e0b50eba1fccae8e6b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5362))
+
+### Changed (13 changes)
+
+- [Bump openbao chart to 0.20.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/480d0d952ac94110bc1f93a94f2850fffad3b1ea) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5457))
+- [Update Envoy Gateway to v1.9.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a80f12c0b8bca1d0836ccf4b6dd7cf62d42ae773) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5431))
+- [Prometheus: disable default scrapeConfigs jobs individually](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/9cd90e2c3f9622726956dc9e1ffe966e3d568e26) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5374))
+- [Update container-registry to v4.42.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2e0febe59607705aab8a35a3ed559732760e1c52) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5397))
+- [Upgrade Openbao version to v2.6.2-gitlab1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/978fd8cde49d429658858b82e9ffd92094311314) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5393))
+- [Update ai-gateway to v0.15.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ac6e15d167bacd8d2ee6f12cb674e84663bef758) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5389))
+- [Update prometheus to v29.31.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a7d107c5d0b0082b02d38bc9dd67e8eb5ce83f3b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5374))
+- [Update gateway-crds-helm to v1.9.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/9cd215cc8b339500462493bdc4451a5a3932d17d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5382))
+- [Update ai-gateway to v0.15.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1a31a3eeea153decc91d7da0af58464e4ea46e29) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5371))
+- [Update gitlab-runner to v0.93.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/da77860926b6d9fd90d45bf9050d12a61cb0c7a1) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5365))
+- [Update prometheus to v29.30.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4d796208dab291d49ff5a8c14b1444a0e144a65) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5351))
+- [Advertise grpcs to agents by default](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e825a29e39504c37233e59d5fb2b5d6ce57773ff) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5333))
+- [Update container-registry to v4.41.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/66dd7f336dd721c9b9a6b2576f94967f39322e65) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5226))
+
+### Other (2 changes)
+
+- [Reuse the global Topology Service TLS guard](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ace1cf6c49e30cf188710c2fb97fb76e90b52b88) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5458))
+- [Document GitLab Shell HPA scaling guidance for traffic spikes](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/85a8478ee39b32b7bd399347a99426531e469eec) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5426))
+
 ## 10.4.2 (2026-10-07)
 
 ### Changed (1 change)
@@ -47,6 +85,26 @@ entry.
 - [Update Debian base from bookworm to trixie](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f22d142fdac57c5d3832bdcb2647f4c7d57bccf9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5281))
 - [Update gitlab-runner to v0.92.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fca325450df764b23edaf3962066423af5a148c0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5276))
 
+## 10.3.6 (2026-10-12)
+
+No changes.
+
+## 10.3.5 (2026-10-07)
+
+No changes.
+
+## 10.3.4 (2026-09-24)
+
+### Changed (1 change)
+
+- [Update ai-gateway to v0.15.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8e7c032facbd95ea1c701e62f3fc2bd80924a364) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5398))
+
+## 10.3.3 (2026-09-22)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.92.2](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/2d4277908935e84e58aad37e550dba599e376014)
+
 ## 10.3.2 (2026-09-10)
 
 ### Changed (1 change)
@@ -87,6 +145,14 @@ entry.
 - [Update helm to v4.2.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4e5bc5b7d74e118096452890ddb971c6364a7c0a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5202))
 - [Update gitlab-runner to v0.91.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6f8ff0bf646aa6fa2dc3b658b710f3570ba46cd0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5201))
 - [Update prometheus to v29.17.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/de64cf4a6c18fe3b1cd7d2f707eb9ca0a6b1720f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5097))
+
+## 10.2.8 (2026-10-07)
+
+No changes.
+
+## 10.2.7 (2026-09-22)
+
+No changes.
 
 ## 10.2.6 (2026-09-10)
 
@@ -207,6 +273,10 @@ No changes.
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
 
+## 10.0.9 (2026-09-22)
+
+No changes.
+
 ## 10.0.8 (2026-08-14)
 
 No changes.
@@ -291,6 +361,10 @@ No changes.
 - [Breaking: Remove spamcheck subchart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7dababe2cefe0699131a1ce8d18b3b85c8b99641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5035))
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
+
+## 9.11.13 (2026-09-22)
+
+No changes.
 
 ## 9.11.12 (2026-08-14)
 

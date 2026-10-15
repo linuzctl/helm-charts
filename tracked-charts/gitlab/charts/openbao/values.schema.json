@@ -355,6 +355,24 @@
                             }
                         }
                     }
+                },
+                "xForwardedFor": {
+                    "type": "object",
+                    "properties": {
+                        "authorizedAddrs": {
+                            "type": "array"
+                        },
+                        "hopSkips": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "rejectNotAuthorized": {
+                            "type": "boolean"
+                        },
+                        "rejectNotPresent": {
+                            "type": "boolean"
+                        }
+                    }
                 }
             }
         },
