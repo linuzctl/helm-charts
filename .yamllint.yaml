@@ -2,6 +2,7 @@
 extends: default
 ignore: |
   charts/*
+  tracked-charts/*
 rules:
   truthy:
     allowed-values:
