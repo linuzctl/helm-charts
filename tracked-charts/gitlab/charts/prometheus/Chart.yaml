@@ -11,11 +11,11 @@ dependencies:
 - condition: alertmanager.enabled
   name: alertmanager
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 1.43.1
+  version: 1.43.3
 - condition: kube-state-metrics.enabled
   name: kube-state-metrics
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 8.4.2
+  version: 8.5.0
 - condition: prometheus-node-exporter.enabled
   name: prometheus-node-exporter
   repository: oci://ghcr.io/prometheus-community/charts
@@ -55,4 +55,4 @@ sources:
 - https://github.com/prometheus/node_exporter
 - https://github.com/kubernetes/kube-state-metrics
 type: application
-version: 29.29.0
+version: 29.31.1

@@ -188,6 +188,16 @@ config:
   tlsDisable: true
   maxRequestSize: 786432
   maxRequestJsonMemory: 1048576
+  # X-Forwarded-For handling on the API listener only. Disabled while authorizedAddrs is empty.
+  # Defaults match OpenBao's code, which differs from its docs for the reject flags.
+  xForwardedFor:
+    # List of CIDRs. A list is required: an empty string makes OpenBao fail to start.
+    authorizedAddrs: []
+    # @schema minimum:0
+    hopSkips: 0
+    # Keep false: kubelet probes do not send X-Forwarded-For.
+    rejectNotPresent: false
+    rejectNotAuthorized: false
   cacheSize: 2560
   telemetry:
     # Enable/disable telemetry on all listeners.

@@ -103,6 +103,15 @@ Render active TCP listener configuration.
 {{-   $_ := set $defaultListener "address" (printf ":%d" (.apiPort | int)) -}}
 {{-   $_ := set $defaultListener "max_request_size" (.maxRequestSize) -}}
 {{-   $_ := set $defaultListener "max_request_json_memory" (.maxRequestJsonMemory) -}}
+{{-   with .xForwardedFor -}}
+{{-     $addrs := compact .authorizedAddrs -}}
+{{-     if $addrs -}}
+{{-       $_ := set $defaultListener "x_forwarded_for_authorized_addrs" (join "," $addrs) -}}
+{{-       $_ := set $defaultListener "x_forwarded_for_hop_skips" .hopSkips -}}
+{{-       $_ := set $defaultListener "x_forwarded_for_reject_not_present" .rejectNotPresent -}}
+{{-       $_ := set $defaultListener "x_forwarded_for_reject_not_authorized" .rejectNotAuthorized -}}
+{{-     end -}}
+{{-   end -}}
 {{-   $listeners = append $listeners (dict "tcp" $defaultListener) -}}
 {{- end -}}
 {{/* Metrics listener */}}

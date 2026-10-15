@@ -34,7 +34,7 @@ item, ensuring presence of all keys.
 {{-   end -}}
 {{- end -}}
 {{- if eq (include "gitlab.ingress.enabled" $) "true" -}}
-{{-   if and (not $.Values.ingress.requireBaseBath) (not $checks.hasBasePath) -}}
+{{-   if and $.Values.ingress.requireBasePath (not $checks.hasBasePath) -}}
 {{-     fail "FATAL: Webservice: no deployment with ingress.path '/' or '/*' specified." -}}
 {{-   end -}}
 {{- end -}}
@@ -101,6 +101,9 @@ service:
     {{- range .Values.service.loadBalancerSourceRanges }}
     - {{ . | quote }}
     {{- end }}
+  {{- end }}
+  {{- if .Values.service.trafficDistribution }}
+  trafficDistribution: {{ .Values.service.trafficDistribution }}
   {{- end }}
   annotations: # additional annotations to .service.annotations
     {{- if .Values.service.annotations }}

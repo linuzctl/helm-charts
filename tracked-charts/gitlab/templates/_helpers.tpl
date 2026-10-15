@@ -474,6 +474,49 @@ Create a default fully qualified job name for shared-secrets.
 {{- end -}}
 
 {{/*
+Return which backend provisions the generated secrets.
+
+  job         The pre-install/pre-upgrade hook Job runs the generation script. Default.
+  controller  Render an apps.gitlab.com/v2alpha1 GitLabSecrets resource and let a
+              controller do the generation. No hook and no custom RBAC, which is what
+              lets the GitLab Operator manage releases outside its own namespace.
+
+`shared-secrets.enabled: false` still disables provisioning entirely, whatever this is
+set to. Validated by gitlab.checkConfig.sharedSecrets.provider.
+*/}}
+{{- define "gitlab.shared-secrets.provider" -}}
+{{- default "job" (index .Values "shared-secrets" "provider") -}}
+{{- end -}}
+
+{{/*
+True when the shared-secrets hook Job and its RBAC should be rendered.
+*/}}
+{{- define "gitlab.shared-secrets.job.enabled" -}}
+{{- and (index .Values "shared-secrets" "enabled") (eq (include "gitlab.shared-secrets.provider" .) "job") -}}
+{{- end -}}
+
+{{/*
+Whether the chart has to produce a self-signed wildcard certificate.
+
+These are the conditions the self-signed certificate Job has always used: no cert-manager,
+TLS wanted, and no certificate supplied. Both provisioning backends need the same answer --
+the Job renders on it, and the GitLabSecrets resource emits a `certificates` entry on it.
+
+Returns the string "true" or "false".
+*/}}
+{{- define "gitlab.shared-secrets.selfSignedTls.required" -}}
+{{- if and (index .Values "shared-secrets" "enabled") (not .Values.global.ingress.configureCertmanager) -}}
+{{-   if eq (include "gitlab.global.ingress.tls.enabled" .) "true" -}}
+{{-     not (eq (include "gitlab.ingress.tls.configured" .) "true") -}}
+{{-   else -}}
+false
+{{-   end -}}
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use for shared-secrets job
 */}}
 {{- define "shared-secrets.serviceAccountName" -}}
@@ -650,7 +693,7 @@ Usage with webservice deployments or sidekiq pods context: {{- include "gitlab.g
 {{- $godebugIsDuplicate := include "checkDuplicateKeyFromEnv" (dict "rootScope" (hasKey . "rootScope" | ternary .rootScope . ) "keyToFind" "GODEBUG" "deploymentScope" .deploymentScope) }}
 {{- if eq $godebugIsDuplicate "false" }}
 - name: GODEBUG
-  value: 'tlsmlkem=0,tlskyber=0'
+  value: 'tlsmlkem=0'
 {{- end }}
 {{- end -}}
 
@@ -662,11 +705,22 @@ Return the Topology Service TLS Secret name
 {{- end -}}
 
 {{/*
+Return whether the global Cells Topology Service client uses TLS.
+*/}}
+{{- define "gitlab.global.cell.topologyService.tls.enabled" -}}
+{{- if and .Values.global.appConfig.cell.enabled .Values.global.appConfig.cell.topologyServiceClient.tls.enabled -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
 Mount topology service TLS secrets in projected volume sources
 Usage: {{ include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
 */}}
 {{- define "gitlab.topologyService.mountSecrets" -}}
-{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+{{- if eq (include "gitlab.global.cell.topologyService.tls.enabled" $) "true" }}
 - secret:
     name: {{ template "topology-service.tls.secret" $ }}
     items:
@@ -683,7 +737,7 @@ Usage: {{ include "gitlab.topologyService.volumeMounts" (dict "context" $ "secre
 */}}
 {{- define "gitlab.topologyService.volumeMounts" -}}
 {{- $context := .context -}}
-{{- if and $context.Values.global.appConfig.cell.enabled $context.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+{{- if eq (include "gitlab.global.cell.topologyService.tls.enabled" $context) "true" }}
 - name: {{ .secretsVolumeName }}
   mountPath: /srv/gitlab/config/topology-service/tls.crt
   subPath: topology-service/tls.crt
@@ -700,7 +754,7 @@ Configure script for topology service TLS secrets
 Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
 */}}
 {{- define "gitlab.topologyService.configureScript" -}}
-{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+{{- if eq (include "gitlab.global.cell.topologyService.tls.enabled" $) "true" }}
   if [ -d /init-config/topology-service ]; then
     mkdir -p /init-secrets/topology-service
     cp -v -L /init-config/topology-service/tls.key /init-secrets/topology-service/tls.key
