@@ -1,5 +1,5 @@
 ---
-name: Extract Chart Source
+name: Extract tracked charts
 
 on:
   pull_request:
@@ -12,11 +12,21 @@ permissions:
   contents: write
   pull-requests: read
 
+env:
+  STATE_FILE_PATTERN: state/*.yaml
+  TRACKED_CHARTS_DIR: tracked-charts
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   extract:
+    name: Extract charts from changed state files
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout PR branch
+      - name: Check out the pull request branch
         uses: actions/checkout@v7
         with:
           ref: ${{ github.head_ref }}
@@ -33,61 +43,71 @@ jobs:
             https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Detect changed state files
-        id: changed
+      - name: Find changed state files
+        id: state-files
         run: |
-          FILES=$(git diff --name-only origin/main...HEAD -- 'state/*.yaml')
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          echo "$FILES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          changed_files="$(git diff --name-only origin/main...HEAD -- "$STATE_FILE_PATTERN")"
 
-      - name: Extract charts
-        if: steps.changed.outputs.files != ''
+          chart_names="$(printf '%s\n' "$changed_files" \
+            | sed -nE 's|^state/(.+)\.ya?ml$|\1|p' \
+            | paste -sd ',' -)"
+
+          {
+            echo "files<<EOF"
+            echo "$changed_files"
+            echo "EOF"
+            echo "chart_names=$chart_names"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download changed charts
+        if: steps.state-files.outputs.files != ''
+        env:
+          CHANGED_STATE_FILES: ${{ steps.state-files.outputs.files }}
         run: |
-          HAS_CHANGES=false
+          extract_dir="$RUNNER_TEMP/extracted-chart"
 
-          while IFS= read -r FILE; do
-            [[ -z "$FILE" ]] && continue
+          while IFS= read -r state_file; do
+            [[ -z "$state_file" ]] && continue
 
-            CHART_NAME=$(yq '.chart_name' "$FILE")
-            VERSION=$(yq '.chart_version' "$FILE")
-            REPO_URL=$(yq '.repo_url' "$FILE")
-            REPO_NAME=$(yq '.repo_name' "$FILE")
+            chart_name="$(yq '.chart_name' "$state_file")"
+            chart_version="$(yq '.chart_version' "$state_file")"
+            repository_name="$(yq '.repo_name' "$state_file")"
+            repository_url="$(yq '.repo_url' "$state_file")"
 
-            echo "Processing $CHART_NAME@$VERSION from $REPO_URL"
+            echo "Downloading $chart_name@$chart_version from $repository_url"
 
-            helm repo add "$REPO_NAME" "$REPO_URL"
-            helm repo update "$REPO_NAME"
+            helm repo add "$repository_name" "$repository_url"
+            helm repo update "$repository_name"
 
-            rm -rf /tmp/extracted/
-            helm pull "$REPO_NAME/$CHART_NAME" \
-              --version "$VERSION" \
+            rm -rf "$extract_dir"
+            helm pull "$repository_name/$chart_name" \
+              --version "$chart_version" \
               --untar \
-              --untardir /tmp/extracted/
+              --untardir "$extract_dir"
 
-            rm -rf "charts/$CHART_NAME"
-            mkdir -p "charts/"
-            cp -r "/tmp/extracted/$CHART_NAME" "charts/$CHART_NAME"
+            rm -rf "$TRACKED_CHARTS_DIR/$chart_name"
+            cp -R \
+              "$extract_dir/$chart_name" \
+              "$TRACKED_CHARTS_DIR/$chart_name"
+          done <<< "$CHANGED_STATE_FILES"
 
-            HAS_CHANGES=true
-            echo "Extracted $CHART_NAME@$VERSION"
-          done <<< "${{ steps.changed.outputs.files }}"
-
-          echo "has_changes=$HAS_CHANGES" >> $GITHUB_ENV
-
-      - name: Commit and push extracted charts
-        if: env.has_changes == 'true'
+      - name: Commit extracted charts
+        if: steps.state-files.outputs.files != ''
+        env:
+          CHART_NAMES: ${{ steps.state-files.outputs.chart_names }}
+          GH_TOKEN: ${{ github.token }}
         run: |
+          bot_id="$(gh api /users/github-actions%5Bbot%5D --jq '.id')"
+
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add charts/
+          git config user.email "${bot_id}+github-actions[bot]@users.noreply.github.com"
+
+          git add "$TRACKED_CHARTS_DIR"
+
           if git diff --cached --quiet; then
             echo "No chart changes to commit"
-          else
-            CHANGED_FILES="${{ steps.changed.outputs.files }}"
-            SUMMARY=$(echo "$CHANGED_FILES" | \
-              grep -oP '(?<=state/)[^.]+' | \
-              paste -sd ',' -)
-            git commit -m "chore: extract chart source for ${SUMMARY}"
-            git push
+            exit 0
           fi
+
+          git commit -m "chore: extract chart source for ${CHART_NAMES}"
+          git push
