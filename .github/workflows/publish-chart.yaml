@@ -1,5 +1,5 @@
 ---
-name: Publish Chart to GHCR
+name: Publish charts
 
 on:
   push:
@@ -7,10 +7,11 @@ on:
       - main
     paths:
       - "charts/**/Chart.yaml"
+      - "tracked-charts/**/Chart.yaml"
   workflow_dispatch:
     inputs:
       chart:
-        description: "Chart name to publish (leave empty to auto-detect from last commit)"
+        description: "Chart name (leave empty to detect it from the last commit)"
         required: false
         type: string
 
@@ -18,40 +19,59 @@ permissions:
   contents: write
   packages: write
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   detect-charts:
+    name: Detect charts to publish
     runs-on: ubuntu-latest
     outputs:
-      charts: ${{ steps.detect.outputs.charts }}
+      charts: ${{ steps.charts.outputs.json }}
+
     steps:
-      - name: Checkout
+      - name: Check out the repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
-      - name: Detect changed charts
-        id: detect
+      - name: Build the chart list
+        id: charts
+        env:
+          REQUESTED_CHART: ${{ inputs.chart }}
         run: |
-          if [ -n "${{ inputs.chart }}" ]; then
-            CHARTS=$(printf '%s' '${{ inputs.chart }}' | jq -R -c '[.]')
+          if [[ -n "$REQUESTED_CHART" ]]; then
+            charts_json="$(jq -cn --arg chart "$REQUESTED_CHART" '[$chart]')"
           else
-            CHARTS=$(git diff HEAD~1 HEAD --name-only -- 'charts/*/Chart.yaml' \
+            changed_charts="$(git diff --name-only HEAD~1 HEAD -- 'charts/*/Chart.yaml' 'tracked-charts/*/Chart.yaml' \
               | cut -d/ -f2 \
-              | sort -u \
-              | jq -R -s -c 'split("\n") | map(select(length > 0))')
+              | sort -u)"
+
+            charts_json="$(printf '%s\n' "$changed_charts" \
+              | jq -Rsc 'split("\n") | map(select(length > 0))')"
           fi
-          echo "charts=$CHARTS" >> $GITHUB_OUTPUT
-          echo "Detected charts: $CHARTS"
+
+          echo "json=$charts_json" >> "$GITHUB_OUTPUT"
+          echo "Charts to publish: $charts_json"
 
   publish:
+    name: Publish ${{ matrix.chart }}
     needs: detect-charts
     if: needs.detect-charts.outputs.charts != '[]'
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         chart: ${{ fromJSON(needs.detect-charts.outputs.charts) }}
+
+    env:
+      CHART_NAME: ${{ matrix.chart }}
+      OCI_REGISTRY: ghcr.io
+      OCI_REPOSITORY: ghcr.io/${{ github.repository }}
+
     steps:
-      - name: Checkout
+      - name: Check out the repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -61,102 +81,135 @@ jobs:
         with:
           version: latest
 
-      - name: Read chart version
-        id: version
+      - name: Read chart metadata
         run: |
-          VERSION=$(grep '^version:' "charts/${{ matrix.chart }}/Chart.yaml" | awk '{print $2}')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Publishing ${{ matrix.chart }}@$VERSION"
+          package_dir="$RUNNER_TEMP/charts"
+          release_notes_file="$RUNNER_TEMP/release-notes.md"
 
-      - name: Log in to GHCR
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | \
-            helm registry login ghcr.io \
-              -u "${{ github.actor }}" \
-              --password-stdin
-
-      - name: Check if OCI tag already exists
-        id: check
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          OCI_REF="oci://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/charts/${{ matrix.chart }}"
-          if helm pull "$OCI_REF" --version "$VERSION" --destination /tmp/ 2>/dev/null; then
-            echo "Tag $VERSION already exists — skipping publish"
-            echo "skip=true" >> $GITHUB_OUTPUT
+          if [[ -f "charts/$CHART_NAME/Chart.yaml" ]]; then
+            chart_dir="charts/$CHART_NAME"
+          elif [[ -f "tracked-charts/$CHART_NAME/Chart.yaml" ]]; then
+            chart_dir="tracked-charts/$CHART_NAME"
           else
-            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "Chart not found: $CHART_NAME" >&2
+            exit 1
           fi
 
-      - name: Package chart
-        if: steps.check.outputs.skip != 'true'
-        run: |
-          mkdir -p /tmp/charts
-          helm package "charts/${{ matrix.chart }}/" --destination /tmp/charts/
+          chart_version="$(awk '/^version:/ { print $2; exit }' "$chart_dir/Chart.yaml")"
 
-      - name: Push chart to GHCR
-        if: steps.check.outputs.skip != 'true'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          helm push \
-            "/tmp/charts/${{ matrix.chart }}-${VERSION}.tgz" \
-            "oci://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}"
-          echo "Published: oci://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ matrix.chart }}:${VERSION}"
-
-      - name: Generate release notes
-        if: steps.check.outputs.skip != 'true'
-        run: |
-          CHART="${{ matrix.chart }}"
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG="${CHART}-${VERSION}"
-
-          PREV_TAG=$(git tag -l "${CHART}-*" --sort=-v:refname | head -1)
-
-          if [ -n "$PREV_TAG" ]; then
-            COMMITS=$(git log "${PREV_TAG}..HEAD" --oneline -- "charts/${CHART}/")
-            RANGE_DESC="since \`${PREV_TAG}\`"
-          else
-            COMMITS=$(git log --oneline -- "charts/${CHART}/")
-            RANGE_DESC="full history"
+          if [[ -z "$chart_version" ]]; then
+            echo "Chart version not found in $chart_dir/Chart.yaml" >&2
+            exit 1
           fi
-
-          REPO_URL="${{ github.server_url }}/${{ github.repository }}"
 
           {
-            echo "## Changes in \`charts/${CHART}/\` (${RANGE_DESC})"
-            echo ""
-            if [ -n "$COMMITS" ]; then
-              echo "$COMMITS" | while IFS= read -r line; do
-                HASH=$(echo "$line" | awk '{print $1}')
-                MSG=$(echo "$line" | cut -d' ' -f2-)
-                MSG=$(echo "$MSG" | sed -E "s|#([0-9]+)|[#\1](${REPO_URL}/pull/\1)|g")
-                echo "- [\`${HASH}\`](${REPO_URL}/commit/${HASH}) ${MSG}"
-              done
-            else
-              echo "_No changes recorded in chart directory._"
-            fi
-            echo ""
-            echo "## Install"
-            echo ""
-            echo '```'
-            echo "helm pull oci://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/${CHART} --version ${VERSION}"
-            echo '```'
-          } > /tmp/release-notes.md
+            echo "CHART_DIR=$chart_dir"
+            echo "CHART_VERSION=$chart_version"
+            echo "CHART_TAG=$CHART_NAME-$chart_version"
+            echo "CHART_PACKAGE=$package_dir/$CHART_NAME-$chart_version.tgz"
+            echo "CHART_OCI_REF=oci://$OCI_REPOSITORY/$CHART_NAME"
+            echo "PACKAGE_DIR=$package_dir"
+            echo "RELEASE_NOTES_FILE=$release_notes_file"
+          } >> "$GITHUB_ENV"
 
-      - name: Create tag and GitHub Release
-        if: steps.check.outputs.skip != 'true'
+          echo "Preparing $CHART_NAME@$chart_version from $chart_dir"
+
+      - name: Log in to GHCR
+        env:
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$REGISTRY_PASSWORD" \
+            | helm registry login "$OCI_REGISTRY" \
+                --username "$GITHUB_ACTOR" \
+                --password-stdin
+
+      - name: Check whether this version already exists
+        id: published
+        run: |
+          if helm pull "$CHART_OCI_REF" \
+            --version "$CHART_VERSION" \
+            --destination "$RUNNER_TEMP" \
+            2>/dev/null; then
+            echo "$CHART_TAG already exists; skipping publication"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Package the chart
+        if: steps.published.outputs.exists != 'true'
+        run: |
+          mkdir -p "$PACKAGE_DIR"
+          helm package "$CHART_DIR" --destination "$PACKAGE_DIR"
+
+      - name: Push the chart to GHCR
+        if: steps.published.outputs.exists != 'true'
+        run: |
+          helm push "$CHART_PACKAGE" "oci://$OCI_REPOSITORY"
+          echo "Published $CHART_OCI_REF:$CHART_VERSION"
+
+      - name: Generate release notes
+        if: steps.published.outputs.exists != 'true'
+        run: |
+          previous_tag="$(git tag \
+            --list "$CHART_NAME-*" \
+            --sort=-v:refname \
+            | head -1)"
+
+          if [[ -n "$previous_tag" ]]; then
+            commits="$(git log \
+              "$previous_tag..HEAD" \
+              --pretty=format:'%h%x09%s' \
+              -- "$CHART_DIR/")"
+            range_description="since \`$previous_tag\`"
+          else
+            commits="$(git log \
+              --pretty=format:'%h%x09%s' \
+              -- "$CHART_DIR/")"
+            range_description="full history"
+          fi
+
+          {
+            echo "## Changes in \`$CHART_DIR/\` ($range_description)"
+            echo
+
+            if [[ -n "$commits" ]]; then
+              while IFS=$'\t' read -r commit_hash commit_message; do
+                linked_message="$(sed -E \
+                  "s|#([0-9]+)|[#\1]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/\1)|g" \
+                  <<< "$commit_message")"
+
+                printf -- '- [`%s`](%s/%s/commit/%s) %s\n' \
+                  "$commit_hash" \
+                  "$GITHUB_SERVER_URL" \
+                  "$GITHUB_REPOSITORY" \
+                  "$commit_hash" \
+                  "$linked_message"
+              done <<< "$commits"
+            else
+              echo "_No changes recorded in the chart directory._"
+            fi
+
+            echo
+            echo "## Install"
+            echo
+            echo '```console'
+            echo "helm pull $CHART_OCI_REF --version $CHART_VERSION"
+            echo '```'
+          } > "$RELEASE_NOTES_FILE"
+
+      - name: Create the tag and GitHub release
+        if: steps.published.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          CHART="${{ matrix.chart }}"
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG="${CHART}-${VERSION}"
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag "${TAG}"
-          git push origin "${TAG}"
+          git tag "$CHART_TAG"
+          git push origin "$CHART_TAG"
 
-          gh release create "${TAG}" \
-            --title "${CHART} ${VERSION}" \
-            --notes-file /tmp/release-notes.md \
-            "/tmp/charts/${CHART}-${VERSION}.tgz"
+          gh release create "$CHART_TAG" \
+            --title "$CHART_NAME $CHART_VERSION" \
+            --notes-file "$RELEASE_NOTES_FILE" \
+            "$CHART_PACKAGE"
