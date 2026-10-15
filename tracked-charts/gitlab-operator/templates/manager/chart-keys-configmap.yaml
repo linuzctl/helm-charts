@@ -1,0 +1,19 @@
+{{- if .Values.bridge.enabled }}
+# The public keys a dynamically pulled GitLab chart is verified with (see
+# controllers/settings.DynamicChartKeyring), every trustedKeys entry in one
+# keyring of concatenated armored keys. The manager mounts this ConfigMap and
+# reads it on every pull, so an edit takes effect without a restart. Only
+# GitLabCore pulls charts, and it runs only with the bridge.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "name" . }}-chart-keys
+  namespace: {{ .Release.Namespace }}
+data:
+  keyring.asc: |
+    {{- range $name, $key := .Values.dynamicChartPull.trustedKeys }}
+    {{- if $key }}
+    {{- $key | trim | nindent 4 }}
+    {{- end }}
+    {{- end }}
+{{- end }}

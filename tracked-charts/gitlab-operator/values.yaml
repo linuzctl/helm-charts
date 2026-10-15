@@ -22,6 +22,102 @@ bridge:
   # port the bridge server listens on inside the container.
   port: 8090
 
+# dynamicChartPull configures how a GitLabCore pulls a GitLab chart version the
+# Operator image does not bundle. See doc/developer/gitlabcore.md. It applies
+# only when bridge.enabled is set, since GitLabCore runs only with the bridge.
+dynamicChartPull:
+  # verify checks a pulled chart against its provenance file before it renders.
+  # Turn it off only for a mirror that serves no provenance files.
+  verify: true
+  # trustedKeys are the public keys a pulled chart may be signed with, one
+  # ASCII-armored key or keyring (gpg --export --armor) per entry. They are
+  # rendered into one keyring in a ConfigMap mounted into the manager, and are
+  # the only keys it trusts. The default is the GitLab chart signing key,
+  # 5E46F79EF5836E986A663B4AE30F9C687683D663. Helm merges this map with your
+  # values: add an entry to trust another key as well, or set
+  # gitlab-charts.asc to null to stop trusting the GitLab key. A change takes
+  # effect on the next pull, without restarting the manager.
+  trustedKeys:
+    gitlab-charts.asc: |
+      -----BEGIN PGP PUBLIC KEY BLOCK-----
+      Comment: 5E46 F79E F583 6E98 6A66  3B4A E30F 9C68 7683 D663
+      Comment: GitLab, Inc. Helm charts <distribution@gitlab.com>
+
+      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
+      =uGB2
+      -----END PGP PUBLIC KEY BLOCK-----
+
 podAnnotations:
   kubectl.kubernetes.io/default-container: manager
 
