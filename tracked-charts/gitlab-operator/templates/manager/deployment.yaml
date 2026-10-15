@@ -76,6 +76,12 @@ spec:
           value: {{ include "nginx-ingress.serviceAccount.name" . }}
         - name: PROMETHEUS_SERVICE_ACCOUNT
           value: {{ include "prometheus.serviceAccount.server.name" . }}
+        {{- if .Values.bridge.enabled }}
+        - name: DYNAMIC_CHART_VERIFY
+          value: {{ .Values.dynamicChartPull.verify | quote }}
+        - name: DYNAMIC_CHART_KEYRING
+          value: /etc/gitlab-operator/chart-keys/keyring.asc
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /liveness
@@ -96,6 +102,11 @@ spec:
         {{- if .Values.bridge.enabled }}
         - mountPath: /tmp/gitlab-operator-charts
           name: dynamic-chart-cache
+        # A directory mount, not a subPath one: the kubelet only updates a
+        # directory mount when the ConfigMap changes.
+        - mountPath: /etc/gitlab-operator/chart-keys
+          name: chart-keys
+          readOnly: true
         {{- end }}
       serviceAccountName: {{ include "manager.serviceAccount.name" . }}
       terminationGracePeriodSeconds: 10
@@ -116,6 +127,14 @@ spec:
       # own to match.
       - name: dynamic-chart-cache
         emptyDir: {}
+      # The keys a pulled chart is verified with; see chart-keys-configmap.yaml.
+      # Optional, so a deleted ConfigMap does not keep the whole manager from
+      # starting: the mount is then empty, and only a pull fails, on the
+      # resource that needs it, as it does with no keys.
+      - name: chart-keys
+        configMap:
+          name: {{ include "name" . }}-chart-keys
+          optional: true
       {{- end }}
       {{- with .Values.affinity }}
       affinity: {{- toYaml . | nindent 8 }}
