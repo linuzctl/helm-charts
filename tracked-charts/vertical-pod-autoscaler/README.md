@@ -4,9 +4,9 @@ WARNING: This chart is currently under development and is not ready for producti
 
 Automatically adjust resources for your workloads
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square)
+![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square)
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
-![AppVersion: 1.8.0](https://img.shields.io/badge/AppVersion-1.8.0-informational?style=flat-square)
+![AppVersion: 1.8.1](https://img.shields.io/badge/AppVersion-1.8.1-informational?style=flat-square)
 
 ## Introduction
 The Vertical Pod Autoscaler (VPA) automatically adjusts the CPU and memory resource requests of pods to match their actual resource utilization.
@@ -174,6 +174,11 @@ helm upgrade <release-name> <chart> \
   --set admissionController.registerWebhook=false \
   --set admissionController.certGen.enabled=true
 ```
+
+## Testing
+
+This chart includes [helm-unittest](https://github.com/helm-unittest/helm-unittest) test suites under `tests/` that validate template rendering logic (e.g. recommender leader-election defaults). See [TESTING.md](./TESTING.md) for setup instructions, how to run the tests, and how to add new ones.
+
 ## Values
 
 | Key | Type | Default | Description |
