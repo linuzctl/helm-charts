@@ -36,9 +36,6 @@ spec:
         - jsonPath: .status.healthStatus
           name: Health
           type: string
-        - jsonPath: .status.message
-          name: Health Message
-          type: string
         - jsonPath: .metadata.creationTimestamp
           name: Age
           type: date

@@ -3510,6 +3510,9 @@ spec:
                       name:
                         minLength: 1
                         type: string
+                        x-kubernetes-validations:
+                          - message: pool name kes is reserved for KES
+                            rule: self != 'kes'
                       nodeSelector:
                         additionalProperties:
                           type: string
@@ -3639,9 +3642,6 @@ spec:
                         maximum: 16
                         minimum: 2
                         type: integer
-                        x-kubernetes-validations:
-                          - message: setDriveCount is immutable
-                            rule: self == oldSelf
                       spreadZoneConfig:
                         properties:
                           enabled:
@@ -3948,6 +3948,11 @@ spec:
                       - volumeClaimTemplate
                       - volumesPerServer
                     type: object
+                    x-kubernetes-validations:
+                      - message: setDriveCount is immutable
+                        rule:
+                          has(self.setDriveCount) == has(oldSelf.setDriveCount) &&
+                          (!has(self.setDriveCount) || self.setDriveCount == oldSelf.setDriveCount)
                   type: array
                   x-kubernetes-list-map-keys:
                     - name

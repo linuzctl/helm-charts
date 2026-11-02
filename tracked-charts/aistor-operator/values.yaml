@@ -303,10 +303,10 @@ images:
     image: minwall:RELEASE.2026-05-21T06-25-56Z
   kes:
     repository: aistor
-    image: kes:RELEASE.2026-08-24T11-11-49Z
+    image: kes:RELEASE.2026-10-29T12-00-22Z
   kes-sidecar:
     repository: aistor
-    image: kes-sidecar:RELEASE.2026-10-14T04-05-43Z
+    image: kes-sidecar:RELEASE.2026-10-30T21-06-34Z
   mc:
     repository: aistor
     image: mc:RELEASE.2026-09-19T15-24-59Z
@@ -315,10 +315,10 @@ images:
     image: minio:RELEASE.2026-09-19T17-05-25Z
   minio-sidecar:
     repository: aistor
-    image: minio-sidecar:RELEASE.2026-10-13T11-15-20Z
+    image: minio-sidecar:RELEASE.2026-10-30T20-38-12Z
   operator:
     repository: aistor
-    image: operator:RELEASE.2026-10-14T04-16-30Z
+    image: operator:RELEASE.2026-10-29T18-47-37Z
   prompt:
     repository: aistor
     image: prompt:RELEASE.2025-01-17T21-55-43Z
