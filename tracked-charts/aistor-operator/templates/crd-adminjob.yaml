@@ -36,8 +36,8 @@ spec:
         - jsonPath: .status.phase
           name: Phase
           type: string
-        - jsonPath: .status.message
-          name: Message
+        - jsonPath: .status.error
+          name: Error
           type: string
       name: v1alpha1
       schema:
@@ -64,7 +64,9 @@ spec:
                         type: array
                       dependsOn:
                         items:
+                          maxLength: 50
                           type: string
+                        maxItems: 20
                         type: array
                       env:
                         items:
@@ -175,6 +177,8 @@ spec:
                           type: object
                         type: array
                       name:
+                        maxLength: 50
+                        pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                         type: string
                       op:
                         type: string
@@ -1102,6 +1106,7 @@ spec:
                           type: object
                         type: array
                     type: object
+                  maxItems: 100
                   type: array
                 containerSecurityContext:
                   properties:
@@ -1182,6 +1187,10 @@ spec:
                     - sequential
                   type: string
                 failureStrategy:
+                  default: continueOnFailure
+                  enum:
+                    - continueOnFailure
+                    - stopOnFailure
                   type: string
                 imagePullPolicy:
                   type: string
@@ -1306,6 +1315,16 @@ spec:
               x-kubernetes-validations:
                 - message: can only use 'dependsOn' when 'execution' is set to 'parallel'
                   rule: self.execution == 'parallel' || self.commands.all(c, !has(c.dependsOn))
+                - message: command names must be unique
+                  rule:
+                    self.commands.all(c, !has(c.name) || self.commands.exists_one(o,
+                    has(o.name) && o.name == c.name))
+                - message:
+                    "'dependsOn' must reference the name of a command in this
+                    AdminJob"
+                  rule:
+                    self.commands.all(c, !has(c.dependsOn) || c.dependsOn.all(d, self.commands.exists(o,
+                    has(o.name) && o.name == d)))
             status:
               properties:
                 commands:

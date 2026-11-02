@@ -77,6 +77,11 @@ rules:
     resources: ["deployments"]
     verbs: ["create", "list", "update", "watch"]
 
+  # Allow updating finalizers (required by blockOwnerDeletion in owner references)
+  - apiGroups: ["apps"]
+    resources: ["deployments/finalizers"]
+    verbs: ["update"]
+
   {{- if eq (include "aistor.resolveImageDigest" $) "on" }}
   # Monitor pods, actively delete pods (during upgrades) and run a short-lived
   # pod to read the AIStor version of a digest-pinned image
