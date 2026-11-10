@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: v19.5.3
+appVersion: v19.5.4
 dependencies:
 - name: gitlab
   repository: ""
@@ -69,4 +69,4 @@ maintainers:
 name: gitlab
 sources:
 - https://gitlab.com/gitlab-org/charts/gitlab
-version: 10.5.4
+version: 10.5.5
