@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.5.6 (2026-11-11)
+
+### Changed (1 change)
+
+- [Update helm chart gitlab-runner to v0.94.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bc9c1a92b09dc671195c790dac3728ff501127eb) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5585))
+
 ## 10.5.5 (2026-11-06)
 
 No changes.
