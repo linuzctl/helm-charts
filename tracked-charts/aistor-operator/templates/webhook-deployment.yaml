@@ -12,7 +12,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-11-02T21-00-11Z
+    aistor.min.io/version: RELEASE.2026-11-13T23-02-51Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -40,7 +40,7 @@ spec:
         aistor.min.io/authors: MinIO, Inc.
         aistor.min.io/license: Enterprise
         aistor.min.io/support: https://subnet.min.io
-        aistor.min.io/version: RELEASE.2026-11-02T21-00-11Z
+        aistor.min.io/version: RELEASE.2026-11-13T23-02-51Z
         {{- $podAnnotations := default $.Values.global.operator.podAnnotations .podAnnotations }}
         {{- if $podAnnotations }}
         {{- toYaml $podAnnotations | nindent 8 }}
@@ -94,11 +94,15 @@ spec:
             - -v
             - "2"
           {{- $watchedNamespaces := include "aistor.watchedNamespaces" (dict "operator" "object-store" "root" $.Values) | fromJsonArray }}
-          {{- if or $watchedNamespaces $webhook.extraEnv }}
+          {{- if or $watchedNamespaces $.Values.global.clusterDomain $webhook.extraEnv }}
           env:
             {{- if $watchedNamespaces }}
             - name: WATCHED_NAMESPACES
               value: {{ $watchedNamespaces | join "," | quote }}
+            {{- end }}
+            {{- if $.Values.global.clusterDomain }}
+            - name: CLUSTER_DOMAIN
+              value: {{ $.Values.global.clusterDomain | quote }}
             {{- end }}
             {{- with $webhook.extraEnv }}
             {{- toYaml . | nindent 12 }}

@@ -7,7 +7,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-11-02T21-00-11Z
+    aistor.min.io/version: RELEASE.2026-11-13T23-02-51Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -60,7 +60,7 @@ rules:
   # Manage PVCs
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
-    verbs: ["list", "update"]
+    verbs: ["list", "update", "watch"]
 
   # Manage statefulsets (for MinIO pools)
   - apiGroups: ["apps"]
@@ -124,6 +124,16 @@ rules:
   - apiGroups: [""]
     resources: ["nodes"]
     verbs: ["get", "list"]
+
+  # RDMA DRA mode: the ResourceClaims the server pods hold carry their fabric
+  # addresses, the ResourceSlices describe the nodes' RDMA NICs, and the operator
+  # owns one ResourceClaimTemplate per object store
+  - apiGroups: ["resource.k8s.io"]
+    resources: ["resourceclaims", "resourceslices"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["resource.k8s.io"]
+    resources: ["resourceclaimtemplates"]
+    verbs: ["get", "list", "watch", "create", "delete"]
 
 
   ### Service account, RBAC and MinIO policy management

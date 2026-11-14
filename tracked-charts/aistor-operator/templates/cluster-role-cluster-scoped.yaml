@@ -9,7 +9,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-11-02T21-00-11Z
+    aistor.min.io/version: RELEASE.2026-11-13T23-02-51Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
@@ -25,6 +25,14 @@ rules:
   - apiGroups: [""]
     resources: ["nodes"]
     verbs: ["get"]
+
+  # RDMA DRA mode and the ResourceSlices fabric address source read the
+  # cluster-scoped ResourceSlices; ResourceClaims and ResourceClaimTemplates are
+  # namespaced and come from the aistor-object-store role bound in each watched
+  # namespace
+  - apiGroups: ["resource.k8s.io"]
+    resources: ["resourceslices"]
+    verbs: ["get", "list", "watch"]
 
 {{- if eq (include "aistor.tokenValidation" $) "TokenReview" }}
   - apiGroups: ["rbac.authorization.k8s.io"]
@@ -45,7 +53,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-11-02T21-00-11Z
+    aistor.min.io/version: RELEASE.2026-11-13T23-02-51Z
     {{- if $.Values.annotations }}
     {{ $.Values.annotations | toYaml | nindent 4 }}
     {{- end }}
