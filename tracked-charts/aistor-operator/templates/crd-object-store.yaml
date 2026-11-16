@@ -7,7 +7,7 @@ metadata:
     aistor.min.io/authors: MinIO, Inc.
     aistor.min.io/license: Enterprise
     aistor.min.io/support: https://subnet.min.io
-    aistor.min.io/version: RELEASE.2026-11-02T21-00-11Z
+    aistor.min.io/version: RELEASE.2026-11-13T23-02-51Z
     controller-gen.kubebuilder.io/version: v0.20.0
     helm.sh/resource-policy: keep
     {{- if $.Values.annotations }}
@@ -3978,29 +3978,101 @@ spec:
                       x-kubernetes-validations:
                         - message: devicePath must not contain a '..' path segment
                           rule: "!self.contains('/../') && !self.endsWith('/..')"
+                    dra:
+                      properties:
+                        deviceClassName:
+                          maxLength: 253
+                          pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
+                          type: string
+                        driver:
+                          default: dra.net
+                          maxLength: 253
+                          pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
+                          type: string
+                        rails:
+                          default: 1
+                          format: int32
+                          maximum: 2
+                          minimum: 1
+                          type: integer
+                        resourceClaimTemplateName:
+                          maxLength: 253
+                          pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
+                          type: string
+                        selectors:
+                          items:
+                            maxLength: 10240
+                            type: string
+                          maxItems: 8
+                          type: array
+                          x-kubernetes-list-type: atomic
+                      type: object
+                      x-kubernetes-validations:
+                        - message: set exactly one of deviceClassName or resourceClaimTemplateName
+                          rule: has(self.deviceClassName) != has(self.resourceClaimTemplateName)
                     enabled:
                       default: false
                       type: boolean
                     fabric:
                       properties:
+                        addressSource:
+                          default: NodeLabels
+                          enum:
+                            - NodeLabels
+                            - ResourceSlices
+                          type: string
+                        driver:
+                          maxLength: 253
+                          pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
+                          type: string
+                        includeNodeIP:
+                          type: boolean
                         nodeAddressLabel:
                           maxLength: 317
                           pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?[a-zA-Z0-9]([-._a-zA-Z0-9]*[a-zA-Z0-9])?$
                           type: string
+                        rails:
+                          format: int32
+                          maximum: 2
+                          minimum: 1
+                          type: integer
                         secondaryNodeAddressLabel:
                           maxLength: 317
                           pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?[a-zA-Z0-9]([-._a-zA-Z0-9]*[a-zA-Z0-9])?$
                           type: string
-                      required:
-                        - nodeAddressLabel
                       type: object
                       x-kubernetes-validations:
                         - message: secondaryNodeAddressLabel must differ from nodeAddressLabel
                           rule:
                             "!has(self.secondaryNodeAddressLabel) || self.secondaryNodeAddressLabel
                             != self.nodeAddressLabel"
+                        - message:
+                            nodeAddressLabel is required with addressSource NodeLabels
+                            and not used with ResourceSlices
+                          rule:
+                            (!has(self.addressSource) || self.addressSource == 'NodeLabels')
+                            == has(self.nodeAddressLabel)
+                        - message:
+                            secondaryNodeAddressLabel is not used with addressSource
+                            ResourceSlices
+                          rule:
+                            (!has(self.addressSource) || self.addressSource == 'NodeLabels')
+                            || !has(self.secondaryNodeAddressLabel)
+                        - message:
+                            "rails must be 1 when includeNodeIP is true: MinIO
+                            supports two fabric addresses per node"
+                          rule:
+                            (!has(self.addressSource) || self.addressSource == 'NodeLabels')
+                            || !has(self.includeNodeIP) || !self.includeNodeIP || !has(self.rails)
+                            || self.rails == 1
                     internode:
                       type: boolean
+                    mode:
+                      default: HostNetwork
+                      enum:
+                        - HostNetwork
+                        - DRA
+                      type: string
                     peerPort:
                       default: 5555
                       format: int32
@@ -4010,6 +4082,13 @@ spec:
                   required:
                     - enabled
                   type: object
+                  x-kubernetes-validations:
+                    - message: dra must be set when, and only when, mode is DRA
+                      rule: (has(self.mode) && self.mode == 'DRA') == has(self.dra)
+                    - message:
+                        fabric is not used in DRA mode, the addresses come from
+                        the ResourceClaims
+                      rule: "!(has(self.mode) && self.mode == 'DRA') || !has(self.fabric)"
                 readiness:
                   properties:
                     exec:
