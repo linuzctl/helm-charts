@@ -13,18 +13,25 @@ image:
 nameOverride: "gitlab"
 fullnameOverride: ""
 
-extraEnvs: []
+# extraEnv adds environment variables to the manager container, as a list of
+# Kubernetes EnvVar entries. Quote numbers and booleans, since each value must
+# be a string:
+#
+#   extraEnv:
+#   - name: EXAMPLE_VARIABLE
+#     value: "example"
+extraEnv: []
 
-# bridge is the backend-for-frontend HTTP server that exposes a CRUD API and
-# an embedded SPA for configuring GitLab instances. It is disabled by default.
+# bridge.enabled registers the v2alpha1 reconcilers (GitLabCore, Siphon, Orbit,
+# and GitLabSecrets) that Bridge drives, in an image built with the `bridge` tag.
+# Bridge itself runs only as the `kubectl bridge` plugin. It is disabled by
+# default.
 bridge:
   enabled: false
-  # port the bridge server listens on inside the container.
-  port: 8090
 
 # dynamicChartPull configures how a GitLabCore pulls a GitLab chart version the
 # Operator image does not bundle. See doc/developer/gitlabcore.md. It applies
-# only when bridge.enabled is set, since GitLabCore runs only with the bridge.
+# only when bridge.enabled is set, since GitLabCore runs only then.
 dynamicChartPull:
   # verify checks a pulled chart against its provenance file before it renders.
   # Turn it off only for a mirror that serves no provenance files.

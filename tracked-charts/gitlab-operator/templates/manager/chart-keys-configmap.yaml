@@ -3,7 +3,7 @@
 # controllers/settings.DynamicChartKeyring), every trustedKeys entry in one
 # keyring of concatenated armored keys. The manager mounts this ConfigMap and
 # reads it on every pull, so an edit takes effect without a restart. Only
-# GitLabCore pulls charts, and it runs only with the bridge.
+# GitLabCore pulls charts, and it runs only with bridge.enabled.
 apiVersion: v1
 kind: ConfigMap
 metadata:
