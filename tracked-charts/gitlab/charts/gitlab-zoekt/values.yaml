@@ -177,6 +177,8 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+# The NetworkPolicy is only created when `networkpolicy.enabled` is true and at least one of
+# `networkpolicy.ingress.enabled` or `networkpolicy.egress.enabled` is true.
 networkpolicy:
   enabled: false
   egress:

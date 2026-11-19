@@ -2,6 +2,60 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.6.0 (2026-11-18)
+
+### Added (8 changes)
+
+- [Add a shared Service Ping internal API key setting](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b2b4f133236d413e46f0e5973af7badb39ea9213) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5576))
+- [Support org_mover.public_key_files for the Org Mover internal API](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1a8577cdf019b48df24d609346a96bb13d216529) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5578))
+- [Add externalTrafficPolicy support to the KAS Service](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8552e9d2c76f32366cdb11bdd613a41789bbc0ae) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5587))
+- [Add a Redis Sentinel auth username](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a516f7ccfb475c47377223350b3f3d38df6feafc) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5569))
+- [Add global.gatewayApi.externalTlsTermination for TLS at a load balancer](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ff9fdde77a65218c36aed420285d8835a1503797) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5506))
+- [feat(chart): add seLinuxChangePolicy support to podSecurityContext](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/057ff35efc8d410f145dc051be86dd143568fc08) by @averi1 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5456))
+- [GitLab exporter: Add probeGeo toggle for Geo metrics](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2ff811ec9b735ba5264e276868ac15bc8a6db0d8) by @duewel1982 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5447))
+- [Support asymmetric mailroom JWT public keys](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/40ae8d74f01d8fe3bc883fa94c2b9653ee9c99c9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5408))
+
+### Fixed (11 changes)
+
+- [Update helm chart openbao to v1.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8681eb8f40930f15e81ee43553eb894419c52dfa) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5622))
+- [Praefect: name the Service port tcp-praefect, not grpc-praefect](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5271bbf1acc3d8b2db164aa44fd34bb11ac3ddd4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5603))
+- [Honor AI Gateway GitLab URL and JWT key secret values](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/41b9f4f07689cecc691646eb95b95cbc4b5d567d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5554))
+- [Document Valkey AOF and Recreate strategy to prevent session loss](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/067013b5f33913d1623c3d283c2c5439f77dad5c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5537))
+- [Default Ingress to networking.k8s.io/v1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f577785a91bf8c3455a21a7f0d04d8161e02ddd9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5423))
+- [Mount the self-signed wildcard CA with a .crt extension](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0875dbd75b37a0f2723524698acc998a83abea9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5512))
+- [Scrape Praefect metrics from the Pods only](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/62597bb52b5cbd9dac84c5e812e77189cc4ab631) by @jmrp ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5465))
+- [Strip the trailing Host dot on every Gateway listener](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/066f4464aba0789fd9041d48fba931d47884e9b8) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5485))
+- [Preserve registry notification secrets as YAML strings](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b475b2b1c70af360d53473d91ddca5aaa83366bd) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5449))
+- [Set a default connectionIdleTimeout for webservice](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1db05f16f2d55fdc35ed28d6d6d26558d2e532d4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5478))
+- [Route KAS workspaces through a dedicated plain Service](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/da3860b68f522b8c386e5fcc33a83ed725b8b64c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5454))
+
+### Changed (24 changes)
+
+- [Update helm chart openbao to v1.1.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/52ea1b2ea1c0a7a63a2a3550df67958056120e47) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5621))
+- [Update gitlab-exporter Docker tag to v18](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5cbdb833649a894970d5b330b99db3c5430fcd11) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5619))
+- [Move external Valkey to Valkey chart 1.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ddc491fbae0691b8e01843a4d7274a9af3951e51) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5609))
+- [Update helm chart openbao to v1.0.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d04a760a4d3572fbaf930f5f8f3e36e48b7f6506) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5602))
+- [Drop the configure init container from Gitaly and Praefect](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7b69e997e58fa8c4f4963f884db814e6d4b1e26c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5591))
+- [Update Envoy Gateway to v1.10.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/260048caa1f0a3c94f7b8293ad3ae551fe9d3c26) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5590))
+- [Update helm chart openbao to v1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/53576b2d90561fddec95a3f652650db628acbcf8) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5589))
+- [Update helm chart gitlab-runner to v0.94.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a45b3cf7e1bcf87c2cf91b8c0a3713fc1c186c7c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5584))
+- [Update Helm release gitlab-zoekt to v4.1.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e5edc92d938bca93c901ab1412335ce79bb42e7f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5577))
+- [Update helm chart openbao to v0.20.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c5216e732aca74ebfa8fd7dc96c9c32cbb415882) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5579))
+- [Send the webservice preStop INT to PID 1 without a shell](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/57f4fbc7d9402c0f66cf5961af14ed5f80c6dfe2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5539))
+- [Accept only networking.k8s.io/v1 for Ingress apiVersion](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f6378e3e01d7422494f2eac7fa21ac1701ac5905) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5536))
+- [Update helm chart prometheus to v29.40.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b27ff7ca44c8cbe8d8058eeec6108be474c3c749) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5386))
+- [Update helm chart gitlab-runner to v0.94.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c3f6a3aa439eefe62a9a2f254b47babb46b23b74) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5550))
+- [Update Envoy Gateway to v1.9.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bd9f9c3280f1a31d0e3cc9a29a51a8298040bde3) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5540))
+- [Render the registry configuration with gomplate](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a3e898ca5f43b1edc6b89763ab932eea70cbf7fb) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5513))
+- [Update helm chart cert-manager to v1.21.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/172f3d29ac7a49e359c37f852e25d64b34cb80d5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5516))
+- [Update gitlab-exporter appVersion to 17.1.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/cf5c1735c88e291c23071cb2df3d0586c60a0215) by @duewel1982 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5514))
+- [Set an explicit command for the certificates and cfssl-self-sign containers](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4f055fe8c934abbd66ae31b09ffd803d187e8e4b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5512))
+- [Update dependency container-registry to v4.43.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/676e4296bf1cf26b62341c88aa6f6e063e496ece) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5508))
+- [Update helm chart gitlab-runner to v0.94.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/69ac12e88941ce48f748a2b5a0d8a5f7ff486832) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5507))
+- [Update dependency helm to v4.3.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/28a21e25b37c4e3d6b3aead7ee064fa9e29e4be3) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5505))
+- [Update helm chart openbao to v0.20.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5ebfad8002b1d6ba030a185784bc4bec648cfb82) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5489))
+- [Update helm chart gitlab-runner to v0.94.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/345b3760396a09cc9228c1e5280df5cd8ae0d7be) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5490))
+
 ## 10.5.7 (2026-11-16)
 
 No changes.
@@ -76,6 +130,38 @@ No changes.
 - [Reuse the global Topology Service TLS guard](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ace1cf6c49e30cf188710c2fb97fb76e90b52b88) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5458))
 - [Document GitLab Shell HPA scaling guidance for traffic spikes](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/85a8478ee39b32b7bd399347a99426531e469eec) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5426))
 
+## 10.4.9 (2026-11-16)
+
+No changes.
+
+## 10.4.8 (2026-11-11)
+
+No changes.
+
+## 10.4.7 (2026-11-06)
+
+No changes.
+
+## 10.4.6 (2026-10-29)
+
+### Changed (1 change)
+
+- [Update Envoy Gateway to v1.9.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/43f13b10555b1717e9628f70b6cc5e659ba555cc) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5542))
+
+## 10.4.5 (2026-10-28)
+
+No changes.
+
+## 10.4.4 (2026-10-27)
+
+### Changed (1 change)
+
+- [Update helm chart cert-manager to v1.21.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/353004fcf16944d44a817fa882412f1edf1fecab) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5518))
+
+## 10.4.3 (2026-10-20)
+
+No changes.
+
 ## 10.4.2 (2026-10-07)
 
 ### Changed (1 change)
@@ -120,6 +206,30 @@ No changes.
 - [Update gitlab-runner to v0.92.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4058ff60a97d518b5c4d71dbb2804af8f7d74ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5292))
 - [Update Debian base from bookworm to trixie](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f22d142fdac57c5d3832bdcb2647f4c7d57bccf9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5281))
 - [Update gitlab-runner to v0.92.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fca325450df764b23edaf3962066423af5a148c0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5276))
+
+## 10.3.11 (2026-11-16)
+
+No changes.
+
+## 10.3.10 (2026-11-06)
+
+No changes.
+
+## 10.3.9 (2026-10-29)
+
+### Changed (1 change)
+
+- [Update Envoy Gateway to v1.9.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e75edabdd8f7d25e6314686333f1e9f7d453aefe) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5543))
+
+## 10.3.8 (2026-10-27)
+
+### Changed (1 change)
+
+- [Update helm chart cert-manager to v1.21.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/62af03c0cd76e0808eec167965e2735182da45ff) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5519))
+
+## 10.3.7 (2026-10-20)
+
+No changes.
 
 ## 10.3.6 (2026-10-12)
 
@@ -182,6 +292,17 @@ No changes.
 - [Update gitlab-runner to v0.91.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6f8ff0bf646aa6fa2dc3b658b710f3570ba46cd0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5201))
 - [Update prometheus to v29.17.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/de64cf4a6c18fe3b1cd7d2f707eb9ca0a6b1720f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5097))
 
+## 10.2.10 (2026-10-28)
+
+### Changed (2 changes)
+
+- [Update Envoy Gateway to v1.8.6](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3de9e422c183c46a38ad626de6fef962b1b6b1d2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5544))
+- [Update helm chart cert-manager to v1.21.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/baf8be7e0c5564fd5dd1a802054457f2c043492c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5532))
+
+## 10.2.9 (2026-10-20)
+
+No changes.
+
 ## 10.2.8 (2026-10-07)
 
 No changes.
@@ -240,6 +361,17 @@ No changes.
 - [Update helm to v4.2.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a534dceb707369d69c458e09e60a7db2b8897fb5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5130))
 - [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
 - [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
+
+## 10.1.10 (2026-10-28)
+
+### Changed (2 changes)
+
+- [Update Envoy Gateway to v1.8.6](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/126ff58b16d4bff6041d70bc7f251d94408edfe5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5545))
+- [Update helm chart cert-manager to v1.20.5](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0ffe12bdb564e5473507b0d965d172074b61a7d6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5533))
+
+## 10.1.9 (2026-10-20)
+
+No changes.
 
 ## 10.1.8 (2026-09-10)
 
@@ -308,6 +440,17 @@ No changes.
 - [Update prometheus to v29.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51ebff848d1b22e82ee67eb3c4dc5569a5af5e2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5070))
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
+
+## 10.0.11 (2026-10-28)
+
+### Changed (2 changes)
+
+- [Update Envoy Gateway to v1.8.6](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2aa442f95dbe4e49f353f2a7a92622c65a132192) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5546))
+- [Update helm chart cert-manager to v1.20.5](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c9a6ea9f3582af31a1b6aba734a82ee032fcd291) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5534))
+
+## 10.0.10 (2026-10-20)
+
+No changes.
 
 ## 10.0.9 (2026-09-22)
 
@@ -397,6 +540,21 @@ No changes.
 - [Breaking: Remove spamcheck subchart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7dababe2cefe0699131a1ce8d18b3b85c8b99641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5035))
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
+
+## 9.11.16 (2026-10-29)
+
+### Changed (2 changes)
+
+- [Update Envoy Gateway to v1.7.5](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b0cff7589c24bc0bc6d02897ab5217f778731157) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5547))
+- [Update helm chart cert-manager to v1.20.5](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b588a34091fe75c31f63ea9b2524bed8b9cd10f5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5535))
+
+## 9.11.15 (2026-10-27)
+
+No changes.
+
+## 9.11.14 (2026-10-20)
+
+No changes.
 
 ## 9.11.13 (2026-09-22)
 

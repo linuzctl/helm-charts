@@ -45,6 +45,9 @@ sentinel:
   master_name: {{ template "gitlab.redis.host" . }}
 {{- if .redisMergedConfig.sentinelAuth.enabled }}
   sentinel_password_file: "/etc/kas/redis-sentinel/redis-sentinel-password"
+{{-   with include "gitlab.redis.sentinelAuth.username" . }}
+  username: {{ . | quote }}
+{{-   end }}
 {{- end }}
 {{- if $sentinelTLS.enabled }}
   tls:
@@ -106,7 +109,8 @@ listeners share port 80 and Envoy Gateway rejects section-scoped policies for th
 {{- $envoy := and .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) -}}
 {{- $sameNamespace := eq "true" (include "gitlab.gatewayApi.gateway.sameNamespace" .) -}}
 {{- $https := or .Values.global.hosts.https .Values.global.hosts.kas.https -}}
-{{- if and $envoy $sameNamespace $https -}}
+{{- $externalTls := eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .) -}}
+{{- if and $envoy $sameNamespace $https (not $externalTls) -}}
 true
 {{- end -}}
 {{- end -}}
@@ -159,4 +163,12 @@ over service.annotations, and the chart's ServersTransport is used unless servic
 {{-   $_ := merge $annotations (dict "traefik.ingress.kubernetes.io/service.serverstransport" (printf "%s-%s@kubernetescrd" $.Release.Namespace (include "fullname" $))) -}}
 {{- end -}}
 {{- toYaml $annotations -}}
+{{- end -}}
+
+{{/*
+Name of the Service the workspaces routes use. The workspaces server does not serve TLS, so it gets a
+Service of its own that TLS settings for the main KAS Service, like its BackendTLSPolicy, do not cover.
+*/}}
+{{- define "kas.workspaces.serviceName" -}}
+{{- printf "%s-workspaces" (include "gitlab.kas.serviceName" . | trunc 52 | trimSuffix "-") -}}
 {{- end -}}

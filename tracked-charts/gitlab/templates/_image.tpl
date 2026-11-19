@@ -109,7 +109,8 @@ Constructs selfsign image value.
 {{- end -}}
 
 {{/*
-Constructs the GitLab base image used for the configure container.
+Constructs the GitLab base image used for init containers, like the registry
+`configure` container.
 
 It expects a dictionary with two entries:
   - `root` which contains the root context

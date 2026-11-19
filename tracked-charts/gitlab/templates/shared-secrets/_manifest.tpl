@@ -256,6 +256,14 @@ the controller backend and break the single source of truth.
       length: 32
       encoding: base64
 
+- name: {{ include "gitlab.appConfig.servicePing.jwtSecret.secret" . }}
+  comment: Service Ping internal API secret
+  generators:
+    - type: bytes
+      key: {{ include "gitlab.appConfig.servicePing.jwtSecret.key" . }}
+      length: 32
+      encoding: base64
+
 - name: {{ include "gitlab.registry.httpSecret.secret" . }}
   comment: Registry http.secret secret
   generators:

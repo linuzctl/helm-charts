@@ -44,7 +44,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals = append $removals (include "gitlab.removal.sidekiq.pods.negateQueues" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.local.kubectl" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.gitaly.enabled" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.initContainerImage" .) -}}
 {{- $removals = append $removals (include "external.removal.initContainerImage" .) -}}
 {{- $removals = append $removals (include "external.removal.initContainerPullPolicy" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.webservice.service.configuration" .) -}}
@@ -199,21 +198,6 @@ gitlab:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.removal.gitaly.enabled */}}
-
-{{/* Deprecation behavious for configuration of initContainer images of gitlab sub-charts */}}
-{{- define "gitlab.removal.initContainerImage" -}}
-{{- range $chart:= list "geo-logcursor" "gitaly" "gitlab-exporter" "gitlab-shell" "mailroom" "migrations" "sidekiq" "toolbox" "webservice" }}
-{{-     if hasKey (index $.Values.gitlab $chart) "init" -}}
-{{-         with $config := index $.Values.gitlab $chart "init" -}}
-{{-             if or (and (hasKey $config "image") (kindIs "string" $config.image)) (hasKey $config "tag") }}
-gitlab.{{ $chart }}:
-    Configuring image for initContainers using gitlab.{{ $chart }}.init.image and gitlab.{{ $chart }}.init.tag has been removed. Please use gitlab.{{ $chart }}.init.image.repository and gitlab.{{ $chart }}.init.image.tag for that.
-{{-             end -}}
-{{-         end -}}
-{{-     end -}}
-{{- end -}}
-{{- end -}}
-{{/* END gitlab.removal.initContainerImage */}}
 
 {{/* Deprecation behavious for configuration of initContainer images of external charts */}}
 {{- define "external.removal.initContainerImage" -}}

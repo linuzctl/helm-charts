@@ -8,9 +8,6 @@ image: {}
   # tag: master
 
 init:
-  image: {}
-    # repository:
-    # tag:
   resources:
     requests:
       cpu: 50m
@@ -90,6 +87,7 @@ securityContext:
   runAsUser: 1000
   fsGroup: 1000
   # fsGroupChangePolicy: OnRootMismatch
+  # seLinuxChangePolicy: MountOption
   seccompProfile:
     type: "RuntimeDefault"
 

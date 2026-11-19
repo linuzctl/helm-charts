@@ -7,13 +7,13 @@ Ensure a external database is configured
 {{-   $mainSecret := dig "main" "password" "secret" "" .psql -}}
 {{-   if and (not (.psql).host) (not $mainHost) }}
 postgresql:
-    You must configure an PostgreSQL connetion. Please set `global.psql.host`. Since chart v10.0.0,
+    You must configure a PostgreSQL connection. Please set `global.psql.host`. Since chart v10.0.0,
     external PostgreSQL became required. If you were using the bundled PostgreSQL chart refer to
     https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
 {{    end -}}
 {{-   if and (not ((.psql).password).secret) (not $mainSecret) }}
 postgresql:
-    You must configure an PostgreSQL connetion. Please set `global.psql.password.secret`. Since chart v10.0.0,
+    You must configure a PostgreSQL connection. Please set `global.psql.password.secret`. Since chart v10.0.0,
     external PostgreSQL became required. If you were using the bundled PostgreSQL chart refer to
     https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
 {{   end -}}
@@ -75,3 +75,31 @@ postgresql:
 {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.database.externalLoadBalancing */}}
+
+{{/*
+Comma-separated names, relative to the global chart (like `gitlab.webservice`),
+of the enabled charts that mount the PostgreSQL client key from a Secret, but
+whose Pods have no `securityContext.fsGroup`. The key is
+owned by root and only readable through the fsGroup, so their containers can't
+read it, unless something else assigns an fsGroup, like an OpenShift
+SecurityContextConstraint.
+*/}}
+{{- define "gitlab.postgresql.ssl.chartsWithoutFsGroup" -}}
+{{- $geoSecondary := include "gitlab.geo.secondary" . -}}
+{{- $charts := list -}}
+{{- if or .Values.global.psql.ssl (and $geoSecondary (dig "psql" "ssl" "" .Values.global.geo)) -}}
+{{-   $names := list "webservice" "sidekiq" "migrations" "toolbox" -}}
+{{-   if $geoSecondary -}}
+{{-     $names = append $names "geo-logcursor" -}}
+{{-   end -}}
+{{-   range $name := $names -}}
+{{-     $chart := index $.Values.gitlab $name -}}
+{{-     $fsGroup := dig "securityContext" "fsGroup" "" $chart -}}
+{{-     if and $chart.enabled (eq (toString $fsGroup) "") -}}
+{{-       $charts = append $charts (printf "gitlab.%s" $name) -}}
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{- join ", " $charts -}}
+{{- end -}}
+{{/* END gitlab.postgresql.ssl.chartsWithoutFsGroup */}}

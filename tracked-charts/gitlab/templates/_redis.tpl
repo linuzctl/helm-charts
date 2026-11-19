@@ -99,6 +99,18 @@ Return the Redis Sentinel password secret key
 {{- end -}}
 
 {{/*
+Return the Redis Sentinel auth username, if available.
+
+The username is only returned when Sentinel auth is enabled, so it is never
+rendered without the matching Sentinel password.
+*/}}
+{{- define "gitlab.redis.sentinelAuth.username" -}}
+{{- if $.Values.global.redis.sentinelAuth.enabled -}}
+{{- $.Values.global.redis.sentinelAuth.username | default "" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return a merged setting between global.redis.sentinelAuth.enabled,
 global.redis.[subkey/"redisConfigName"].sentinelAuth.enabled, or
 global.redis.sentinelAuth.enabled

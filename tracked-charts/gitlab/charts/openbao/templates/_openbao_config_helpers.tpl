@@ -37,11 +37,53 @@ Render PostgreSQL storage configuration.
   {{- with .maxParallel -}}
   {{ $_ := set $psql "max_parallel" . -}}
   {{- end -}}
+  {{- with (include "openbao.storage.postgresql.transactionMaxParallel" .) -}}
+  {{ $_ := set $psql "transaction_max_parallel" (int .) -}}
+  {{- end -}}
   {{- with .haEnabled -}}
   {{ $_ := set $psql "ha_enabled" . -}}
   {{- end -}}
 {{- end -}}
 {{- dict "postgresql" $psql | toPrettyJson -}}
+{{- end -}}
+
+{{/*
+Return the PostgreSQL transaction_max_parallel value, or nothing to keep the
+OpenBao default.
+
+Transactions must use fewer connections than max_parallel, so that the HA lock
+renewal, the lock checks before commits and the keyring writes always get one.
+Otherwise, a burst of requests can hold every connection, and the active node
+loses its HA lock.
+
+When unset, it defaults to maxParallel minus 2, and at least 2. When maxParallel
+is also unset, OpenBao's defaults already leave room (64 transactions out of 128
+connections).
+
+It's never below 2: some code paths start a transaction while holding another,
+such as a lease tidy revoking a database engine lease from inside its scan.
+Waiting for a transaction never times out, so with a single one they would hang
+forever. OpenBao itself never derives a limit below 2 either.
+
+Takes .Values.config.storage.postgresql as context.
+*/}}
+{{- define "openbao.storage.postgresql.transactionMaxParallel" -}}
+{{- $maxParallel := int (.maxParallel | default 128) -}}
+{{- $transactionMaxParallel := 0 -}}
+{{- if .transactionMaxParallel -}}
+  {{- $transactionMaxParallel = int .transactionMaxParallel -}}
+{{- else if .maxParallel -}}
+  {{- if lt $maxParallel 3 -}}
+    {{- fail (printf "config.storage.postgresql.maxParallel (%d) must be at least 3, so that the HA lock renewal always gets a connection, and nested transactions don't hang." $maxParallel) -}}
+  {{- end -}}
+  {{- $transactionMaxParallel = max 2 (sub $maxParallel 2) | int -}}
+{{- end -}}
+{{- if $transactionMaxParallel -}}
+  {{- if ge $transactionMaxParallel $maxParallel -}}
+    {{- fail (printf "config.storage.postgresql.transactionMaxParallel (%d) must be lower than config.storage.postgresql.maxParallel (%d), so that the HA lock renewal always gets a connection." $transactionMaxParallel $maxParallel) -}}
+  {{- end -}}
+  {{- $transactionMaxParallel -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -214,7 +256,10 @@ Render active TCP listener configuration.
 {{- define "openbao.logging.config" -}}
 {{- with .Values.config -}}
 "log_level": {{ .logLevel | quote }},
+{{- /* OpenBao has no "off" request log level. It warns on "off" and logs no requests when the key is unset. */}}
+{{- if and .logRequestsLevel (ne .logRequestsLevel "off") }}
 "log_requests_level": {{ .logRequestsLevel | quote }},
+{{- end }}
 "log_format": {{ .logFormat | quote }}
 {{- end -}}
 {{- end -}}
