@@ -409,9 +409,6 @@
           "type": "object"
         }
       },
-      "required": [
-        "image"
-      ],
       "title": "Init container details",
       "type": "object"
     },
@@ -556,6 +553,16 @@
         "openssh",
         "gitlab-sshd"
       ]
+    },
+    "opensshd": {
+      "title": "OpenSSH configuration",
+      "type": "object",
+      "properties": {
+        "supplemental_config": {
+          "title": "Supplemental configuration, appended to sshd_config",
+          "type": "string"
+        }
+      }
     },
     "tolerations": {
       "title": "Tolerations labels for pod assignment",

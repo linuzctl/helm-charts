@@ -27,6 +27,9 @@ spec:
   {{- end }}
   {{- end }}
   {{- end }}
+  {{- if and .Values.service.externalTrafficPolicy (has .Values.service.type (list "NodePort" "LoadBalancer")) }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy | quote }}
+  {{- end }}
   {{- if .Values.service.trafficDistribution }}
   trafficDistribution: {{ .Values.service.trafficDistribution | quote }}
   {{- end }}
@@ -54,12 +57,6 @@ spec:
       targetPort: http-metrics
       protocol: TCP
       name: http-metrics
-  {{- end }}
-  {{- if (.Values.workspaces).enabled }}
-    - port: {{ .Values.service.workspacesServerPort }}
-      targetPort: {{ .Values.service.workspacesServerPort }}
-      protocol: TCP
-      name: tcp-{{ template "name" . }}-workspaces-server
   {{- end }}
   selector:
     {{- include "kas.podSelectorLabels" . | nindent 4 }}

@@ -39,6 +39,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.serviceDesk.microsoftGraph" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.incomingEmail.deliveryMethod" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.serviceDeskEmail.deliveryMethod" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.mailroom.publicKeyFiles" .) -}}
 
 {{/* _checkConfig_geo.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.geo.secondary.database" .) -}}
@@ -55,6 +56,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_ingress.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.ingress.alternatives" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.ingress.class" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.ingress.apiVersion" .) -}}
 
 {{/* _checkConfig_nginx.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.nginx.controller.extraArgs" .) -}}
@@ -156,6 +158,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.duoAuth.checkConfig" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.prometheus" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.envoy.global" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.externalTlsTermination" .) -}}
 
 {{- /* prepare output */}}
 {{- $messages = without $messages "" -}}

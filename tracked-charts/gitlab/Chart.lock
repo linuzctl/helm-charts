@@ -13,7 +13,7 @@ dependencies:
   version: v1.21.3
 - name: prometheus
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 29.31.1
+  version: 29.40.3
 - name: gitlab-runner
   repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
   version: 0.94.3
@@ -24,11 +24,11 @@ dependencies:
   repository: ""
   version: '*.*.*'
 - name: gitlab-zoekt
-  repository: https://charts.gitlab.io/
-  version: 4.1.0
+  repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
+  version: 4.1.1
 - name: openbao
   repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
-  version: 0.20.0
+  version: 1.2.0
 - name: traefik
   repository: https://helm.traefik.io/traefik
   version: 10.19.4
@@ -37,9 +37,9 @@ dependencies:
   version: 1.39.4
 - name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
-  version: 1.9.3
+  version: 1.10.0
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.15.3
-digest: sha256:ba086ea7d3db69f448f3af785eb94528bc3a0c7fea4e40ec05845a070bd5df3b
-generated: "2026-11-06T13:14:02.441346+01:00"
+digest: sha256:3758c22afb8d98d1539820d223c3cc5d27430688781877e75251edd26a5d17c4
+generated: "2026-11-18T12:59:03.55511+01:00"

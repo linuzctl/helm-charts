@@ -10,6 +10,7 @@ metadata:
 data:
   mail_room.yml: |
     {{- $sentinel_password := include "gitlab.redis.sentinel.password" . }}
+    {{- $sentinel_username := include "gitlab.redis.sentinelAuth.username" . }}
     :health_check:
       :address: 0.0.0.0
       :port: 8080
@@ -55,6 +56,9 @@ data:
           {{- $sentinels | nindent 10 }}
           {{- if and $sentinels $sentinel_password }}
           :sentinel_password: {{ $sentinel_password }}
+          {{-   if $sentinel_username }}
+          :sentinel_username: {{ $sentinel_username | quote }}
+          {{-   end }}
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" $ | nindent 10 }}
           {{- include "gitlab.mailroom.sentinel.tls" $ | nindent 10 }}
@@ -77,6 +81,9 @@ data:
           {{- $sentinels | nindent 10 }}
           {{- if and $sentinels $sentinel_password }}
           :sentinel_password: {{ $sentinel_password }}
+          {{-   if $sentinel_username }}
+          :sentinel_username: {{ $sentinel_username | quote }}
+          {{-   end }}
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" . | nindent 10 }}
           {{- include "gitlab.mailroom.sentinel.tls" . | nindent 10 }}
@@ -122,6 +129,9 @@ data:
           {{- $sentinels | nindent 10 }}
           {{- if and $sentinels $sentinel_password }}
           :sentinel_password: {{ $sentinel_password }}
+          {{-   if $sentinel_username }}
+          :sentinel_username: {{ $sentinel_username | quote }}
+          {{-   end }}
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" $ | nindent 10 }}
           {{- include "gitlab.mailroom.sentinel.tls" $ | nindent 10 }}
@@ -144,12 +154,13 @@ data:
           {{- $sentinels | nindent 10 }}
           {{- if and $sentinels $sentinel_password }}
           :sentinel_password: {{ $sentinel_password }}
+          {{-   if $sentinel_username }}
+          :sentinel_username: {{ $sentinel_username | quote }}
+          {{-   end }}
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" . | nindent 10 }}
           {{- include "gitlab.mailroom.sentinel.tls" . | nindent 10 }}
       {{- end }}
 
-  configure: |
-    {{- include "gitlab.scripts.configure.secrets" (dict "required" "mailroom" "optional" "redis redis-sentinel") | nindent 4 }}
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

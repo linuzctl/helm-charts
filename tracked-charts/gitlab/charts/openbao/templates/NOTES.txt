@@ -1,18 +1,27 @@
 1. Get the application URL by running these commands:
+{{- $scheme := .Values.config.tlsDisable | ternary "http" "https" }}
 {{- if eq (include "gitlab.ingress.enabled" .) "true" -}}
   {{ include "gitlab.openbao.url" . | nindent 2 }}
+{{- else if eq (include "gitlab.gatewayApi.route.enabled" .) "true" }}
+{{- $url := include "gitlab.openbao.url" . }}
+{{- $gateway := include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray | first }}
+{{- $gatewayNamespace := $gateway.namespace | default .Release.Namespace }}
+  {{ $url }}
+     NOTE: The HTTPRoute {{ include "openbao.fullname" . }} attaches to {{ with $gateway.sectionName }}the listener {{ . | quote }} of {{ end }}the Gateway {{ $gateway.name | quote }} in namespace {{ $gatewayNamespace | quote }}.
+           The URL assumes {{ if $gateway.sectionName }}that listener{{ else }}the Gateway{{ end }} accepts {{ hasPrefix "https://" $url | ternary "HTTPS" "HTTP" }} on the default port. To list the protocol and port of each listener, run:
+           kubectl get --namespace {{ $gatewayNamespace }} gateways.gateway.networking.k8s.io/{{ $gateway.name }} -o jsonpath='{range .spec.listeners[*]}{.name} {.protocol} {.port}{"\n"}{end}'
 {{- else if contains "NodePort" .Values.serviceActive.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "openbao.fullname" . }}-active)
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
+  case $NODE_IP in *:*) NODE_IP="[$NODE_IP]" ;; esac
+  echo "{{ $scheme }}://$NODE_IP:$NODE_PORT"
 {{- else if contains "LoadBalancer" .Values.serviceActive.type }}
      NOTE: It may take a few minutes for the LoadBalancer IP to be available.
            You can watch its status by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "openbao.fullname" . }}-active'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "openbao.fullname" . }}-active --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.serviceActive.port }}
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "openbao.fullname" . }}-active --template "{{"{{ with index .status.loadBalancer.ingress 0 }}{{ or .ip .hostname }}{{ end }}"}}")
+  case $SERVICE_IP in *:*) SERVICE_IP="[$SERVICE_IP]" ;; esac
+  echo "{{ $scheme }}://$SERVICE_IP:{{ .Values.config.apiPort }}"
 {{- else if contains "ClusterIP" .Values.serviceActive.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "openbao.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
-  echo "Visit http://127.0.0.1:8080 to use your application"
-  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+  echo "Visit {{ $scheme }}://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "openbao.fullname" . }}-active 8080:{{ .Values.config.apiPort }}
 {{- end }}

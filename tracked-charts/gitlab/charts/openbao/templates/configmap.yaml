@@ -9,6 +9,7 @@ data:
   config.json: |
     {
       "ui": {{ .ui }},
+      "cluster_name": {{ .clusterName | default (include "openbao.fullname" $) | quote }},
       "api_addr": {{ printf "http://[::]:%d" (.apiPort | int) | quote }},
       {{- include "openbao.logging.config" $ | nindent 6 }},
       "storage": {{- include "openbao.storage.postgresql" $ | nindent  6 }},

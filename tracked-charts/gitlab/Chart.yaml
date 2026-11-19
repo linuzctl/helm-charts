@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: v19.5.6
+appVersion: v19.6.0
 dependencies:
 - name: gitlab
   repository: ""
@@ -18,7 +18,7 @@ dependencies:
 - condition: prometheus.install
   name: prometheus
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 29.31.1
+  version: 29.40.3
 - condition: gitlab-runner.install
   name: gitlab-runner
   repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
@@ -34,12 +34,12 @@ dependencies:
   version: '*.*.*'
 - condition: gitlab-zoekt.install
   name: gitlab-zoekt
-  repository: https://charts.gitlab.io/
-  version: 4.1.0
+  repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
+  version: 4.1.1
 - condition: openbao.install
   name: openbao
   repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
-  version: 0.20.0
+  version: 1.2.0
 - condition: traefik.install
   name: traefik
   repository: https://helm.traefik.io/traefik
@@ -53,7 +53,7 @@ dependencies:
   condition: global.gatewayApi.installEnvoy
   name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
-  version: 1.9.3
+  version: 1.10.0
 - condition: ai-gateway.install
   name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
@@ -69,4 +69,4 @@ maintainers:
 name: gitlab
 sources:
 - https://gitlab.com/gitlab-org/charts/gitlab
-version: 10.5.7
+version: 10.6.0

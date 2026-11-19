@@ -125,12 +125,19 @@ false
 Returns a target refs to the Gateway resource with a namespace and optionally a section name.
 */}}
 {{- define "gitlab.gatewayApi.gatewayRef" -}}
-{{- template "gitlab.gatewayApi.gatewayRef.local" . }}
-  namespace: {{ coalesce (.Values.gatewayRoute).gatewayNamespace .Values.global.gatewayApi.gatewayRef.namespace .Release.Namespace | quote }}
-{{- with .Values.gatewayRoute }}
-{{-   with .sectionName }}
+{{- include "gitlab.gatewayApi.gatewayRef.section" (dict "context" . "sectionName" (.Values.gatewayRoute).sectionName) }}
+{{- end }}
+
+{{/*
+Same as gitlab.gatewayApi.gatewayRef, for a listener other than gatewayRoute.sectionName. Takes a dict
+with "context" and "sectionName".
+*/}}
+{{- define "gitlab.gatewayApi.gatewayRef.section" -}}
+{{- $ := .context -}}
+{{- template "gitlab.gatewayApi.gatewayRef.local" $ }}
+  namespace: {{ coalesce ($.Values.gatewayRoute).gatewayNamespace $.Values.global.gatewayApi.gatewayRef.namespace $.Release.Namespace | quote }}
+{{- with .sectionName }}
   sectionName: {{ . | quote }}
-{{-   end }}
 {{- end }}
 {{- end }}
 
@@ -147,6 +154,7 @@ local:
     certificateRefs: List of certificate references
 root:
   protocol: Default protocol (HTTPS or HTTP)
+  port: Port for listeners that inherit the root protocol (optional)
   tls:
     secretName: Single Secret to serve from every TLS-terminating listener
 
@@ -167,6 +175,9 @@ needed to resolve `gitlab.shell.port`.
 {{- $port := 443 }}
 {{- if eq "HTTP" $protocol }}
 {{-   $port = 80 }}
+{{- end }}
+{{- if and (not .local.protocol) .root.port }}
+{{-   $port = .root.port | int }}
 {{- end }}
 {{- if eq "TCP" $protocol }}
 {{-   $port = (include "gitlab.shell.port" .context | int) }}
@@ -194,14 +205,67 @@ needed to resolve `gitlab.shell.port`.
 {{- end -}}
 
 {{/*
+Returns true if TLS is terminated by a load balancer in front of the Gateway. Only reads
+globals, so subcharts can use it.
+*/}}
+{{- define "gitlab.gatewayApi.externalTlsTermination" -}}
+{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.externalTlsTermination -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
+Renders the filters of a chart-managed HTTPRoute rule. With external TLS termination, Envoy
+receives plain HTTP and would send `X-Forwarded-Proto: http`, so the header is set to `https`.
+Gateway API allows one RequestHeaderModifier per rule, so the header is added to an existing
+one unless it already sets or adds X-Forwarded-Proto. Envoy Gateway ignores a `set` entry
+for a header that the same filter adds, so none is rendered in that case.
+
+Input: dict "filters" (list) "context" (root context)
+*/}}
+{{- define "gitlab.gatewayApi.routeFilters" -}}
+{{- $filters := deepCopy (.filters | default list) -}}
+{{- if eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .context) -}}
+{{-   $header := dict "name" "X-Forwarded-Proto" "value" "https" -}}
+{{-   $modifierFound := false -}}
+{{-   range $filter := $filters -}}
+{{-     if eq $filter.type "RequestHeaderModifier" -}}
+{{-       $modifierFound = true -}}
+{{-       $modifier := $filter.requestHeaderModifier | default dict -}}
+{{-       $set := $modifier.set | default list -}}
+{{-       $headerSet := false -}}
+{{-       range concat $set ($modifier.add | default list) -}}
+{{-         if eq (lower .name) "x-forwarded-proto" -}}
+{{-           $headerSet = true -}}
+{{-         end -}}
+{{-       end -}}
+{{-       if not $headerSet -}}
+{{-         $_ := set $modifier "set" (append $set $header) -}}
+{{-       end -}}
+{{-       $_ := set $filter "requestHeaderModifier" $modifier -}}
+{{-     end -}}
+{{-   end -}}
+{{-   if not $modifierFound -}}
+{{-     $filters = prepend $filters (dict "type" "RequestHeaderModifier" "requestHeaderModifier" (dict "set" (list $header))) -}}
+{{-   end -}}
+{{- end -}}
+{{- if $filters -}}
+{{-   $filters | toYaml -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Returns true if the http-default listener should be included on the managed Gateway.
-Enabled when either configureCertmanager or httpToHttpsRedirect (with HTTPS protocol)
-is active, and the Gateway is managed (no external gatewayRef).
+Enabled when either configureCertmanager or httpToHttpsRedirect (with HTTPS protocol or
+external TLS termination) is active, and the Gateway is managed (no external gatewayRef).
 */}}
 {{- define "gitlab.gatewayApi.httpDefault.enabled" -}}
 {{- $managed := and .Values.global.gatewayApi.enabled (not .Values.global.gatewayApi.gatewayRef) -}}
 {{- $certmanager := eq "true" (include "gitlab.gatewayApi.configureCertmanager" .) -}}
-{{- $redirect := and .Values.global.gatewayApi.httpToHttpsRedirect (eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS") -}}
+{{- $https := or (eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS") (eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .)) -}}
+{{- $redirect := and .Values.global.gatewayApi.httpToHttpsRedirect $https -}}
 {{- if and $managed (or $certmanager $redirect) -}}
 true
 {{- end -}}
@@ -210,11 +274,11 @@ true
 {{/*
 Returns true if the HTTP-to-HTTPS redirect HTTPRoute should be rendered.
 Enabled when gatewayApi is enabled, httpToHttpsRedirect is true, protocol
-is HTTPS, and the Gateway is managed (no external gatewayRef).
+is HTTPS or TLS is terminated externally, and the Gateway is managed (no external gatewayRef).
 */}}
 {{- define "gitlab.gatewayApi.httpRedirect.enabled" -}}
 {{- $enabled := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.httpToHttpsRedirect -}}
-{{- $httpsProtocol := eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS" -}}
+{{- $httpsProtocol := or (eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS") (eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .)) -}}
 {{- $managedGateway := not .Values.global.gatewayApi.gatewayRef -}}
 {{- if and $enabled $httpsProtocol $managedGateway -}}
 true
@@ -237,10 +301,11 @@ configured per Route by setting true/false explicitly.
 Checks if cert-manager should be wired into the Gateway API routing path. Requires both
 global.gatewayApi.enabled and global.gatewayApi.configureCertmanager: the Issuer this
 produces solves HTTP01 challenges through a gatewayHTTPRoute, so it is inert without a
-Gateway to attach to.
+Gateway to attach to. Skipped with external TLS termination.
 */}}
 {{- define "gitlab.gatewayApi.configureCertmanager" -}}
-{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.configureCertmanager -}}
+{{- $externalTls := eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .) -}}
+{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.configureCertmanager (not $externalTls) -}}
 true
 {{- else -}}
 false
@@ -286,53 +351,5 @@ Renders true if Gateway resources should be configured for Geo traffic.
 true
 {{- else -}}
 false
-{{- end -}}
-{{- end -}}
-
-{{/*
-Envoy Proxy image used with the bundled Envoy Gateway when proxySpec sets none.
-The default Envoy Proxy image of the bundled Envoy Gateway still trusts the
-compromised eMudhra intermediate CAs. See the upstream remediation:
-https://gateway.envoyproxy.io/news/releases/notes/v1.9.3/#upgrading-envoy-proxy-to-v1396
-*/}}
-{{- define "gitlab.gatewayApi.envoy.proxy.image" -}}
-docker.io/envoyproxy/envoy:distroless-v1.39.6
-{{- end -}}
-
-{{/*
-Returns the key of the Envoy workload that a proxySpec.provider.kubernetes map configures:
-envoyDaemonSet when it is set, envoyDeployment otherwise. templates/envoy/proxy.yaml drops
-envoyDeployment when envoyDaemonSet is set.
-*/}}
-{{- define "gitlab.gatewayApi.envoy.proxy.workload" -}}
-{{- ternary "envoyDaemonSet" "envoyDeployment" (hasKey . "envoyDaemonSet") -}}
-{{- end -}}
-
-{{/*
-Returns which image field the container of that workload sets: "image", "imageRepository",
-or nothing. The EnvoyProxy CRD accepts only one of them, so templates/envoy/proxy.yaml sets
-gitlab.gatewayApi.envoy.proxy.image only when this returns nothing.
-*/}}
-{{- define "gitlab.gatewayApi.envoy.proxy.imageSource" -}}
-{{- $workloadSpec := get . (include "gitlab.gatewayApi.envoy.proxy.workload" .) | default dict -}}
-{{- $container := get $workloadSpec "container" | default dict -}}
-{{- if $container.image -}}
-image
-{{- else if $container.imageRepository -}}
-imageRepository
-{{- end -}}
-{{- end -}}
-
-{{/*
-Returns the Envoy workload key when its container sets imageRepository instead of image while
-the bundled Envoy Gateway is installed, so templates/NOTES.txt can warn that the chart does not
-set gitlab.gatewayApi.envoy.proxy.image.
-*/}}
-{{- define "gitlab.gatewayApi.envoy.proxy.imageRepositoryWorkload" -}}
-{{- $spec := .Values.gatewayApiResources.envoy.proxySpec -}}
-{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy (eq "true" (include "gitlab.gatewayApi.envoy.proxy.enabled" .)) $spec.provider $spec.provider.kubernetes -}}
-{{-   if eq (include "gitlab.gatewayApi.envoy.proxy.imageSource" $spec.provider.kubernetes) "imageRepository" -}}
-{{ include "gitlab.gatewayApi.envoy.proxy.workload" $spec.provider.kubernetes }}
-{{-   end -}}
 {{- end -}}
 {{- end -}}

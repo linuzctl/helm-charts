@@ -50,7 +50,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "19.5.6"
+  gitlabVersion: "19.6.0"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -86,6 +86,11 @@ global:
     configureEnvoy:
     configureCertmanager: true
     httpToHttpsRedirect: true
+    ## Set when a load balancer in front of the Gateway terminates TLS. The managed Gateway
+    ## then serves HTTP on gatewayApiResources.gateway.port (default 443), and the chart-managed
+    ## HTTPRoutes set `X-Forwarded-Proto: https`. Requires global.hosts.https.
+    ## https://docs.gitlab.com/charts/advanced/gateway-api/#tls-terminated-at-a-load-balancer
+    externalTlsTermination: false
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
@@ -201,6 +206,7 @@ global:
       enabled: false
       # secret:
       # key:
+      # username:
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-gitaly-settings
   gitaly:
@@ -225,7 +231,6 @@ global:
       # secretName:
     client:
       maxAttempts: 4
-      initialBackoff: '0.4s'
       maxBackoff: '1.4s'
 
   praefect:
@@ -492,6 +497,13 @@ global:
       authToken: {}
         # secret:
         # key:
+      # PEM public keys, as fields of one secret, that verify asymmetric (ES256)
+      # mailroom JWTs alongside authToken. Leave empty to accept only authToken.
+      publicKeyFiles:
+        secret: ""
+        keys: []
+        # secret: incoming-email-mailroom-public-keys
+        # keys: [current.pub, previous.pub]
 
     ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/#service-desk-email
     serviceDeskEmail:
@@ -519,6 +531,11 @@ global:
       authToken: {}
         # secret:
         # key:
+      publicKeyFiles:
+        secret: ""
+        keys: []
+        # secret: service-desk-email-mailroom-public-keys
+        # keys: [current.pub, previous.pub]
 
     ## https://docs.gitlab.com/charts/charts/globals#ldap
     ldap:
@@ -549,6 +566,12 @@ global:
       #   secret:
       #   key:
       # grpcEndpoint:
+
+    ## https://docs.gitlab.com/charts/charts/globals#service-ping-settings
+    servicePing:
+      # jwtSecret:
+      #   secret:
+      #   key: secret
 
     ## NATS (JetStream messaging, used for audit event streaming).
     ## An empty (or absent) `servers` list means NATS is not configured;
@@ -661,6 +684,15 @@ global:
           # secret:
           # privateKeyFile:
           # certificateFile:
+
+    ## Org Mover internal API (GitLab Cells). Consumed by webservice only.
+    ## https://docs.gitlab.com/charts/development/cells/org_mover/
+    orgMover:
+      # ES256 public keys only: Rails refuses to load private keys.
+      # Use more than one entry to rotate keys without downtime.
+      publicKeys: []
+      # - secret: org-mover-public-key
+      #   key: public.pem
 
     ## https://docs.gitlab.com/charts/charts/globals#omniauth
     omniauth:
@@ -1685,7 +1717,7 @@ openbao:
           host: ''
           database: ''  # Empty allows global.openbao.psql.database. Set explicitly to override.
           username: ''  # Empty allows global.openbao.psql.username. Set explicitly to override.
-          sslMode: ''
+          sslMode: null  # One of disable, allow, prefer, require, verify-ca, verify-full. null allows global.openbao.psql.sslMode, then global.psql.sslMode; with neither set no sslmode is emitted and pgx defaults to prefer.
 
 gatewayApiResources:
   class:
@@ -1699,6 +1731,9 @@ gatewayApiResources:
     infrastructure: {}
     addresses: []
     protocol: "HTTPS"
+    ## Port for listeners that inherit `protocol`. Defaults to 443 for HTTPS, and to 80 for
+    ## HTTP unless global.gatewayApi.externalTlsTermination is set, which defaults it to 443.
+    port:
     ## Name of a single TLS Secret to serve from every HTTPS/TLS listener, replacing the
     ## per-listener certificateRefs below. Use this when one certificate (for example a
     ## wildcard) covers all hostnames. Leave empty to configure listeners individually.
@@ -1782,7 +1817,16 @@ gatewayApiResources:
                 gitlab.com/prometheus_scrape: "true"
                 gitlab.com/prometheus_port: "19001"
                 gitlab.com/prometheus_path: "/stats/prometheus"
-    clientTrafficPolicySpec: {}
+    ## Gateway-wide ClientTrafficPolicy. Applies to every listener that no
+    ## section-scoped policy covers, for example registry-web, pages-web and
+    ## all listeners in HTTP-only mode. Strips the trailing dot from the Host
+    ## header before route matching, as NGINX does: Gateway API hostnames
+    ## cannot contain a trailing dot, so clients sending an absolute FQDN
+    ## (`host.`) otherwise get a 404. Set `headers: null` to drop the default.
+    clientTrafficPolicySpec:
+      headers:
+        host:
+          stripTrailingHostDot: true
     securityPolicySpec: {}
     metrics:
       envoyGateway:
@@ -1806,6 +1850,19 @@ ai-gateway:
     enabled: false
   init:
     containerSecurityContext: {}
+  ## URL of the GitLab instance the AI Gateway calls.
+  ## Empty values default to the GitLab URL derived from global.hosts.
+  gitlab:
+    url: ""
+    apiUrl: ""
+  ## Existing secrets holding the JWT keys. Unset values default to
+  ## <release>-ai-gateway-<name>-secret, generated by shared-secrets when missing.
+  # aigwSigningKey:
+  #   secret: my-aigw-signing-secret
+  #   key: aigwSigningKey
+  # aigwValidationKey: {}
+  # duoWorkflowSigningKey: {}
+  # duoWorkflowValidationKey: {}
 
 envoy-gateway:
   deployment:

@@ -26,10 +26,15 @@ data:
     #ListenAddress 0.0.0.0
     #ListenAddress ::
 
-    #HostKey /etc/ssh/ssh_host_rsa_key
-    #HostKey /etc/ssh/ssh_host_dsa_key
-    #HostKey /etc/ssh/ssh_host_ecdsa_key
-    #HostKey /etc/ssh/ssh_host_ed25519_key
+    # The default host keys, read from the mounted Secret. sshd rejects the
+    # copies in /etc/ssh, which are owned by the sshd user and group-readable.
+    # HostKey directives in opensshd.supplemental_config replace these, as
+    # they replaced the sshd defaults before.
+    {{- if not (include "gitlab.shell.sshd.userHostKeys" .) }}
+    HostKey /etc/gitlab-ssh-host-keys/ssh_host_rsa_key
+    HostKey /etc/gitlab-ssh-host-keys/ssh_host_ecdsa_key
+    HostKey /etc/gitlab-ssh-host-keys/ssh_host_ed25519_key
+    {{- end }}
 
     # Ciphers and keying
     #RekeyLimit default none
@@ -159,8 +164,8 @@ data:
     # Includes
     Include /etc/ssh/sshd_config.d/*.conf
 
-    {{- with .Values.opensshd }}
-    {{ .supplemental_config | nindent 4 }}
+    {{- with include "gitlab.shell.sshd.supplementalConfig" . }}
+    {{ . | nindent 4 }}
     {{- end }}
 
 # Leave this here - This line denotes end of block to the parser.

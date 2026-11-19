@@ -16,8 +16,8 @@ at https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haprox
 {{- if not (empty $enabledNonProdCharts) }}
 {{ $CRITICAL }}
 The following charts are included for evaluation purposes only. They will not be supported by GitLab Support
-for production workloads. Use Cloud Native Hybrid deployments for production. For more information visit
-https://docs.gitlab.com/charts/installation/#use-the-reference-architectures.
+for production workloads. For production, use external services for these components. For more information visit
+https://docs.gitlab.com/charts/installation/#plan-your-environment.
 {{- range $name := $enabledNonProdCharts }}
 - {{ $name }}
 {{- end }}
@@ -43,6 +43,15 @@ The Container Registry database load balancing feature has been enabled. This is
 {{- if eq .Values.registry.database.metrics.enabled true }}
 {{ $WARNING }}
 The Container Registry database metrics feature has been enabled. This is an experimental feature under active development and must not be used in production.
+{{- end }}
+
+{{- /* The PostgreSQL client key is only readable through the Pod's fsGroup */}}
+{{- with include "gitlab.postgresql.ssl.chartsWithoutFsGroup" . }}
+{{ $WARNING }}
+PostgreSQL SSL is configured, but these charts have no `securityContext.fsGroup`: {{ . }}.
+Their containers can't read the PostgreSQL client key, which is owned by root and readable only
+through the fsGroup, unless your cluster assigns an fsGroup, for example an OpenShift
+SecurityContextConstraint. Set `securityContext.fsGroup` for these charts.
 {{- end }}
 
 {{- /* If using self-signed auto-generated certificates, and a service needing them is enabled */}}
@@ -149,18 +158,6 @@ The bundled certmanager was upgraded from 1.17.4 to 1.19.2. Please check the
 upstream changelog if your usage is impacted by the potentially breaking changes:
 - https://cert-manager.io/docs/releases/upgrading/upgrading-1.17-1.18
 - https://cert-manager.io/docs/releases/upgrading/upgrading-1.18-1.19
-{{- end }}
-
-{{- /* The chart does not set its Envoy Proxy image when proxySpec sets imageRepository */}}
-{{- $envoyImageRepositoryWorkload := include "gitlab.gatewayApi.envoy.proxy.imageRepositoryWorkload" . }}
-{{- if $envoyImageRepositoryWorkload }}
-{{ $WARNING }}
-envoy-gateway:
-  `gatewayApiResources.envoy.proxySpec.provider.kubernetes.{{ $envoyImageRepositoryWorkload }}.container.imageRepository` is set,
-  so the chart does not set the Envoy Proxy image to `{{ include "gitlab.gatewayApi.envoy.proxy.image" . }}`.
-  Envoy Gateway uses its default tag with that repository, and its default Envoy Proxy image still trusts
-  the compromised eMudhra intermediate CAs. Set `container.image` to the patched tag in your registry instead.
-  See https://docs.gitlab.com/charts/advanced/gateway-api/#envoy-proxy-image
 {{- end }}
 
 {{- /* ===== INFORMATIONAL NOTIFICATIONS ===== */}}

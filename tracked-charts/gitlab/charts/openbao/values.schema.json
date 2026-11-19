@@ -21,6 +21,12 @@
                 },
                 "targetCPUUtilizationPercentage": {
                     "type": "integer"
+                },
+                "targetMemoryUtilizationPercentage": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
                 }
             },
             "additionalProperties": false
@@ -55,6 +61,12 @@
                 },
                 "cacheSize": {
                     "type": "integer"
+                },
+                "clusterName": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
                 },
                 "clusterPort": {
                     "type": "integer"
@@ -185,7 +197,19 @@
                                             "minimum": 0
                                         },
                                         "sslMode": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "enum": [
+                                                "disable",
+                                                "allow",
+                                                "prefer",
+                                                "require",
+                                                "verify-ca",
+                                                "verify-full",
+                                                null
+                                            ]
                                         },
                                         "tcpUserTimeout": {
                                             "type": [
@@ -237,6 +261,13 @@
                                         "string",
                                         "null"
                                     ]
+                                },
+                                "transactionMaxParallel": {
+                                    "type": [
+                                        "integer",
+                                        "null"
+                                    ],
+                                    "minimum": 2
                                 }
                             }
                         }

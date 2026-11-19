@@ -49,6 +49,10 @@ Input: dict "context" $ "name" string
     {{-   if $password }}
     sentinel_password: {{ $password }}
     {{-   end }}
+    {{-   $username := include "gitlab.redis.sentinelAuth.username" .context }}
+    {{-   if $username }}
+    sentinel_username: {{ $username | quote }}
+    {{-   end }}
     {{- end }}
     id:
     {{- if eq .name "cable" }}

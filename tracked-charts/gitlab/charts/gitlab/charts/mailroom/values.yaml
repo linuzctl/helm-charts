@@ -8,9 +8,6 @@ image:
 enabled: true
 
 init:
-  image: {}
-    # repository:
-    # tag:
   resources:
     requests:
       cpu: 50m
@@ -183,6 +180,7 @@ securityContext:
   runAsUser: 1000
   fsGroup: 1000
   # fsGroupChangePolicy: OnRootMismatch
+  # seLinuxChangePolicy: MountOption
 
 ## Allow to overwrite the specific security context under which the container is running.
 containerSecurityContext:

@@ -32,6 +32,10 @@ service:
   # nodePort: 32100
   portName: http
 
+  # Optional - Set the Service port appProtocol, e.g. "http" for Istio protocol selection
+  # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#application-protocol
+  appProtocol: ""
+
   # Optional - Can be used for headless if value is "None"
   clusterIP: ""
 
@@ -163,7 +167,7 @@ serviceAccount:
 
 ## Configure ingress resource that allow you to access the
 ## pushgateway installation. Set up the URL
-## ref: http://kubernetes.io/docs/user-guide/ingress/
+## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ##
 ingress:
   ## Enable Ingress.
@@ -214,6 +218,9 @@ route:
     ## kind set by default to HTTPRoute
     kind: ""
 
+    ## Optional name for the default rule in the rendered HTTPRoute.
+    name: ""
+
     ## Annotations to attach to the HTTPRoute resource
     annotations: {}
     ## Labels to attach to the HTTPRoute resource
@@ -243,9 +250,19 @@ route:
           type: PathPrefix
           value: /
 
+    ## SessionPersistence defines and configures session persistence for the rule,
+    ## e.g. to keep a client on the same replica
+    ## Ref. https://gateway-api.sigs.k8s.io/geps/gep-1619/
+    sessionPersistence: {}
+      # sessionName: pushgateway-session
+      # type: Cookie
+      # absoluteTimeout: 24h
+      # cookieConfig:
+      #   lifetimeType: Permanent
+
     ## httpsRedirect adds a filter for redirecting to https (HTTP 301 Moved Permanently).
     ## To redirect HTTP traffic to HTTPS, you need to have a Gateway with both HTTP and HTTPS listeners.
-    ## Matches and filters do not take effect if enabled.
+    ## Matches, filters and session persistence do not take effect if enabled.
     ## Ref. https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/
     httpsRedirect: false
 
@@ -255,7 +272,7 @@ tolerations: []
   #   operator: Exists
 
 ## Node labels for pushgateway pod assignment
-## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 ##
 nodeSelector: {}
 
@@ -335,7 +352,7 @@ serviceMonitor:
   bearerTokenFile: ""
 
   ## tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.
-  ## Of type: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#tlsconfig
+  ## Of type: https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.TLSConfig
   tlsConfig: {}
 
   # bearerTokenFile:
@@ -343,7 +360,7 @@ serviceMonitor:
   scrapeTimeout: ""
 
   ## Used to pass Labels that are used by the Prometheus installed in your cluster to select Service Monitors to work with
-  ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
+  ## ref: https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.PrometheusSpec
   additionalLabels: {}
 
   # Retain the job and instance labels of the metrics pushed to the Pushgateway
@@ -385,7 +402,7 @@ persistentVolume:
 
   ## pushgateway data Persistent Volume access modes
   ## Must match those of existing PV or dynamic provisioner
-  ## Ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  ## Ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
   ##
   accessModes:
     - ReadWriteOnce
