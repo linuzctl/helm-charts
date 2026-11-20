@@ -50,7 +50,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "19.6.0"
+  gitlabVersion: "19.6.1"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -1806,6 +1806,12 @@ gatewayApiResources:
             - name: ai-gateway-grpc-tls
   envoy:
     proxySpec:
+      ## Give in-flight connections, such as long Git transfers, up to 240s to finish when an
+      ## Envoy Proxy pod stops, matching the bundled NGINX Ingress `worker-shutdown-timeout`.
+      ## Envoy Gateway's default is 60s. It sets the pod terminationGracePeriodSeconds to
+      ## drainTimeout + 300s.
+      shutdown:
+        drainTimeout: 240s
       provider:
         type: Kubernetes
         kubernetes:

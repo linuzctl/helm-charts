@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.6.1 (2026-11-19)
+
+### Fixed (1 change)
+
+- [Default Envoy Proxy drainTimeout to 240s, matching NGINX](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/6a51e33d4c6e67ad780c0d18741a3486462a1d56)
+
 ## 10.6.0 (2026-11-18)
 
 ### Added (8 changes)
