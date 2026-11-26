@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.6.3 (2026-11-26)
+
+### Changed (1 change)
+
+- [Update NGINX Ingress to 1.15.16-gitlab.1, UBI and FIPS to NGINX 1.27.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b049509dfc9911ae5e4084211d6931341d6f78fc) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5665))
+
 ## 10.6.2 (2026-11-24)
 
 No changes.

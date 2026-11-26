@@ -13,4 +13,4 @@ name: toolbox
 sources:
 - https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/toolbox
 - https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-toolbox
-version: 10.6.2
+version: 10.6.3

@@ -13,4 +13,4 @@ name: sidekiq
 sources:
 - https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/sidekiq
 - https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-sidekiq
-version: 10.6.2
+version: 10.6.3
