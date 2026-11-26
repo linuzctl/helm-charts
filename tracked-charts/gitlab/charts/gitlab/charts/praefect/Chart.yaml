@@ -16,4 +16,4 @@ sources:
 - https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/praefect
 - https://gitlab.com/gitlab-org/build/CNG/tree/master/gitaly
 - https://gitlab.com/gitlab-org/gitaly/-/tree/master/cmd/praefect
-version: 10.6.2
+version: 10.6.3

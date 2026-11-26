@@ -12,4 +12,4 @@ name: migrations
 sources:
 - https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/migrations
 - https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-rails
-version: 10.6.2
+version: 10.6.3
